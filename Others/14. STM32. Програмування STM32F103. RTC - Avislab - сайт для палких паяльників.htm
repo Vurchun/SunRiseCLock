@@ -1,0 +1,1526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Andrey Koryagin">
+
+    <title>14. STM32. Програмування STM32F103. RTC - Avislab - сайт для палких паяльників</title>
+    <link rel="shortcut icon" href="/css/favicon.png" />
+
+    <link rel="canonical" href="https://blog.avislab.com/stm32-rtc/">
+
+    
+
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+    <link href="/fonts/fontawesome/css/fontawesome-all.min.css" rel="stylesheet">
+    
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    
+    <link href="/css/blog.css" rel="stylesheet">
+
+    
+	  <script type="text/javascript" src="/js/jquery-3.6.0.slim.min.js"></script>
+
+    
+    <link rel="stylesheet" href="/js/fancybox/jquery.fancybox.min.css" />
+    <script src="/js/fancybox/jquery.fancybox.min.js"></script>
+
+    
+    <link rel="stylesheet" href="/js/highlight/styles/default.css">
+    <script src="/js/highlight/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </head>
+  <body style="background-image: url(/css/nav.png);">
+      <div class="row">
+	<div class="col-auto">
+		<span class="head-brand float-left">Avislab</span><span class="logo d-inline-block d-sm-none"></span>
+		<span class="subhead-brand float-left">сайт для палких паяльників<span class="logo d-none d-sm-inline-block"></span>
+	</div>
+	<div class="col text-right">
+    
+	</div>
+     </div>
+
+<nav class="navbar navbar-expand-sm navbar-light bg-light border">
+  <a class="navbar-brand" href="/"><i class="fas fa-home mr-1"></i>Home</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarsExample03">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="/about/"><i class="fas fa-info-circle mr-1"></i>About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-dark" href="https://www.youtube.com/channel/UCRu6XayQfW-augguSYhStyg" target="_blank"><i class="fas fa-video mr-1"></i>YouTube</a>
+      </li>
+
+    </ul>
+<form class="form-inline my-2 my-md-0" onsubmit="window.location.href = '/search/'+document.getElementById('search_text').value; return false">
+	<div class="input-group">
+
+		<input type="text" id="search_text" class="form-control border-secondary" placeholder="Search" aria-label="Search" aria-describedby="button-addon2" value="">
+
+		<div class="input-group-append">
+			<button class="btn btn-outline-secondary border-secondary" type="button" aria-label="Пошук" id="button-addon2" onclick="window.location.href = '/search/'+document.getElementById('search_text').value"><i class="fas fa-search"></i></button>
+		</div>
+	</div>
+</form>
+
+  </div>
+</nav>
+
+  <main role="main">
+    <div class="jumbotron p-3 border">
+
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card border border-secondary rounded bg-light mb-2">
+            <div class="card-body">
+              <h1>14. STM32. Програмування STM32F103. RTC</h1>
+<hr>
+
+<div><i class="fas fa-calendar-alt mr-1"></i>20.09.2016</div>
+
+<div>
+    <p><h2>Годинник реального часу (RTC)</h2>
+STM32 мають вбудований годинник реального часу. Він може працювати незалежно від основного живлення мікроконтролера. Для роботи вбудованого годинника до спеціального виводу треба підключити живлення напругою 3В. Наприклад, батарейку CR2032. Такі батарейки використовують у годинниках, у комп`ютерах на материнських платах, та в інших приладах. Годинник споживає дуже мало енергії, тому батарейки вистачає на тривалий час. Також годинник може працювати як будильник - формувати сигнал на одному з виходів або виводити мікроконтролер з режиму енергозбереження. Спочатку ми запустимо годинник і налаштуємо таким чином, щоб він рахував секунди і продовжував працювати після відключення основного живлення мікроконтролера. Будильник розглянемо пізніше.</p>
+
+
+
+<p><a href="/uploads/2016/09/STM32_RTC_Bat.png" data-fancybox="gallery"><img src="/uploads/2016/09/STM32_RTC_Bat-300x300.png" alt="stm32_rtc_bat" width="300" height="300" /></a></p>
+
+<p>Перш ніж перейти до використання годинника, слід знати, що у STM32 є так званий <strong>Battery backup domain</strong>. Це частина мікроконтролера, яка може живитися від батарейки. До нього належать наш годинник та регістри налаштування, LSE генератор, тобто схема обслуговування зовнішнього низькочастотного (32768 Гц) кварцу, виводи PC13..PC15. Крім того, ця зона у STM32F103C8 містить 42 16-бітних регістри, які зберігають свої значення, доки на вхід, до якого підключається батарейка, подається напруга. Їх можна використовувати для своїх задач. Використання цих регістрів теж розглянемо пізніше.</p>
+
+<p><a href="/uploads/2016/09/STM32_RTC.png" data-fancybox="gallery"><img src="/uploads/2016/09/STM32_RTC-300x230.png" alt="stm32_rtc" width="300" height="230" /></a></p>
+
+<p>Отже, нам треба запустити <strong>RTC</strong>. Робити це потрібно тільки за умови, якщо <strong>RTC</strong> ще не ввімкнутий. Після того, як ми налаштуємо <strong>RTC</strong>, його налаштування будуть зберігатися у регістрах, поки не відключимо батарейку. Копирсатися у налаштуваннях, коли годинник вже "на ходу" не слід. Тому функція ініціалізації годинника має такий вигляд:</p>
+
+<pre><code class="cpp">
+unsigned char RTC_Init(void)
+{
+	// Дозволити тактування модулів управління живленням і управлінням резервної областю
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+	// Дозволити доступ до області резервних даних
+	PWR_BackupAccessCmd(ENABLE);
+	// Якщо годинник вимкнений - ініціалізувати
+	if ((RCC-&gt;BDCR & RCC_BDCR_RTCEN) != RCC_BDCR_RTCEN)
+	{
+		// Виконати скидання області резервних даних
+		RCC_BackupResetCmd(ENABLE);
+		RCC_BackupResetCmd(DISABLE);
+
+		// Вибрати джерелом тактових імпульсів зовнішній кварц 32768 і подати тактування
+		RCC_LSEConfig(RCC_LSE_ON);
+		while ((RCC-&gt;BDCR & RCC_BDCR_LSERDY) != RCC_BDCR_LSERDY) {}
+		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+
+		RTC_SetPrescaler(0x7FFF); // Встановити поділювач, щоб годинник рахував секунди
+
+		// Вмикаємо годинник
+		RCC_RTCCLKCmd(ENABLE);
+
+		// Чекаємо на синхронізацію
+		RTC_WaitForSynchro();
+
+		return 1;
+	}
+	return 0;
+}
+</code></pre>
+
+<p>Запишемо у мікроконтролер програму, текст якої наведено у кінці статті. Підключимо батарейку. Вмикаємо живлення мікроконтролера. Після першого включення мікроконтролер запустить функцію ініціалізації та ввімкне <strong>RTC</strong>. Під час наступних запусків, функція буде вмикати лише тактування потрібних модулів і вмикати доступ до області резервних даних (<strong>PWR_BackupAccessCmd(ENABLE);</strong>). Це нам потрібно, щоб отримати доступ до лічильника <strong>RTC</strong>. Перша ініціалізація <strong>RTC</strong> - досить тривалий процес. Тому, хай Вас не лякає затримка при старті мікроконтролера, яка може тривати близько секунди. У подальшому мікроконтролер стартує без затримок. Якщо відключити живлення мікроконтролера і живлення від батарейки, налаштування <strong>RTC</strong> будуть скинуті.</p>
+
+<p>Лічильник <strong>RTC</strong> зчитується функцією <strong>RTC_GetCounter()</strong>. Ми отримаємо час у секундах. Лишається тільки перевести секунди у звичайний формат часу. Встановити лічильник на конкретну дату можна за допомогою функції <strong>RTC_SetCounter().</strong> Функції слід передати час у секундах.</p>
+
+<p>Я дуже засмутився через те, що у цьому контролері такий куций <strong>RTC</strong>. У інших серіях контролерів ініціалізація <strong>RTC</strong> відбувається через структуру, де можна задати дату, день тижня та час у звичному форматі. Та зчитувати дату та час у структури. Тобто, у тих контролерах реальний годинник, який сам враховує високосні роки, кількість днів у місяці та таке інше. У нашому випадку він хіба що тягне на назву "таймер, який може працювати від батарейки". Але це не біда. Треба добавити трохи коду. Ось Вам структура і дві функції. Перша функція переводить секунди у звичайну дату і час. Друга функція вираховує секунди по заданій у структурі даті та часу. З методикою розрахунків можна ознайомитися <a href="https://ru.m.wikipedia.org/wiki/%D0%AE%D0%BB%D0%B8%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D0%B4%D0%B0%D1%82%D0%B0">тут</a>.</p>
+
+<p>Приклад програми, яка ініціалізує <strong>RTC</strong> та встановлює початковий час тільки під час першої ініціалізації. Дані про дату і час виводяться у порт USART.</p>
+
+<pre><code class="cpp">
+#include "stm32f10x.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_rtc.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_pwr.h"
+#include "stm32f10x_usart.h"
+#include "stdio.h"
+#include "misc.h"
+
+#include "tim2_delay.h"
+
+void SetSysClockToHSE(void)
+{
+	ErrorStatus HSEStartUpStatus;
+
+	/* SYSCLK, HCLK, PCLK2 and PCLK1 configuration -----------------------------*/
+    /* RCC system reset(for debug purpose) */
+    RCC_DeInit();
+
+    /* Enable HSE */
+    RCC_HSEConfig( RCC_HSE_ON);
+
+    /* Wait till HSE is ready */
+    HSEStartUpStatus = RCC_WaitForHSEStartUp();
+
+    if (HSEStartUpStatus == SUCCESS)
+    {
+        /* Enable Prefetch Buffer */
+        //FLASH_PrefetchBufferCmd( FLASH_PrefetchBuffer_Enable);
+
+        /* Flash 0 wait state */
+        //FLASH_SetLatency( FLASH_Latency_0);
+
+        /* HCLK = SYSCLK */
+        RCC_HCLKConfig( RCC_SYSCLK_Div1);
+
+        /* PCLK2 = HCLK */
+        RCC_PCLK2Config( RCC_HCLK_Div1);
+
+        /* PCLK1 = HCLK */
+        RCC_PCLK1Config(RCC_HCLK_Div1);
+
+        /* Select HSE as system clock source */
+        RCC_SYSCLKConfig( RCC_SYSCLKSource_HSE);
+
+        /* Wait till PLL is used as system clock source */
+        while (RCC_GetSYSCLKSource() != 0x04)
+        {
+        }
+    }
+    else
+    { /* If HSE fails to start-up, the application will have wrong clock configuration.
+     User can add here some code to deal with this error */
+
+        /* Go to infinite loop */
+        while (1)
+        {
+        }
+    }
+}
+
+
+
+void usart_init(void)
+{
+	    /* Enable USART1 and GPIOA clock */
+	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA, ENABLE);
+
+	    /* Configure the GPIOs */
+	    GPIO_InitTypeDef GPIO_InitStructure;
+
+	    /* Configure USART1 Tx (PA.09) as alternate function push-pull */
+	    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	    /* Configure USART1 Rx (PA.10) as input floating */
+	    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+	    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	    /* Configure the USART1 */
+	    USART_InitTypeDef USART_InitStructure;
+
+	  /* USART1 configuration ------------------------------------------------------*/
+	    /* USART1 configured as follow:
+	          - BaudRate = 115200 baud
+	          - Word Length = 8 Bits
+	          - One Stop Bit
+	          - No parity
+	          - Hardware flow control disabled (RTS and CTS signals)
+	          - Receive and transmit enabled
+	          - USART Clock disabled
+	          - USART CPOL: Clock is active low
+	          - USART CPHA: Data is captured on the middle
+	          - USART LastBit: The clock pulse of the last data bit is not output to
+	                           the SCLK pin
+	    */
+	    USART_InitStructure.USART_BaudRate = 115200;
+	    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	    USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	    USART_InitStructure.USART_Parity = USART_Parity_No;
+	    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+	    USART_Init(USART1, &USART_InitStructure);
+
+	    /* Enable USART1 */
+	    USART_Cmd(USART1, ENABLE);
+}
+
+void USARTSend(char *pucBuffer)
+{
+    while (*pucBuffer)
+    {
+        USART_SendData(USART1, *pucBuffer++);
+        while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+        {
+        }
+    }
+}
+
+//========================================================================================
+unsigned char RTC_Init(void)
+{
+	// Дозволити тактування модулів управління живленням і управлінням резервної областю
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+	// Дозволити доступ до області резервних даних
+	PWR_BackupAccessCmd(ENABLE);
+	// Якщо годинник вимкнений - ініціалізувати
+	if ((RCC-&gt;BDCR & RCC_BDCR_RTCEN) != RCC_BDCR_RTCEN)
+	{
+		// Виконати скидання області резервних даних
+		RCC_BackupResetCmd(ENABLE);
+		RCC_BackupResetCmd(DISABLE);
+
+		// Вибрати джерелом тактових імпульсів зовнішній кварц 32768 і подати тактування
+		RCC_LSEConfig(RCC_LSE_ON);
+		while ((RCC-&gt;BDCR & RCC_BDCR_LSERDY) != RCC_BDCR_LSERDY) {}
+		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+
+		RTC_SetPrescaler(0x7FFF); // Встановити поділювач, щоб годинник рахував секунди
+
+		// Вмикаємо годинник
+		RCC_RTCCLKCmd(ENABLE);
+
+		// Чекаємо на синхронізацію
+		RTC_WaitForSynchro();
+
+		return 1;
+	}
+	return 0;
+}
+
+/*
+* Як конвертувати дату можна прочитати тут:
+* https://ru.m.wikipedia.org/wiki/%D0%AE%D0%BB%D0%B8%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D0%B4%D0%B0%D1%82%D0%B0
+*/
+
+// (UnixTime = 00:00:00 01.01.1970 = JD0 = 2440588)
+#define JULIAN_DATE_BASE	2440588
+
+typedef struct
+{
+	uint8_t RTC_Hours;
+	uint8_t RTC_Minutes;
+	uint8_t RTC_Seconds;
+	uint8_t RTC_Date;
+	uint8_t RTC_Wday;
+	uint8_t RTC_Month;
+	uint16_t RTC_Year;
+} RTC_DateTimeTypeDef;
+
+// Get current date
+void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStruct) {
+	unsigned long time;
+	unsigned long t1, a, b, c, d, e, m;
+	int year = 0;
+	int mon = 0;
+	int wday = 0;
+	int mday = 0;
+	int hour = 0;
+	int min = 0;
+	int sec = 0;
+	uint64_t jd = 0;;
+	uint64_t jdn = 0;
+
+	jd = ((RTC_Counter+43200)/(86400&gt;&gt;1)) + (2440587&lt;&lt;1) + 1;
+	jdn = jd&gt;&gt;1;
+
+	time = RTC_Counter;
+	t1 = time/60;
+	sec = time - t1*60;
+
+	time = t1;
+	t1 = time/60;
+	min = time - t1*60;
+
+	time = t1;
+	t1 = time/24;
+	hour = time - t1*24;
+
+	wday = jdn%7;
+
+	a = jdn + 32044;
+	b = (4*a+3)/146097;
+	c = a - (146097*b)/4;
+	d = (4*c+3)/1461;
+	e = c - (1461*d)/4;
+	m = (5*e+2)/153;
+	mday = e - (153*m+2)/5 + 1;
+	mon = m + 3 - 12*(m/10);
+	year = 100*b + d - 4800 + (m/10);
+
+	RTC_DateTimeStruct-&gt;RTC_Year = year;
+	RTC_DateTimeStruct-&gt;RTC_Month = mon;
+	RTC_DateTimeStruct-&gt;RTC_Date = mday;
+	RTC_DateTimeStruct-&gt;RTC_Hours = hour;
+	RTC_DateTimeStruct-&gt;RTC_Minutes = min;
+	RTC_DateTimeStruct-&gt;RTC_Seconds = sec;
+	RTC_DateTimeStruct-&gt;RTC_Wday = wday;
+}
+
+// Convert Date to Counter
+uint32_t RTC_GetRTC_Counter(RTC_DateTimeTypeDef* RTC_DateTimeStruct) {
+	uint8_t a;
+	uint16_t y;
+	uint8_t m;
+	uint32_t JDN;
+
+	a=(14-RTC_DateTimeStruct-&gt;RTC_Month)/12;
+	y=RTC_DateTimeStruct-&gt;RTC_Year+4800-a;
+	m=RTC_DateTimeStruct-&gt;RTC_Month+(12*a)-3;
+
+	JDN=RTC_DateTimeStruct-&gt;RTC_Date;
+	JDN+=(153*m+2)/5;
+	JDN+=365*y;
+	JDN+=y/4;
+	JDN+=-y/100;
+	JDN+=y/400;
+	JDN = JDN -32045;
+	JDN = JDN - JULIAN_DATE_BASE;
+	JDN*=86400;
+	JDN+=(RTC_DateTimeStruct-&gt;RTC_Hours*3600);
+	JDN+=(RTC_DateTimeStruct-&gt;RTC_Minutes*60);
+	JDN+=(RTC_DateTimeStruct-&gt;RTC_Seconds);
+
+	return JDN;
+}
+
+void RTC_GetMyFormat(RTC_DateTimeTypeDef* RTC_DateTimeStruct, char * buffer) {
+	const char WDAY0[] = "Monday";
+	const char WDAY1[] = "Tuesday";
+	const char WDAY2[] = "Wednesday";
+	const char WDAY3[] = "Thursday";
+	const char WDAY4[] = "Friday";
+	const char WDAY5[] = "Saturday";
+	const char WDAY6[] = "Sunday";
+	const char * WDAY[7]={WDAY0, WDAY1, WDAY2, WDAY3, WDAY4, WDAY5, WDAY6};
+
+	const char MONTH1[] = "January";
+	const char MONTH2[] = "February";
+	const char MONTH3[] = "March";
+	const char MONTH4[] = "April";
+	const char MONTH5[] = "May";
+	const char MONTH6[] = "June";
+	const char MONTH7[] = "July";
+	const char MONTH8[] = "August";
+	const char MONTH9[] = "September";
+	const char MONTH10[] = "October";
+	const char MONTH11[] = "November";
+	const char MONTH12[] = "December";
+	const char * MONTH[12]={MONTH1, MONTH2, MONTH3, MONTH4, MONTH5, MONTH6, MONTH7, MONTH8, MONTH9, MONTH10, MONTH11, MONTH12};
+
+	sprintf(buffer, "%s %d %s %04d",
+			WDAY[RTC_DateTimeStruct-&gt;RTC_Wday],
+			RTC_DateTimeStruct-&gt;RTC_Date,
+			MONTH[RTC_DateTimeStruct-&gt;RTC_Month -1],
+			RTC_DateTimeStruct-&gt;RTC_Year);
+}
+//========================================================================================
+
+int main(void)
+{
+	char buffer[80] = {`&#92;&#48;`};
+	uint32_t RTC_Counter = 0;
+	RTC_DateTimeTypeDef	RTC_DateTime;
+
+	SetSysClockToHSE();
+	TIM2_init();
+
+	usart_init();
+
+	if (RTC_Init() == 1) {
+		// Якщо перша ініціалізація RTC Встановлюємо початкову дату, наприклад 22.09.2016 14:30:00
+		RTC_DateTime.RTC_Date = 22;
+		RTC_DateTime.RTC_Month = 9;
+		RTC_DateTime.RTC_Year = 2016;
+
+		RTC_DateTime.RTC_Hours = 14;
+		RTC_DateTime.RTC_Minutes = 30;
+		RTC_DateTime.RTC_Seconds = 00;
+
+		// Після ініціалізації потрібна затримка. Без неї час не встановлюється.
+		delay_ms(500);
+		RTC_SetCounter(RTC_GetRTC_Counter(&RTC_DateTime));
+	}
+
+	while(1)
+	{
+		RTC_Counter = RTC_GetCounter();
+		sprintf(buffer, "\r\n\r\nCOUNTER: %d\r\n", (int)RTC_Counter);
+		USARTSend(buffer);
+ 
+		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
+		sprintf(buffer, "%02d.%02d.%04d  %02d:%02d:%02d\r\n",
+			RTC_DateTime.RTC_Date, RTC_DateTime.RTC_Month, RTC_DateTime.RTC_Year,
+			RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
+		USARTSend(buffer);
+
+		// Функція генерує у буфері дату власного формату
+		RTC_GetMyFormat(&RTC_DateTime, buffer);
+		USARTSend(buffer);
+
+		/* delay */
+		while (RTC_Counter == RTC_GetCounter()) {
+
+		}
+
+    }
+}
+</code></pre>
+
+<p>Бажаю успіхів!</p>
+
+<p>Дивись також:</p>
+<ul>
+  <li><a href="/stm32_st_link/" target="_blank">1. STM32. Програмування STM32F103. Тестова плата. Прошивка через UART та через ST-Link</a></li>
+  <li><a href="/stm32-ide" target="_blank">2. STM32. Програмування. IDE для STM32</a></li>
+  <li><a href="/stm32-gpio" target="_blank">3. STM32. Програмування STM32F103. GPIO</a></li>
+  <li><a href="/stm32-clock" target="_blank">4. STM32. Програмування STM32F103. Тактування</a></li>
+  <li><a href="/stm32-usart/" target="_blank">5. STM32. Програмування STM32F103. USART</a></li>
+  <li><a href="/stm32-nvic/" target="_blank">6. STM32. Програмування STM32F103. NVIC</a></li>
+  <li><a href="/stm32-adc/" target="_blank">7. STM32. Програмування STM32F103. ADC</a></li>
+  <li><a href="/stm32-dma/" target="_blank">8. STM32. Програмування STM32F103. DMA</a></li>
+  <li><a href="/stm32-tim_basic/" target="_blank">9. STM32. Програмування STM32F103. TIMER</a></li>
+  <li><a href="/stm32-tim-capture/" target="_blank">10. STM32. Програмування STM32F103. TIMER. Захоплення сигналу</a></li>
+  <li><a href="/stm32-timer-encoder/" target="_blank">11. STM32. Програмування STM32F103. TIMER. Encoder</a></li>
+  <li><a href="/stm32-timer-pwm/" target="_blank">12. STM32. Програмування STM32F103. TIMER. PWM</a></li>
+  <li><a href="/stm32-exti/" target="_blank">13. STM32. Програмування STM32F103. EXTI</a></li>
+  <li><a href="/stm32-rtc/" target="_blank">14. STM32. Програмування STM32F103. RTC</a></li>
+  <li><a href="/stm32-bkp" target="_blank">15. STM32. Програмування STM32F103. BKP</a></li>
+  <li><a href="/stm32-flash" target="_blank">16. STM32. Програмування STM32F103. Flash</a></li>
+  <li><a href="/stm32-watchdog/" target="_blank">17. STM32. Програмування STM32F103. Watchdog</a></li>
+  <li><a href="/stm32-remap/" target="_blank">18. STM32. Програмування STM32F103. Remap</a></li>
+  <li><a href="/stm32-i2c-master/" target="_blank">19. STM32. Програмування STM32F103. I2C Master</a></li>
+  <li><a href="/stm32-i2c-slave/" target="_blank">20. STM32. Програмування STM32F103. I2C Slave</a></li>
+  <li><a href="/stm32-usb/" target="_blank">21. STM32. Програмування STM32F103. USB</a></li>
+  <li><a href="/stm32-pwr/" target="_blank">22. STM32. Програмування STM32F103. PWR</a></li>
+  <li><a href="/stm32-ob/" target="_blank">23. STM32. Програмування STM32F103. Option bytes</a></li>
+  <li><a href="/stm32-bootloader/" target="_blank">24. STM32. Програмування STM32F103. Bootloader</a></li>
+  <li><a href="/stm32-examples/" target="_blank"><strong>STM32. Скачати приклади</strong></a></li>
+  <li><a href="/system-workbench-for-stm32-ubuntu/" target="_blank"><strong>System Workbench for STM32 Інсталяція на Ubuntu</strong></a></li>
+  <li><a href="/keil/" target="_blank"><strong>Keil uVision5 – IDE для STM32</strong></a></li>
+  <li><a href="/iar-workbench/" target="_blank"><strong>IAR Workbench – IDE для STM32</strong></a></li>
+  <li><a href="/stm32-bldc/" target="_blank">Керування безколекторним двигуном постійного струму (BLDC) за допомогою STM32</a></li>
+  <li><a href="/stm32-pmsm/" target="_blank">Керування PMSM за допомогою STM32</a></li>
+</ul></p>
+
+
+</div>
+
+
+    <span><i class="fas fa-folder-open"></i></span>
+    
+        <span class="mr-2"><a href="/category/stm32/">STM32</a></span>
+    
+
+
+
+
+<div class="mt-3"><span><strong>Коментарі:</strong></span>
+  <hr />
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>Микола</i> говорить:</div>
+    <div><u>21.09.2016 01:39</u></div>
+    <div><pre>Привіт славному місту Кременчук! Андрію, дуже вдячний вам за цикл по програмуванню STM32.
+Але - чому не HAL?
+На HAL є готові функції для роботи з RTC.
+Питання по темі.
+Не можу допетрити як отримати дату з назвою дня неділі та назвою місяця (наприклад: Середа 21 Вересня 2016) .
+У файлі stm32f1xx_hal_rtc.h є дефайни днів та місяців, співставлення до номеру дня та місяця. А як можна це використати навпаки?
+Вельми вдячний за увагу.
+
+P.S. І все ж таки - чи плануєте перехід на HAL?</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>andre</i> говорить:</div>
+    <div><u>21.09.2016 08:13</u></div>
+    <div><pre>Доброго дня.
+HAL і FreeRTOS планується розглянути пізніше. Ще буде з десяток статей з використанням SPL.
+Що до дати у текстовому форматі, я дороблю приклад де буде видно як це можна зробити.</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>Микола</i> говорить:</div>
+    <div><u>21.09.2016 15:51</u></div>
+    <div><pre>Дякую. Чекаю з нетерпінням. 
+Можлива у вас є якісь проекти де використовуються кнопки для корекції часу і дати.
+Або де почитати.
+Контролер STM32F103C8.</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>andre</i> говорить:</div>
+    <div><u>22.09.2016 12:34</u></div>
+    <div><pre>Трохи доробив приклад. Зверніть увагу на функцію RTC_GetMyFormat. Вона формує час у форматі типу Thursday 22 October 2016.</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>Микола</i> говорить:</div>
+    <div><u>01.10.2016 02:34</u></div>
+    <div><pre>Дякую за увагу. Буду розбиратись. Чекаю HAL.</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>Андрій</i> говорить:</div>
+    <div><u>01.02.2017 10:18</u></div>
+    <div><pre>пан Микола, ось тут http://stm32withoutfear.blogspot.com/2016/12/RTC-stm32f1xx.html перегляньте варіант RTC за допомоги HAL драйверу</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>Михайло</i> говорить:</div>
+    <div><u>05.07.2017 10:44</u></div>
+    <div><pre>#include &#34;tim2_delay.h&#34;
+Поясніть, будь ласка, де взяти цей файлик і куди покласти...</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>andre</i> говорить:</div>
+    <div><u>05.07.2017 14:09</u></div>
+    <div><pre>Прямуєте на сторінку «STM32. Скачати приклади» http://www.avislab.com/blog/stm32-examples/
+
+Знайдіть потрібний приклад, у даному випадку https://github.com/avislab/STM32F103/tree/master/Example_RTC
+І там є усі файли проекту.
+
+Також можна скачати всі приклади одним ZIP-архівом:
+https://github.com/avislab/STM32F103/archive/master.zip</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>Михайло</i> говорить:</div>
+    <div><u>05.07.2017 15:53</u></div>
+    <div><pre>Там проект для CooCox.
+А як для Keil ? Тут же для Keil чи ні ?</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>andre</i> говорить:</div>
+    <div><u>06.07.2017 23:51</u></div>
+    <div><pre>Немає різниці Keil, CooCox, IAR. Кругом &#34;C&#34; і однакові бібліотеки. Просто додайте *.h та *.c файли у свій проект.</pre></div>
+  </div>
+  <hr />
+  
+
+  
+  <div class="mb-3 mt-3">
+    <div><i>Володимир</i> говорить:</div>
+    <div><u>20.09.2020 07:22</u></div>
+    <div><pre>Доброго дня!
+Підкажіть, будь ласка, в чому може бути проблема. Підключаю батарейку до відповідного входу, RTC працює при виключеному живлені, проте напруга батерйки з&#39;являється на живленні.</pre></div>
+  </div>
+  <hr />
+  
+
+</div>
+
+<a name="#respond"></a>
+<div class="h4">Додати коментар</div>
+<form class="mb-3" id="frm">
+<input type="hidden" name="postid" value="4236">
+<input type="hidden" name="path" value="stm32-rtc">
+  <div class="form-group">
+    <label for="InputName">* Ваше ім'я:</label>
+    <input type="text" id="InputName" name="author" class="form-control border-secondary" placeholder="Name" aria-label="Name" aria-describedby="Name" maxlength="64" value="">
+  </div>
+  <div class="form-group">
+    <label for="InputEmail">e-mail:</label>
+    <input type="email" id="InputEmail" name="email" class="form-control" placeholder="E-mail" aria-label="E-mail" aria-describedby="E-mail" maxlength="64" value="">
+  </div>
+  <div class="form-group">
+    <label for="InputComment">* Коментар:</label>
+    <textarea id="InputComment" name="comment" class="form-control" maxlength="1024"></textarea>
+  </div>
+  <div class="form-group row">
+    <div class="col-md-auto">
+      <label for="InputVerify">Введіть код з картинки:</label>
+    </div>
+    <div class="col-md">
+      <input type="text" id="InputVerify" name="code" class="form-control border-secondary" placeholder="Введіть код" aria-label="Code" aria-describedby="Введіть код" maxlength="6" value="">
+      <img src="/verify-image/" class="mt-1" alt="Code" title="Code" width="100" height="30" />
+    </div>
+  </div>
+  <div class="m-3">* - обов'язкові поля</div>
+  <button type="submit" class="btn btn-dark" aria-label="Додати коментар" id="button-submit">Додати коментар</button>
+</form>
+<script>
+  let el = document.getElementById('frm')
+  el.setAttribute('action', '/comment/')
+  el.setAttribute('method', 'POST')
+</script>
+
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+
+<div class="card border border-secondary rounded bg-light mb-2">
+  <div class="card-body">
+    <h3 class="card-title">Категорії</h3>
+    <p class="card-text">
+<ul class="list-unstyled">
+
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/news/">Новини</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/brushlessmotors/">Brushless Motors</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/stm32/">STM32</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/esp8266/">ESP8266</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/raspberry-pi/">Raspberry Pi</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/web-dev/">Web-dev склерозник</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/guides/">Довідники</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/books/">Книги про електроніку</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/info/">Корисно знати</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/beginners/">Початківцям</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/circuit_diagrams/">Схеми і прошивки</a></li>
+      
+    
+  
+
+  
+    
+      
+        <li><i class="fas fa-folder mr-2"></i><a href="/category/video/">Video</a></li>
+      
+    
+  
+
+</ul>
+    </p>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<div class="card border border-secondary rounded bg-light mb-2">
+  <div class="card-body">
+    <h3 class="card-title">Недавні записи</h3>
+    <p class="card-text">
+<ul class="list-unstyled">
+
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/cv/">Комп'ютерний зір (Машинний зір)</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/foc-precision/">Деякі думки про точність вимірювань в електроприводі</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/bldc-sensors-120-60/">Датчики Холла 120/60 градусів</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/half-bridge-igbt-driver/">Модуль драйверів напівмосту IGBT транзисторів</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/igbt-driver-a316j/">Драйвер IGBT транзисторів на A316J</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/as5600-bldc-motor/">AS5600. Варіант встановлення на BLDC мотор</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/dc-dc-2w-15-8/">DC-DC для IGBT драйверів ізольований 2 W +15 -8 вольт</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/u-foc/about/">U-FOC - Векторне керування безколекторними моторами</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/video-u-foc-2022/">FOC - своя реалізація векторного керування. Підбиваю підсумки 2022 року</a>
+    
+  </li>
+
+  <li>
+    
+		  <i class="fas fa-file pr-2"></i><a href="/video-mc-prototyper-2022/">Конструктор регуляторів моторів. Підбиваю підсумки 2022 року.</a>
+    
+  </li>
+
+</ul>
+    </p>
+  </div>
+</div>
+
+
+<div class="card border border-secondary rounded bg-light mb-2">
+  <div class="card-body">
+    <h3 class="card-title">Tags</h3>
+    <p class="card-text">
+
+	
+		<a href="/tag/ngnix/" style="font-size: 15pt;">ngnix</a>
+	
+
+	
+		<a href="/tag/flash/" style="font-size: 21pt;">flash</a>
+	
+
+	
+		<a href="/tag/flask/" style="font-size: 21pt;">flask</a>
+	
+
+	
+		<a href="/tag/i2c/" style="font-size: 23pt;">i2c</a>
+	
+
+	
+		<a href="/tag/servo/" style="font-size: 14pt;">servo</a>
+	
+
+	
+		<a href="/tag/dma/" style="font-size: 12pt;">dma</a>
+	
+
+	
+		<a href="/tag/gpio/" style="font-size: 11pt;">gpio</a>
+	
+
+	
+		<a href="/tag/avr/" style="font-size: 15pt;">avr</a>
+	
+
+	
+		<a href="/tag/solar/" style="font-size: 18pt;">solar</a>
+	
+
+	
+		<a href="/tag/bme280/" style="font-size: 16pt;">bme280</a>
+	
+
+	
+		<a href="/tag/docker/" style="font-size: 23pt;">docker</a>
+	
+
+	
+		<a href="/tag/eeprom/" style="font-size: 23pt;">eeprom</a>
+	
+
+	
+		<a href="/tag/sms/" style="font-size: 22pt;">sms</a>
+	
+
+	
+		<a href="/tag/java-script/" style="font-size: 21pt;">java-script</a>
+	
+
+	
+		<a href="/tag/barometer/" style="font-size: 16pt;">barometer</a>
+	
+
+	
+		<a href="/tag/rtc/" style="font-size: 16pt;">rtc</a>
+	
+
+	
+		<a href="/tag/dht11/" style="font-size: 13pt;">dht11</a>
+	
+
+	
+		<a href="/tag/ssd1306/" style="font-size: 16pt;">ssd1306</a>
+	
+
+	
+		<a href="/tag/bldc/" style="font-size: 21pt;">bldc</a>
+	
+
+	
+		<a href="/tag/motor/" style="font-size: 15pt;">motor</a>
+	
+
+	
+		<a href="/tag/raspberry-pi/" style="font-size: 22pt;">raspberry-pi</a>
+	
+
+	
+		<a href="/tag/ssd1331/" style="font-size: 20pt;">ssd1331</a>
+	
+
+	
+		<a href="/tag/mpu-9250/" style="font-size: 13pt;">mpu-9250</a>
+	
+
+	
+		<a href="/tag/dc-dc/" style="font-size: 21pt;">dc-dc</a>
+	
+
+	
+		<a href="/tag/rfid/" style="font-size: 24pt;">rfid</a>
+	
+
+	
+		<a href="/tag/foc/" style="font-size: 10pt;">foc</a>
+	
+
+	
+		<a href="/tag/st-link/" style="font-size: 12pt;">st-link</a>
+	
+
+	
+		<a href="/tag/usb/" style="font-size: 19pt;">usb</a>
+	
+
+	
+		<a href="/tag/remap/" style="font-size: 19pt;">remap</a>
+	
+
+	
+		<a href="/tag/pwm/" style="font-size: 20pt;">pwm</a>
+	
+
+	
+		<a href="/tag/capture/" style="font-size: 17pt;">capture</a>
+	
+
+	
+		<a href="/tag/soldering/" style="font-size: 12pt;">soldering</a>
+	
+
+	
+		<a href="/tag/nodemcu/" style="font-size: 17pt;">nodemcu</a>
+	
+
+	
+		<a href="/tag/lcd/" style="font-size: 23pt;">lcd</a>
+	
+
+	
+		<a href="/tag/eb-500/" style="font-size: 13pt;">eb-500</a>
+	
+
+	
+		<a href="/tag/esp8266/" style="font-size: 21pt;">esp8266</a>
+	
+
+	
+		<a href="/tag/mpu-6050/" style="font-size: 16pt;">mpu-6050</a>
+	
+
+	
+		<a href="/tag/nvic/" style="font-size: 22pt;">nvic</a>
+	
+
+	
+		<a href="/tag/usart/" style="font-size: 11pt;">usart</a>
+	
+
+	
+		<a href="/tag/books/" style="font-size: 10pt;">books</a>
+	
+
+	
+		<a href="/tag/mpx4115a/" style="font-size: 23pt;">mpx4115a</a>
+	
+
+	
+		<a href="/tag/timer/" style="font-size: 14pt;">timer</a>
+	
+
+	
+		<a href="/tag/adc/" style="font-size: 11pt;">adc</a>
+	
+
+	
+		<a href="/tag/bluetooth/" style="font-size: 14pt;">bluetooth</a>
+	
+
+	
+		<a href="/tag/tim/" style="font-size: 23pt;">tim</a>
+	
+
+	
+		<a href="/tag/programmator/" style="font-size: 12pt;">programmator</a>
+	
+
+	
+		<a href="/tag/meteo/" style="font-size: 13pt;">meteo</a>
+	
+
+	
+		<a href="/tag/sensors/" style="font-size: 16pt;">sensors</a>
+	
+
+	
+		<a href="/tag/led/" style="font-size: 10pt;">led</a>
+	
+
+	
+		<a href="/tag/python/" style="font-size: 19pt;">python</a>
+	
+
+	
+		<a href="/tag/websocket/" style="font-size: 20pt;">websocket</a>
+	
+
+	
+		<a href="/tag/hih-4000/" style="font-size: 15pt;">hih-4000</a>
+	
+
+	
+		<a href="/tag/html/" style="font-size: 10pt;">html</a>
+	
+
+	
+		<a href="/tag/pmsm/" style="font-size: 19pt;">pmsm</a>
+	
+
+	
+		<a href="/tag/mongodb/" style="font-size: 12pt;">mongodb</a>
+	
+
+	
+		<a href="/tag/bmp280/" style="font-size: 11pt;">bmp280</a>
+	
+
+	
+		<a href="/tag/gps/" style="font-size: 22pt;">gps</a>
+	
+
+	
+		<a href="/tag/encoder/" style="font-size: 18pt;">encoder</a>
+	
+
+	
+		<a href="/tag/displays/" style="font-size: 17pt;">displays</a>
+	
+
+	
+		<a href="/tag/smd/" style="font-size: 12pt;">smd</a>
+	
+
+	
+		<a href="/tag/stm32/" style="font-size: 23pt;">stm32</a>
+	
+
+	
+		<a href="/tag/css/" style="font-size: 16pt;">css</a>
+	
+
+	
+		<a href="/tag/git/" style="font-size: 16pt;">git</a>
+	
+
+	
+		<a href="/tag/examples/" style="font-size: 10pt;">examples</a>
+	
+
+	
+		<a href="/tag/rs-232/" style="font-size: 14pt;">rs-232</a>
+	
+
+	
+		<a href="/tag/ethernet/" style="font-size: 16pt;">ethernet</a>
+	
+
+	
+		<a href="/tag/brushless/" style="font-size: 13pt;">brushless</a>
+	
+
+	
+		<a href="/tag/3d-printer/" style="font-size: 21pt;">3d-printer</a>
+	
+
+	
+		<a href="/tag/watchdog/" style="font-size: 20pt;">watchdog</a>
+	
+
+	
+		<a href="/tag/max1674/" style="font-size: 14pt;">max1674</a>
+	
+
+	
+		<a href="/tag/exti/" style="font-size: 22pt;">exti</a>
+	
+
+	
+		<a href="/tag/atmega/" style="font-size: 22pt;">atmega</a>
+	
+
+	
+		<a href="/tag/options/" style="font-size: 19pt;">options</a>
+	
+
+	
+		<a href="/tag/battery/" style="font-size: 20pt;">battery</a>
+	
+
+	
+		<a href="/tag/uart/" style="font-size: 16pt;">uart</a>
+	
+
+	
+		<a href="/tag/wifi/" style="font-size: 19pt;">wifi</a>
+	
+
+	
+		<a href="/tag/bkp/" style="font-size: 19pt;">bkp</a>
+	
+
+	
+		<a href="/tag/piezo/" style="font-size: 12pt;">piezo</a>
+	
+
+	
+		<a href="/tag/web/" style="font-size: 20pt;">web</a>
+	
+
+    </p>
+  </div>
+</div>
+
+
+<div class="card border border-secondary rounded bg-light mb-2">
+  <div class="card-body">
+    <h3 class="card-title">Архіви</h3>
+    <p class="card-text">
+<script>
+function goto_archive() {
+	let archive_value = document.getElementById('archive_value').value
+	if (archive_value != '') {
+		window.location.href = '/archive/' + archive_value + '/';
+	}
+	return false
+}
+</script>
+<label for="archive_value">оберіть місяць:&nbsp;
+<select id="archive_value" class="form-control form-control-sm border-secondary auto-width" onchange="goto_archive()">
+	<option value="">оберіть місяць</option>
+
+	<option value="05-2024" >Травень 2024</option>
+
+	<option value="04-2024" >Квітень 2024</option>
+
+	<option value="03-2024" >Березень 2024</option>
+
+	<option value="12-2023" >Грудень 2023</option>
+
+	<option value="11-2023" >Листопад 2023</option>
+
+	<option value="10-2023" >Жовтень 2023</option>
+
+	<option value="03-2023" >Березень 2023</option>
+
+	<option value="12-2022" >Грудень 2022</option>
+
+	<option value="09-2022" >Вересень 2022</option>
+
+	<option value="07-2022" >Липень 2022</option>
+
+	<option value="06-2022" >Червень 2022</option>
+
+	<option value="05-2022" >Травень 2022</option>
+
+	<option value="04-2022" >Квітень 2022</option>
+
+	<option value="02-2022" >Лютий 2022</option>
+
+	<option value="01-2022" >Січень 2022</option>
+
+	<option value="11-2021" >Листопад 2021</option>
+
+	<option value="10-2011" >Жовтень 2011</option>
+
+	<option value="08-2021" >Серпень 2021</option>
+
+	<option value="06-2021" >Червень 2021</option>
+
+	<option value="05-2021" >Травень 2021</option>
+
+	<option value="01-2021" >Січень 2021</option>
+
+	<option value="09-2020" >Вересень 2020</option>
+
+	<option value="08-2020" >Серпень 2020</option>
+
+	<option value="06-2020" >Червень 2020</option>
+
+	<option value="05-2020" >Травень 2020</option>
+
+	<option value="04-2020" >Квітень 2020</option>
+
+	<option value="03-2020" >Березень 2020</option>
+
+	<option value="02-2020" >Лютий 2020</option>
+
+	<option value="01-2020" >Січень 2020</option>
+
+	<option value="12-2019" >Грудень 2019</option>
+
+	<option value="09-2019" >Вересень 2019</option>
+
+	<option value="08-2019" >Серпень 2019</option>
+
+	<option value="06-2019" >Червень 2019</option>
+
+	<option value="07-2019" >Липень 2019</option>
+
+	<option value="03-2019" >Березень 2019</option>
+
+	<option value="01-2019" >Січень 2019</option>
+
+	<option value="02-2019" >Лютий 2019</option>
+
+	<option value="05-2019" >Травень 2019</option>
+
+	<option value="12-2018" >Грудень 2018</option>
+
+	<option value="06-2018" >Червень 2018</option>
+
+	<option value="09-2018" >Вересень 2018</option>
+
+	<option value="11-2018" >Листопад 2018</option>
+
+	<option value="10-2018" >Жовтень 2018</option>
+
+	<option value="08-2018" >Серпень 2018</option>
+
+	<option value="07-2018" >Липень 2018</option>
+
+	<option value="04-2018" >Квітень 2018</option>
+
+	<option value="03-2018" >Березень 2018</option>
+
+	<option value="02-2018" >Лютий 2018</option>
+
+	<option value="01-2018" >Січень 2018</option>
+
+	<option value="11-2017" >Листопад 2017</option>
+
+	<option value="09-2017" >Вересень 2017</option>
+
+	<option value="08-2017" >Серпень 2017</option>
+
+	<option value="12-2016" >Грудень 2016</option>
+
+	<option value="02-2016" >Лютий 2016</option>
+
+	<option value="07-2015" >Липень 2015</option>
+
+	<option value="04-2015" >Квітень 2015</option>
+
+	<option value="11-2014" >Листопад 2014</option>
+
+	<option value="07-2017" >Липень 2017</option>
+
+	<option value="06-2017" >Червень 2017</option>
+
+	<option value="05-2017" >Травень 2017</option>
+
+	<option value="04-2017" >Квітень 2017</option>
+
+	<option value="03-2017" >Березень 2017</option>
+
+	<option value="02-2017" >Лютий 2017</option>
+
+	<option value="01-2017" >Січень 2017</option>
+
+	<option value="11-2016" >Листопад 2016</option>
+
+	<option value="10-2016" >Жовтень 2016</option>
+
+	<option value="09-2016" >Вересень 2016</option>
+
+	<option value="08-2016" >Серпень 2016</option>
+
+	<option value="06-2016" >Червень 2016</option>
+
+	<option value="04-2016" >Квітень 2016</option>
+
+	<option value="03-2016" >Березень 2016</option>
+
+	<option value="01-2016" >Січень 2016</option>
+
+	<option value="12-2015" >Грудень 2015</option>
+
+	<option value="11-2015" >Листопад 2015</option>
+
+	<option value="09-2015" >Вересень 2015</option>
+
+	<option value="08-2015" >Серпень 2015</option>
+
+	<option value="06-2015" >Червень 2015</option>
+
+	<option value="05-2015" >Травень 2015</option>
+
+	<option value="03-2015" >Березень 2015</option>
+
+	<option value="01-2015" >Січень 2015</option>
+
+	<option value="12-2014" >Грудень 2014</option>
+
+	<option value="10-2015" >Жовтень 2015</option>
+
+	<option value="10-2014" >Жовтень 2014</option>
+
+	<option value="09-2014" >Вересень 2014</option>
+
+	<option value="08-2014" >Серпень 2014</option>
+
+	<option value="06-2014" >Червень 2014</option>
+
+	<option value="05-2014" >Травень 2014</option>
+
+	<option value="04-2014" >Квітень 2014</option>
+
+	<option value="03-2014" >Березень 2014</option>
+
+	<option value="02-2014" >Лютий 2014</option>
+
+	<option value="12-2013" >Грудень 2013</option>
+
+	<option value="11-2013" >Листопад 2013</option>
+
+	<option value="10-2013" >Жовтень 2013</option>
+
+	<option value="09-2013" >Вересень 2013</option>
+
+	<option value="08-2013" >Серпень 2013</option>
+
+	<option value="07-2013" >Липень 2013</option>
+
+	<option value="04-2013" >Квітень 2013</option>
+
+	<option value="05-2013" >Травень 2013</option>
+
+	<option value="03-2013" >Березень 2013</option>
+
+	<option value="02-2013" >Лютий 2013</option>
+
+	<option value="01-2013" >Січень 2013</option>
+
+	<option value="12-2012" >Грудень 2012</option>
+
+	<option value="11-2012" >Листопад 2012</option>
+
+	<option value="10-2012" >Жовтень 2012</option>
+
+	<option value="09-2012" >Вересень 2012</option>
+
+	<option value="08-2012" >Серпень 2012</option>
+
+	<option value="07-2012" >Липень 2012</option>
+
+	<option value="06-2012" >Червень 2012</option>
+
+	<option value="03-2012" >Березень 2012</option>
+
+	<option value="04-2012" >Квітень 2012</option>
+
+	<option value="01-2012" >Січень 2012</option>
+
+	<option value="11-2011" >Листопад 2011</option>
+
+	<option value="08-2011" >Серпень 2011</option>
+
+	<option value="09-2011" >Вересень 2011</option>
+
+	<option value="06-2011" >Червень 2011</option>
+
+	<option value="07-2011" >Липень 2011</option>
+
+	<option value="05-2011" >Травень 2011</option>
+
+	<option value="04-2011" >Квітень 2011</option>
+
+	<option value="03-2011" >Березень 2011</option>
+
+	<option value="02-2011" >Лютий 2011</option>
+
+	<option value="05-2023" >Травень 2023</option>
+
+	<option value="06-2023" >Червень 2023</option>
+
+</select>
+</label>
+    </p>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+
+<div class="row">
+<div class="col-12">
+  
+</div>
+</div>
+
+    </div>
+  </main>
+
+  <footer class="mastfoot mt-auto">
+    <div class="inner row">
+      <div class="col-md-auto">
+        © 2011-2024 Андрій Корягін, Україна.<br />
+        Created by Golang
+        <span class="ml-2">Hosting: <a href="https://deltahost.ua" target="_block">Deltahost</a></span>
+      </div>
+      <div class="col-md-2 text-right">
+        <a href="/feed/"><img width="32" height="32" title="RSS" alt="RSS" src="/css/rss.svg"></a>
+      </div>
+    </div>
+  </footer>
+
+<script type="text/javascript" src="/js/popper.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-42248643-1', 'avislab.com');
+  ga('send', 'pageview');
+
+</script>
+
+
+<script src="https://fuga.avislab.com/js/fuga.min.js" id="fuga" data-id="1" async></script>
+
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+----------------------------------------------------------------------------------------------------------------------------------
+NCDrill File Report For: SunRiseClock_PCB.CMPcbDoc   20.07.2024  13:31:22
+----------------------------------------------------------------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : SunRiseClock_PCB-RoundHoles.TXT
+ASCII SlotHoles File : SunRiseClock_PCB-SlotHoles.TXT
+
+Tool       Hole Size               Hole Tolerance               Hole Type       Hole Count   Plated         Tool Travel
+----------------------------------------------------------------------------------------------------------------------------------
+T1      10mil (0.254mm)                                           Round             51        PTH        8.95inch (227.45mm)
+T2      12mil (0.3mm)                                             Round             235       PTH        26.90inch (683.27mm)
+T3      26mil (0.65mm)                                            Slot              4         PTH        1.45inch (36.89mm)
+T4      30mil (0.762mm)                                           Round             16        PTH        2.40inch (60.96mm)
+T5      39mil (0.991mm)                                           Round             6         PTH        0.91inch (22.99mm)
+T6      39mil (1mm)                                               Round             4         PTH        0.30inch (7.62mm)
+T7      51mil (1.295mm)                                           Round             6         PTH        1.01inch (25.53mm)
+T8      134mil (3.4mm)                                            Round             6         PTH        7.71inch (195.87mm)
+T9      26mil (0.65mm)                                            Round             2         NPTH       0.23inch (5.80mm)
+----------------------------------------------------------------------------------------------------------------------------------
+Totals                                                                              330
+
+Total Processing Time (hh:mm:ss) : 00:00:00

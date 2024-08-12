@@ -22,6 +22,8 @@
 #include "stm32l0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,7 +43,21 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+extern  bool flagDecrementButton;      // Було натискання кнопки
+extern  bool flagEnterButton;      // Було натискання кнопки
+extern  bool flagIncrementButton;      // Було натискання кнопки
+extern  bool flagDecrementButtonLong;  // Було довге утримання кнопки
+extern  bool flagEnterButtonLong;  // Було довге утримання кнопки
+extern  bool flagIncrementButtonLong;  // Було довге утримання кнопки
+bool flagDecrementButtonDown;  // Було натискання кнопки
+bool flagEnterButtonDown;  // Було натискання кнопки
+bool flagIncrementButtonDown;  // Було натискання кнопки
 
+unsigned int timeButtonLongPressed = 675; // Довге утримання кнопки після 1,5 секунд
+unsigned int timeButtonPressed = 175; // Довге утримання кнопки після 1,5 секунд
+unsigned int timeDecrementButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
+unsigned int timeEnterButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
+unsigned int timeIncrementButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -127,7 +143,7 @@ void SysTick_Handler(void)
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
   /* USER CODE END SysTick_IRQn 0 */
-
+  HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
 
   /* USER CODE END SysTick_IRQn 1 */
@@ -152,14 +168,34 @@ void EXTI0_1_IRQHandler(void)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
     /* USER CODE BEGIN LL_EXTI_LINE_0 */
-
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
+       /* USER CODE BEGIN LL_EXTI_LINE_1 */
+  	if (flagDecrementButtonDown){
+   		if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonLongPressed)
+   			{flagDecrementButtonLong=true;}
+   		else if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonPressed)
+   			{flagDecrementButton=true;}
+   			flagDecrementButtonDown=false;
+   	}
+   	else {
+   			timeDecrementButtonDown = HAL_GetTick(); flagDecrementButtonDown=true;
+   	}
     /* USER CODE END LL_EXTI_LINE_0 */
   }
   if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) != RESET)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
     /* USER CODE BEGIN LL_EXTI_LINE_1 */
-
+  	if (flagEnterButtonDown){
+   		if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonLongPressed)
+   			{flagEnterButtonLong=true;}
+   		else if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonPressed)
+   			{flagEnterButton=true;}
+   			flagEnterButtonDown=false;
+   	}
+   	else {
+   			timeEnterButtonDown = HAL_GetTick(); flagEnterButtonDown=true;
+   	}
     /* USER CODE END LL_EXTI_LINE_1 */
   }
   /* USER CODE BEGIN EXTI0_1_IRQn 1 */
@@ -179,7 +215,16 @@ void EXTI2_3_IRQHandler(void)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_2);
     /* USER CODE BEGIN LL_EXTI_LINE_2 */
-
+  	if (flagIncrementButtonDown){
+   		if ((HAL_GetTick() - timeIncrementButtonDown) > timeButtonLongPressed)
+   			{flagIncrementButtonLong=true;}
+   		else if ((HAL_GetTick() - timeIncrementButtonDown) > timeButtonPressed)
+   			{flagIncrementButton=true;}
+   			flagIncrementButtonDown=false;
+   	}
+   	else {
+   			timeIncrementButtonDown = HAL_GetTick(); flagIncrementButtonDown=true;
+   	}
     /* USER CODE END LL_EXTI_LINE_2 */
   }
   /* USER CODE BEGIN EXTI2_3_IRQn 1 */

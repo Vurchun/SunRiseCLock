@@ -38,9 +38,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_rcc.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_utils.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_pwr.h \
- ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_dma.h \
- ../Core/Inc/menu.h ../Core/Inc/Clock.h ../Core/Inc/fp7103.h \
- ../Core/Inc/menu.h ../Core/Inc/Buzzer.h ../Core/Inc/4digit7segment.h
+ ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_dma.h
 ../Core/Inc/main.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:
 ../Core/Inc/stm32l0xx_hal_conf.h:
@@ -82,9 +80,3 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_utils.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_pwr.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_dma.h:
-../Core/Inc/menu.h:
-../Core/Inc/Clock.h:
-../Core/Inc/fp7103.h:
-../Core/Inc/menu.h:
-../Core/Inc/Buzzer.h:
-../Core/Inc/4digit7segment.h:

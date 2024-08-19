@@ -1,96 +1,61 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "math.h"
+#include <stdio.h>
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#include "stm32l0xx.h"
-#include "math.h"
-#include <stdio.h>
-#include <stdbool.h>
-//----------------------------------------------------------
 
-//----------------------------------------------------------
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-void pwmFP7103();
-void setTimeNow();
-int Clock();
-void writeCHARSEG(char CHAR, int seg);
-char* setActualMenu(int v, int h);
-int getMenuIndexByID(int id);
-int getNearMenuIndexByID(int parentid, int id, int side);
-void testMelody(){}
+#define LEDa_ON() 		GPIOA->BSRR = GPIO_BSRR_BS_7
+#define LEDa_OFF() 		GPIOA->BSRR = GPIO_BSRR_BR_7
+#define LEDb_ON() 		GPIOB->BSRR = GPIO_BSRR_BS_1
+#define LEDb_OFF() 		GPIOB->BSRR = GPIO_BSRR_BR_1
+#define LEDc_ON() 		GPIOA->BSRR = GPIO_BSRR_BS_6
+#define LEDc_OFF() 		GPIOA->BSRR = GPIO_BSRR_BR_6
+#define LEDd_ON() 		GPIOA->BSRR = GPIO_BSRR_BS_5
+#define LEDd_OFF() 		GPIOA->BSRR = GPIO_BSRR_BR_5
+#define LEDe_ON() 		GPIOA->BSRR = GPIO_BSRR_BS_11
+#define LEDe_OFF() 		GPIOA->BSRR = GPIO_BSRR_BR_11
+#define LEDf_ON() 		GPIOA->BSRR = GPIO_BSRR_BS_9
+#define LEDf_OFF() 		GPIOA->BSRR = GPIO_BSRR_BR_9
+#define LEDg_ON() 		GPIOB->BSRR = GPIO_BSRR_BS_0
+#define LEDg_OFF() 		GPIOB->BSRR = GPIO_BSRR_BR_0
+#define LEDdp_ON() 		GPIOB->BSRR = GPIO_BSRR_BS_3
+#define LEDdp_OFF() 	GPIOB->BSRR = GPIO_BSRR_BR_3
+
+#define LEDD1_ON() 		GPIOA->BSRR = GPIO_BSRR_BR_3
+#define LEDD1_OFF() 	GPIOA->BSRR = GPIO_BSRR_BS_3
+#define LEDD2_ON() 		GPIOA->BSRR = GPIO_BSRR_BR_4
+#define LEDD2_OFF() 	GPIOA->BSRR = GPIO_BSRR_BS_4
+#define LEDD3_ON() 		GPIOA->BSRR = GPIO_BSRR_BR_12
+#define LEDD3_OFF() 	GPIOA->BSRR = GPIO_BSRR_BS_12
+#define LEDD4_ON() 		GPIOB->BSRR = GPIO_BSRR_BR_4
+#define LEDD4_OFF() 	GPIOB->BSRR = GPIO_BSRR_BS_4
+
+#define LEDl1l2_ON() 	GPIOA->BSRR = GPIO_BSRR_BS_10
+#define LEDl1l2_OFF() 	GPIOA->BSRR = GPIO_BSRR_BR_10
+#define LEDalarm_ON() 	GPIOA->BSRR = GPIO_BSRR_BS_8
+#define LEDalarm_OFF() 	GPIOA->BSRR = GPIO_BSRR_BR_8
+
+#define pinEN_ON() 		GPIOC->BSRR = GPIO_BSRR_BS_15
+#define pinEN_OFF() 	GPIOC->BSRR = GPIO_BSRR_BR_15
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define LEDa_ON() 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_7)
-#define LEDa_OFF() 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_7)
-#define LEDb_ON() 		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_1)
-#define LEDb_OFF() 		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_1)
-#define LEDc_ON() 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_6)
-#define LEDc_OFF() 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_6)
-#define LEDd_ON() 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_5)
-#define LEDd_OFF() 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_5)
-#define LEDe_ON() 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11)
-#define LEDe_OFF() 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_11)
-#define LEDf_ON() 		LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_9)
-#define LEDf_OFF() 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_9)
-#define LEDg_ON() 		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_0)
-#define LEDg_OFF() 		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_0)
-#define LEDdp_ON() 		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3)
-#define LEDdp_OFF() 	LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3)
 
-#define LEDD1_ON() 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_3)
-#define LEDD1_OFF() 	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_3)
-#define LEDD2_ON() 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_4)
-#define LEDD2_OFF() 	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_4)
-#define LEDD3_ON() 		LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_12)
-#define LEDD3_OFF() 	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_12)
-#define LEDD4_ON() 		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_4)
-#define LEDD4_OFF() 	LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_4)
-
-#define LEDl1l2_ON() 	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_10)
-#define LEDl1l2_OFF() 	LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_10)
-#define LEDalarm_ON() 	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_8)
-#define LEDalarm_OFF() 	LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_8)
-
-#define pinEN_ON() 		LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_15)
-#define pinEN_OFF() 	LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_15)
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-RTC_HandleTypeDef hrtc;
-
-TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim21;
-
-UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 bool flagDecrementButton;      // Було натискання кнопки
@@ -105,8 +70,7 @@ int actualIndex = 0;
 bool isParamEditMode = false;	// Прапорець режиму редагування параметра
 int tmpVValue = 0;       		// Тимчасова змінна для зберігання змінюваного параметра
 
-RTC_TimeTypeDef sTime = {0};
-RTC_DateTypeDef sDate = {0};
+
 
 struct strMenu {
 			int id;         // Унікальний ідентифікаційний індекс ID
@@ -162,56 +126,137 @@ struct strMenu menu[] = {                         // Встановлюємо п
 	  {17, 0,    false, "P__5", 	0, 0, 	0}
 	  //-----------------------------------------------------------------------
 };
+
+int MusicStep = 0;
+char PlayMusic = 0;
+int sound_time;
+int sound_counter;
+
+#define C	261	//Do
+#define C_	277 //Do#
+#define D	293 //Re
+#define D_	311 //Re#
+#define E	239 //Mi
+#define F	349 //Fa
+#define F_	370 //Fa#
+#define G 	392 //Sol
+#define G_	415 //Sol#
+#define A	440 //La
+#define A_	466 //La#
+#define H	494 //Si
+
+#define t1		2000
+#define t2		1000
+#define t4		500
+#define t8		250
+#define t16		125
+
+typedef struct
+{
+	uint16_t freq;
+	uint16_t time;
+}SoundTypeDef;
+
+const SoundTypeDef Music[48] ={
+	{C*2, t4},
+	{G, t4},
+	{A_, t8},
+	{F, t8},
+	{D_, t8},
+	{F, t8},
+	{G, t4},
+	{C, t2},
+	{C*2, t4},
+	{G, t4},
+	{A_, t8},
+	{F, t8},
+	{D_, t8},
+	{F, t8},
+	{G, t4},
+	{C*2, t4},
+	{0, t8},
+	{D_, t8},
+	{D_, t8},
+	{D_, t8},
+	{G, t8},
+	{A_, t4},
+	{D_*2, t8},
+	{C_*2, t8},
+	{C*2, t8},
+	{C*2, t8},
+	{C*2, t8},
+	{C*2, t8},
+	{A_, t8},
+	{F, t8},
+	{D_, t8},
+	{F, t8},
+	{G, t4},
+	{C*2, t2},
+	{C*2, t2},
+	{A_, t8},
+	{G_, t8},
+	{G, t8},
+	{G_, t8},
+	{A_, t2},
+	{A_, t4},
+	{C*2, t4},
+	{A_, t8},
+	{F, t8},
+	{D_, t8},
+	{F, t8},
+	{G, t4},
+	{C*2, t2}
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_RTC_Init(void);
-static void MX_TIM2_Init(void);
-static void MX_TIM21_Init(void);
-static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
+void deinitRCC(void);
+void initRCC(void);
+void initGPIO(void);
+void initRTC(void);
+void initTIM2(void);
+void initTIM21(void);
+void initUSART2_UART(void);
+
+void SysTick_Handler (void);
+void EXTI0_1_IRQHandler (void);
+void EXTI2_3_IRQHandler (void);
+void EXTI4_15_IRQHandler (void);
+void LPTIM1_IRQHandler (void);
+void TIM21_IRQHandler (void);
+void LPUART1_IRQHandler (void);
+
+void pwmFP7103();
+void setTimeNow();
+int Clock();
+void writeCHARSEG(char CHAR, int seg);
+char* setActualMenu(int v, int h);
+int getMenuIndexByID(int id);
+int getNearMenuIndexByID(int parentid, int id, int side);
+void StartMusic(int melody);
+void sound (int freq, int time_ms);
 
 /* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
+int main(void){
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
-
   /* USER CODE BEGIN Init */
-
+	initGPIO();
   /* USER CODE END Init */
-
   /* Configure the system clock */
-  SystemClock_Config();
+
 
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_RTC_Init();
-  MX_TIM2_Init();
-  MX_TIM21_Init();
-  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -220,9 +265,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  int vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
-	  int hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
-	  char* tmpValue;
+	int vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
+	int hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
+	char* tmpValue;
 
 	 if (flagDecrementButton){
 	  hmenu = 1;// Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
@@ -248,575 +293,258 @@ int main(void)
 		 LL_mDelay(50);
 	 }
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
-void SystemClock_Config(void)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-
-  /** Configure the main internal regulator output voltage
-  */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSE;
-  RCC_OscInitStruct.LSEState = RCC_LSE_BYPASS;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLLMUL_4;
-  RCC_OscInitStruct.PLL.PLLDIV = RCC_PLLDIV_2;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_RTC;
-  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Enables the Clock Security System
-  */
-  HAL_RCCEx_EnableLSECSS();
-}
-
-/**
-  * @brief RTC Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_RTC_Init(void)
-{
-
-  /* USER CODE BEGIN RTC_Init 0 */
-
-  /* USER CODE END RTC_Init 0 */
-
-
-  /* USER CODE BEGIN RTC_Init 1 */
-
-  /* USER CODE END RTC_Init 1 */
-
-  /** Initialize RTC Only
-  */
-  hrtc.Instance = RTC;
-  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-  hrtc.Init.AsynchPrediv = 127;
-  hrtc.Init.SynchPrediv = 255;
-  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
-  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
-  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-  if (HAL_RTC_Init(&hrtc) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /* USER CODE BEGIN Check_RTC_BKUP */
-
-  /* USER CODE END Check_RTC_BKUP */
-
-  /** Initialize RTC and set the Time and Date
-  */
-  sTime.Hours = 0x0;
-  sTime.Minutes = 0x0;
-  sTime.Seconds = 0x0;
-  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-  sDate.Month = RTC_MONTH_JANUARY;
-  sDate.Date = 0x1;
-  sDate.Year = 0x0;
-
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Enable the WakeUp
-  */
-  if (HAL_RTCEx_SetWakeUpTimer(&hrtc, 0, RTC_WAKEUPCLOCK_RTCCLK_DIV16) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN RTC_Init 2 */
-
-  /* USER CODE END RTC_Init 2 */
-
-}
-
-/**
-  * @brief TIM2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM2_Init(void)
-{
-
-  /* USER CODE BEGIN TIM2_Init 0 */
-
-  /* USER CODE END TIM2_Init 0 */
-
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-  TIM_OC_InitTypeDef sConfigOC = {0};
-
-  /* USER CODE BEGIN TIM2_Init 1 */
-
-  /* USER CODE END TIM2_Init 1 */
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 65535;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM2_Init 2 */
-
-  /* USER CODE END TIM2_Init 2 */
-  HAL_TIM_MspPostInit(&htim2);
-
-}
-
-/**
-  * @brief TIM21 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM21_Init(void)
-{
-
-  /* USER CODE BEGIN TIM21_Init 0 */
-
-  /* USER CODE END TIM21_Init 0 */
-
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-  TIM_OC_InitTypeDef sConfigOC = {0};
-
-  /* USER CODE BEGIN TIM21_Init 1 */
-
-  /* USER CODE END TIM21_Init 1 */
-  htim21.Instance = TIM21;
-  htim21.Init.Prescaler = 0;
-  htim21.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim21.Init.Period = 65535;
-  htim21.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim21.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_PWM_Init(&htim21) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim21, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_PWM_ConfigChannel(&htim21, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_TIM_PWM_ConfigChannel(&htim21, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM21_Init 2 */
-
-  /* USER CODE END TIM21_Init 2 */
-  HAL_TIM_MspPostInit(&htim21);
-
-}
-
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
-
-}
-
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_GPIO_Init(void)
-{
-  LL_EXTI_InitTypeDef EXTI_InitStruct = {0};
-  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
-
-  /* GPIO Ports Clock Enable */
-  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
-  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
-
-  /**/
-  LL_GPIO_ResetOutputPin(EN_GPIO_Port, EN_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(D1_GPIO_Port, D1_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(D2_GPIO_Port, D2_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(D3_GPIO_Port, D3_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(D4_GPIO_Port, D4_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(d_GPIO_Port, d_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(c_GPIO_Port, c_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(a_GPIO_Port, a_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(g_GPIO_Port, g_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(b_GPIO_Port, b_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(alarm_GPIO_Port, alarm_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(f_GPIO_Port, f_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(l1l2_GPIO_Port, l1l2_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(e_GPIO_Port, e_Pin);
-
-  /**/
-  LL_GPIO_SetOutputPin(dp_GPIO_Port, dp_Pin);
-
-  /**/
-  GPIO_InitStruct.Pin = EN_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(EN_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = D1_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
-  LL_GPIO_Init(D1_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = D2_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
-  LL_GPIO_Init(D2_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = d_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(d_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = c_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(c_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = a_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(a_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = g_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(g_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = b_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(b_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = alarm_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(alarm_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = f_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(f_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = l1l2_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(l1l2_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = e_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(e_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = D3_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
-  LL_GPIO_Init(D3_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = dp_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(dp_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = D4_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
-  LL_GPIO_Init(D4_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTA, LL_SYSCFG_EXTI_LINE0);
-
-  /**/
-  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTA, LL_SYSCFG_EXTI_LINE1);
-
-  /**/
-  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTA, LL_SYSCFG_EXTI_LINE2);
-
-  /**/
-  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTB, LL_SYSCFG_EXTI_LINE9);
-
-  /**/
-  LL_GPIO_SetPinPull(decrement_GPIO_Port, decrement_Pin, LL_GPIO_PULL_UP);
-
-  /**/
-  LL_GPIO_SetPinPull(enter_GPIO_Port, enter_Pin, LL_GPIO_PULL_UP);
-
-  /**/
-  LL_GPIO_SetPinPull(increment_GPIO_Port, increment_Pin, LL_GPIO_PULL_UP);
-
-  /**/
-  LL_GPIO_SetPinPull(pwr_GPIO_Port, pwr_Pin, LL_GPIO_PULL_UP);
-
-  /**/
-  LL_GPIO_SetPinMode(decrement_GPIO_Port, decrement_Pin, LL_GPIO_MODE_INPUT);
-
-  /**/
-  LL_GPIO_SetPinMode(enter_GPIO_Port, enter_Pin, LL_GPIO_MODE_INPUT);
-
-  /**/
-  LL_GPIO_SetPinMode(increment_GPIO_Port, increment_Pin, LL_GPIO_MODE_INPUT);
-
-  /**/
-  LL_GPIO_SetPinMode(pwr_GPIO_Port, pwr_Pin, LL_GPIO_MODE_INPUT);
-
-  /**/
-  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_0;
-  EXTI_InitStruct.LineCommand = ENABLE;
-  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
-  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
-  LL_EXTI_Init(&EXTI_InitStruct);
-
-  /**/
-  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_1;
-  EXTI_InitStruct.LineCommand = ENABLE;
-  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
-  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
-  LL_EXTI_Init(&EXTI_InitStruct);
-
-  /**/
-  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_2;
-  EXTI_InitStruct.LineCommand = ENABLE;
-  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
-  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
-  LL_EXTI_Init(&EXTI_InitStruct);
-
-  /**/
-  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_9;
-  EXTI_InitStruct.LineCommand = ENABLE;
-  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
-  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_RISING_FALLING;
-  LL_EXTI_Init(&EXTI_InitStruct);
-
-  /* EXTI interrupt init*/
-  NVIC_SetPriority(EXTI0_1_IRQn, 0);
-  NVIC_EnableIRQ(EXTI0_1_IRQn);
-  NVIC_SetPriority(EXTI2_3_IRQn, 0);
-  NVIC_EnableIRQ(EXTI2_3_IRQn);
-  NVIC_SetPriority(EXTI4_15_IRQn, 0);
-  NVIC_EnableIRQ(EXTI4_15_IRQn);
-
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
-}
-
 /* USER CODE BEGIN 4 */
-void pwmFP7103() {
-	if (menu[11].value) {
-		int timeWakeUp 	= menu[6].value 	* 3600
-					+ menu[7].value	* 60;
-		int timeNow 	= sTime.Hours 		* 3600
-					+ sTime.Minutes		* 60
-					+ sTime.Seconds;
-		if(menu[9].value * 60 >= timeWakeUp - timeNow){
-			pinEN_ON();
-			TIM_Cmd(TIM21, ENABLE);
-			TIM21->CCR1 = (int16_t) (65535 * pow((1 - timeNow / timeWakeUp), 2.24));
-		}
-	} else {
-			pinEN_OFF();
-			TIM_Cmd(TIM21, DISABLE);
-			TIM21->CCR1 = 0;
-		}
+void deinitRCC(void){
+//	Включим для начала HSI (внутренний генератор 8 МГц)
+	 SET_BIT(RCC->CR, RCC_CR_HSION);
+//	 Дождёмся его стабилизации
+	 while(READ_BIT(RCC->CR, RCC_CR_HSIRDY == RESET)) {}
+//	 Сбросим калибровку
+//	 Полностью очистим конфигурационный регистр
+//	 MODIFY_REG(RCC->CR, RCC_CR_HSITRIM, 0x80U);
+
+//	 Дождёмся очистку бита SWS
+//	 System clock switch status
+//	 These bits are set and cleared by hardware to indicate which clock source is used as system clock.
+	 CLEAR_REG(RCC->CFGR);
+	 while (READ_BIT(RCC->CFGR, RCC_CFGR_SWS) != RESET) {}
+//	 Аналогичным образом отключим PLL
+	 CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
+	 while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != RESET) {}
+//	 Выключим HSE и его детектор тактового сигнала, дождавшись затем отключения HSE
+	 CLEAR_BIT(RCC->CR, RCC_CR_HSEON);
+	 while (READ_BIT(RCC->CR, RCC_CR_HSERDY) != RESET) {}
+//	 Сбросим бит, разрешающий использование внешнего генератора
+	 CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
+//	 Сбросим флаги всех прерываний от RCC
+	  CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
+	  SET_BIT(RCC->CSR, RCC_CSR_RMVF);
+//	 Также запретим все прерывания от RCC
+//	   CLEAR_REG(RCC->CIR);
+}
+void initRCC(void){
+//	Включим наш HSE, дождавшись его стабилизации
+	SET_BIT(RCC->CR, RCC_CR_HSEON);
+	while(READ_BIT(RCC->CR, RCC_CR_HSERDY == RESET)) {}
+//	Настроим значения всех делителей
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_CFGR_HPRE_DIV1);
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, RCC_CFGR_PPRE2_DIV1);
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, RCC_CFGR_PPRE1_DIV1);
+//	Настроим PLL на коэффициент 9 и настроим его вход для работы от HSE
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_MCOSEL, RCC_CFGR_MCOSEL_HSI);
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLDIV, RCC_CFGR_PLLDIV2);
+//	Разрешим работу PLL, дождавшись затем его разблокировку
+	SET_BIT(RCC->CR, RCC_CR_PLLON);
+	while(READ_BIT(RCC->CR, RCC_CR_PLLRDY) != (RCC_CR_PLLRDY)) {}
+//	Выберем PLL в качестве источника системного тактирования, дождавшись затем применения данного действия
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL);
+	while(READ_BIT(RCC->CFGR, RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL) {}
 }
 
-int Clock(){
-	char tmpClock[4]={};
-	int j = 0;
-	tmpClock[0] = sTime.Hours/10;
-	if (sTime.Hours/10 == 0){j=1;}
-	tmpClock[1] = sTime.Hours - tmpClock[0];
-	tmpClock[2] = sTime.Minutes/10;
-	tmpClock[3] = sTime.Minutes - tmpClock[0];
-	if(sTime.Hours > 5 && sTime.Hours < 22 || flagDecrementButton || flagEnterButton || flagIncrementButton || flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong)
-	{
-		for(int i = 0 + j; i<4;i++){
-		 writeCHARSEG(tmpClock[i], i);
-		 LL_mDelay(50);
-	 }
+void initGPIO(void){
+
+	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
+	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
+	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
+	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
+	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
+	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
+	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
+	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
+
+
+	// сключаем тактирование порта A
+	RCC->IOPENR = RCC_IOPENR_IOPAEN;
+	// сключаем тактирование порта B
+	RCC->IOPENR = RCC_IOPENR_IOPBEN;
+	// сключаем тактирование порта C
+	RCC->IOPENR = RCC_IOPENR_IOPCEN;
+
+	RCC_ABP2ENR_
+	// LEDa (PA7)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE7_Msk, 0b01 << GPIO_MODER_MODE7_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_7;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED7_Msk, 0b11 << GPIO_OSPEEDER_OSPEED7_Pos);
+
+	// LEDb (PB1)
+	MODIFY_REG(GPIOB->MODER, GPIO_MODER_MODE1_Msk, 0b01 << GPIO_MODER_MODE1_Pos);
+	GPIOB->OTYPER |= GPIO_OTYPER_OT_1;
+	MODIFY_REG(GPIOB->OSPEEDR, GPIO_OSPEEDER_OSPEED1_Msk, 0b11 << GPIO_OSPEEDER_OSPEED1_Pos);
+
+	// LEDc (PA6)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE6_Msk, 0b01 << GPIO_MODER_MODE6_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_6;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED6_Msk, 0b11 << GPIO_OSPEEDER_OSPEED6_Pos);
+
+	// LEDd (PA5)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE5_Msk, 0b01 << GPIO_MODER_MODE5_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_5;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED5_Msk, 0b11 << GPIO_OSPEEDER_OSPEED5_Pos);
+
+	// LEDe (PA11)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE11_Msk, 0b01 << GPIO_MODER_MODE11_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_11;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED11_Msk, 0b11 << GPIO_OSPEEDER_OSPEED11_Pos);
+
+	// LEDf (PA9)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE9_Msk, 0b01 << GPIO_MODER_MODE9_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_9;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED9_Msk, 0b11 << GPIO_OSPEEDER_OSPEED9_Pos);
+
+	// LEDg (PB0)
+	MODIFY_REG(GPIOB->MODER, GPIO_MODER_MODE0_Msk, 0b01 << GPIO_MODER_MODE0_Pos);
+	GPIOB->OTYPER |= GPIO_OTYPER_OT_0;
+	MODIFY_REG(GPIOB->OSPEEDR, GPIO_OSPEEDER_OSPEED0_Msk, 0b11 << GPIO_OSPEEDER_OSPEED0_Pos);
+
+	// LEDdp (PB3)
+	MODIFY_REG(GPIOB->MODER, GPIO_MODER_MODE3_Msk, 0b01 << GPIO_MODER_MODE3_Pos);
+	GPIOB->OTYPER |= GPIO_OTYPER_OT_3;
+	MODIFY_REG(GPIOB->OSPEEDR, GPIO_OSPEEDER_OSPEED3_Msk, 0b11 << GPIO_OSPEEDER_OSPEED3_Pos);
+
+	// LEDD1 (PA3)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE3_Msk, 0b01 << GPIO_MODER_MODE3_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_3;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED3_Msk, 0b11 << GPIO_OSPEEDER_OSPEED3_Pos);
+
+	// LEDD2 (PA4)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE4_Msk, 0b01 << GPIO_MODER_MODE4_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_4;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED4_Msk, 0b11 << GPIO_OSPEEDER_OSPEED4_Pos);
+
+	// LEDD3 (PA12)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE12_Msk, 0b01 << GPIO_MODER_MODE12_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_12;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED12_Msk, 0b11 << GPIO_OSPEEDER_OSPEED12_Pos);
+
+	// LEDD4 (PB4)
+	MODIFY_REG(GPIOB->MODER, GPIO_MODER_MODE4_Msk, 0b01 << GPIO_MODER_MODE4_Pos);
+	GPIOB->OTYPER |= GPIO_OTYPER_OT_4;
+	MODIFY_REG(GPIOB->OSPEEDR, GPIO_OSPEEDER_OSPEED4_Msk, 0b11 << GPIO_OSPEEDER_OSPEED4_Pos);
+
+	// LEDl1l2 (PA10)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE10_Msk, 0b01 << GPIO_MODER_MODE10_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_10;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED10_Msk, 0b11 << GPIO_OSPEEDER_OSPEED10_Pos);
+
+	// LEDalarm (PA8)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE8_Msk, 0b01 << GPIO_MODER_MODE8_Pos);
+	GPIOA->OTYPER |= GPIO_OTYPER_OT_8;
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED8_Msk, 0b11 << GPIO_OSPEEDER_OSPEED8_Pos);
+
+	// pinEN (PC15)
+	MODIFY_REG(GPIOC->MODER, GPIO_MODER_MODE15_Msk, 0b01 << GPIO_MODER_MODE15_Pos);
+	GPIOC->OTYPER |= GPIO_OTYPER_OT_15;
+	MODIFY_REG(GPIOC->OSPEEDR, GPIO_OSPEEDER_OSPEED15_Msk, 0b11 << GPIO_OSPEEDER_OSPEED15_Pos);
+	
+	// decrement (PA0)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE0_Msk, 0b00 << GPIO_MODER_MODE0_Pos);
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED0_Msk, 0b11 << GPIO_OSPEEDER_OSPEED0_Pos);
+	MODIFY_REG(GPIOA->PUPDR, GPIO_PUPDR_PUPD0_Msk, 0b00 << GPIO_PUPDR_PUPD0_Pos);
+
+	MODIFY_REG(SYSCFG->EXTICR[0], SYSCFG_EXTICR1_EXTI0_Msk, 0b000<< SYSCFG_EXTICR1_EXTI0_Pos);
+	SET_BIT(EXTI->IMR, EXTI_IMR_IM0);
+	SET_BIT(EXTI->FTSR, EXTI_FTSR_FT0);
+
+	// enter (PA1)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE1_Msk, 0b00 << GPIO_MODER_MODE1_Pos);
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED1_Msk, 0b11 << GPIO_OSPEEDER_OSPEED1_Pos);
+	MODIFY_REG(GPIOA->PUPDR, GPIO_PUPDR_PUPD1_Msk, 0b00 << GPIO_PUPDR_PUPD1_Pos);
+
+	MODIFY_REG(SYSCFG->EXTICR[0], SYSCFG_EXTICR1_EXTI1_Msk, 0b000<< SYSCFG_EXTICR1_EXTI1_Pos);
+	SET_BIT(EXTI->IMR, EXTI_IMR_IM1);
+	SET_BIT(EXTI->FTSR, EXTI_FTSR_FT1);
+
+	// increment (PA2)
+	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE2_Msk, 0b00 << GPIO_MODER_MODE2_Pos);
+	MODIFY_REG(GPIOA->OSPEEDR, GPIO_OSPEEDER_OSPEED2_Msk, 0b11 << GPIO_OSPEEDER_OSPEED2_Pos);
+	MODIFY_REG(GPIOA->PUPDR, GPIO_PUPDR_PUPD2_Msk, 0b00 << GPIO_PUPDR_PUPD2_Pos);
+
+	MODIFY_REG(SYSCFG->EXTICR[0], SYSCFG_EXTICR1_EXTI2_Msk, 0b000<< SYSCFG_EXTICR1_EXTI2_Pos);
+	SET_BIT(EXTI->IMR, EXTI_IMR_IM2);
+	SET_BIT(EXTI->FTSR, EXTI_FTSR_FT2);
+
+	// pwr (PB9)		powerControlPIN
+	MODIFY_REG(GPIOB->MODER, GPIO_MODER_MODE9_Msk, 0b00 << GPIO_MODER_MODE9_Pos);
+	MODIFY_REG(GPIOB->OSPEEDR, GPIO_OSPEEDER_OSPEED9_Msk, 0b11 << GPIO_OSPEEDER_OSPEED9_Pos);
+	MODIFY_REG(GPIOB->PUPDR, GPIO_PUPDR_PUPD9_Msk, 0b00 << GPIO_PUPDR_PUPD9_Pos);
+
+	MODIFY_REG(SYSCFG->EXTICR[2], SYSCFG_EXTICR3_EXTI9_Msk, 0b000<< SYSCFG_EXTICR3_EXTI9_Pos);
+	SET_BIT(EXTI->IMR, EXTI_IMR_IM9);
+	SET_BIT(EXTI->RTSR, EXTI_RTSR_RT9);
+	SET_BIT(EXTI->FTSR, EXTI_FTSR_FT9);
 	}
-	return flagDecrementButtonLong&&flagIncrementButtonLong?0:1;
+
+void initRTC(void){
+
+}
+void initTIM2(void){
+
+}
+void initTIM21(void){
+
+}
+void initLPTIM(void){
+
+}
+void initLPUSART(void){
+
 }
 
-void setTimeNow(){
-		sTime.Hours 	= menu[2].value;
-		sTime.Minutes 	= menu[3].value;
-		sTime.Seconds 	= 00;
-	}
+void SysTick_Handler {}
+void EXTI0_1_IRQHandler {}
+void EXTI2_3_IRQHandler {}
+void EXTI4_15_IRQHandler {}
+void LPTIM1_IRQHandler {}
+void TIM21_IRQHandler {}
+void LPUART1_IRQHandler {}
+
+//void pwmFP7103() {
+//	if (menu[11].value) {
+//		int timeWakeUp 	= menu[6].value 	* 3600
+//					+ menu[7].value	* 60;
+//		int timeNow 	= sTime.Hours 		* 3600
+//					+ sTime.Minutes		* 60
+//					+ sTime.Seconds;
+//		if(menu[9].value * 60 >= timeWakeUp - timeNow){
+//			pinEN_ON();
+//			//TIM_Cmd(TIM21, ENABLE);
+//			TIM21->CCR1 = (int16_t) (65535 * pow((1 - timeNow / timeWakeUp), 2.24));
+//		}
+//	} else {
+//			pinEN_OFF();
+//			//TIM_Cmd(TIM21, DISABLE);
+//			TIM21->CCR1 = 0;
+//		}
+//}
+//
+//int Clock(){
+//	char tmpClock[4]={};
+//	int j = 0;
+//	tmpClock[0] = sTime.Hours/10;
+//	if (sTime.Hours/10 == 0){j=1;}
+//	tmpClock[1] = sTime.Hours - tmpClock[0];
+//	tmpClock[2] = sTime.Minutes/10;
+//	tmpClock[3] = sTime.Minutes - tmpClock[0];
+//	if(sTime.Hours > 5 && sTime.Hours < 22 || flagDecrementButton || flagEnterButton || flagIncrementButton || flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong)
+//	{
+//		for(int i = 0 + j; i<4;i++){
+//		 writeCHARSEG(tmpClock[i], i);
+//		 LL_mDelay(50);
+//	 }
+//	}
+//	return flagDecrementButtonLong&&flagIncrementButtonLong?0:1;
+//}
+//
+//void setTimeNow(){
+//		sTime.Hours 	= menu[2].value;
+//		sTime.Minutes 	= menu[3].value;
+//		sTime.Seconds 	= 00;
+//	}
 
 void writeCHARSEG(char CHAR, int seg){
 	switch (seg) {
@@ -1124,23 +852,28 @@ int getNearMenuIndexByID(int parentid, int id, int side) { // Функція о�
 	return -1;
 }
 
-
-/* USER CODE END 4 */
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
-  /* USER CODE END Error_Handler_Debug */
+void StartMusic(int melody) {
+	MusicStep = 0;
+	PlayMusic = 1;
+	sound(Music[MusicStep].freq, Music[MusicStep].time);
 }
+
+//void sound (int freq, int time_ms) {
+//	if (freq > 0) {
+//		TIM2->ARR = SYSCLK / timer.TIM_Prescaler / freq;
+//		TIM2->CCR1 = TIM2->ARR / 2;
+//	}
+//	else {
+//		TIM2->ARR = 1000;
+//		TIM2->CCR1 = 0;
+//	}
+//	TIM_SetCounter(TIM2, 0);
+//
+//	sound_time = ((SYSCLK / timer.TIM_Prescaler / TIM2->ARR) * time_ms ) / 1000;
+//	sound_counter = 0;
+//	TIM_Cmd(TIM2, ENABLE);
+//}
+/* USER CODE END 4 */
 
 #ifdef  USE_FULL_ASSERT
 /**

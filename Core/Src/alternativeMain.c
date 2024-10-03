@@ -69,47 +69,47 @@
 /* END PM */
 
 /* Private variables ---------------------------------------------------------*/
-UART_HandleTypeDef hlpuart1;    // Структура для UART
+UART_HandleTypeDef hlpuart1;    				// Структура для UART
 
 // Користувацькі змінні
-bool flagDecrementButton;       // Прапорець для натискання кнопки зменшення
-bool flagEnterButton;           // Прапорець для натискання кнопки підтвердження
-bool flagIncrementButton;       // Прапорець для натискання кнопки збільшення
-bool flagDecrementButtonLong;   // Прапорець для довгого утримання кнопки зменшення
-bool flagEnterButtonLong;       // Прапорець для довгого утримання кнопки підтвердження
-bool flagIncrementButtonLong;   // Прапорець для довгого утримання кнопки збільшення
-bool flagDecrementButtonDown;  // Було натискання кнопки
-bool flagEnterButtonDown;  // Було натискання кнопки
-bool flagIncrementButtonDown;  // Було натискання кнопки
+bool flagDecrementButton;       				// Прапорець для натискання кнопки зменшення
+bool flagEnterButton;           				// Прапорець для натискання кнопки підтвердження
+bool flagIncrementButton;       				// Прапорець для натискання кнопки збільшення
+bool flagDecrementButtonLong;   				// Прапорець для довгого утримання кнопки зменшення
+bool flagEnterButtonLong;       				// Прапорець для довгого утримання кнопки підтвердження
+bool flagIncrementButtonLong;   				// Прапорець для довгого утримання кнопки збільшення
+bool flagDecrementButtonDown;  					// Було натискання кнопки
+bool flagEnterButtonDown;  						// Було натискання кнопки
+bool flagIncrementButtonDown;  					// Було натискання кнопки
 
-unsigned int timeButtonLongPressed = 675; // Довге утримання кнопки після 1,5 секунд
-unsigned int timeButtonPressed = 175; // Довге утримання кнопки після 1,5 секунд
-unsigned int timeDecrementButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
-unsigned int timeEnterButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
-unsigned int timeIncrementButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
+unsigned int timeButtonLongPressed = 675; 		// Довге утримання кнопки після 1,5 секунд
+unsigned int timeButtonPressed = 175; 			// Довге утримання кнопки після 1,5 секунд
+unsigned int timeDecrementButtonDown = 0;  		// Змінна, що зберігає час натискання кнопки
+unsigned int timeEnterButtonDown = 0;  			// Змінна, що зберігає час натискання кнопки
+unsigned int timeIncrementButtonDown = 0;  		// Змінна, що зберігає час натискання кнопки
 
 
-int menuArraySize = 26;         // Встановлюємо розмір масиву меню
-int actualIndex = 0;            // Поточний індекс меню
-bool isParamEditMode = false;   // Прапорець режиму редагування параметра
-int tmpVValue = 0;              // Тимчасова змінна для зберігання параметра
+int menuArraySize = 26;         				// Встановлюємо розмір масиву меню
+int actualIndex = 0;            				// Поточний індекс меню
+bool isParamEditMode = false;   				// Прапорець режиму редагування параметра
+int tmpVValue = 0;              				// Тимчасова змінна для зберігання параметра
 
-volatile uint32_t SysTimer_ms = 0;  // Системний таймер (аналог HAL_GetTick)
-volatile uint32_t Delay_counter_ms = 0;  // Лічильник для затримки
+volatile uint32_t SysTimer_ms = 0;  			// Системний таймер (аналог HAL_GetTick)
+volatile uint32_t Delay_counter_ms = 0;  		// Лічильник для затримки
 
-int pwmcount = 0;               // Лічильник PWM
-int CounterTIM2 = 0;            // Лічильник таймера 2
-int CounterTIM21 = 0;           // Лічильник таймера 21
+int pwmcount = 0;               				// Лічильник PWM
+int CounterTIM2 = 0;            				// Лічильник таймера 2
+int CounterTIM21 = 0;           				// Лічильник таймера 21
 
 // Структура меню
 struct strMenu {
-    int id;         // Унікальний ідентифікаційний індекс ID
-    int parentid;   // ID батька (вкладеність)
-    bool isParam;   // Чи є пункт змінним параметром
-    char _name[4];  // Назва пункту меню
-    int value;      // Поточне значення параметра
-    int _min;       // Мінімально можливе значення
-    int _max;       // Максимально можливе значення
+    int id;         							// Унікальний ідентифікаційний індекс ID
+    int parentid;   							// ID батька (вкладеність)
+    bool isParam;   							// Чи є пункт змінним параметром
+    char _name[4];  							// Назва пункту меню
+    int value;      							// Поточне значення параметра
+    int _min;       							// Мінімально можливе значення
+    int _max;       							// Максимально можливе значення
 };
 /* PPPP
  *0 	P__0		Time_Now
@@ -138,7 +138,7 @@ struct strMenu {
  *23 		P_4.1	Menu_Night_Mode
  *24 	P__5		Clock(StartWork)
  */
-struct strMenu menu[] = {                         // Встановлюємо пункти меню
+struct strMenu menu[] = {                       // Встановлюємо пункти меню
 	{0, -1,    false,	"PPPP",		0, 0, 	0},
 	//-----------------------------------------------------------------------
 	{1, 0,     false,	"P__0",		0, 0, 	0},
@@ -411,50 +411,33 @@ void SystemClock_Config(void) {
 	}
 }
 
-/**
- * @brief LPUART1 Initialization Function
- * @param None
- * @retval None
- * 
- * #Development
- */
 void LPUART1_UART_Init(void) {
-
- /* USER CODE BEGIN LPUART1_Init 0 */
-
- /* USER CODE END LPUART1_Init 0 */
-
- /* USER CODE BEGIN LPUART1_Init 1 */
-
- /* USER CODE END LPUART1_Init 1 */
- hlpuart1.Instance = LPUART1;
- hlpuart1.Init.BaudRate = 209700;
- hlpuart1.Init.WordLength = UART_WORDLENGTH_7B;
- hlpuart1.Init.StopBits = UART_STOPBITS_1;
- hlpuart1.Init.Parity = UART_PARITY_NONE;
- hlpuart1.Init.Mode = UART_MODE_TX_RX;
- hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
- hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
- hlpuart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
- if (HAL_UART_Init(&hlpuart1) != HAL_OK)
- {
-   Error_Handler();
- }
- /* USER CODE BEGIN LPUART1_Init 2 */
-
- /* USER CODE END LPUART1_Init 2 */
+	// Увімкнення тактування GPIOB
+	RCC->IOPENR |= RCC_IOPENR_IOPBEN;
+	// Настроить пин PB6/PB7 на режим альтернативной функции
+	CONFIGURE_GPIO(GPIOB, 6, 0b10, 0, 0b11);  // TX
+	CONFIGURE_GPIO(GPIOB, 7, 0b10, 0, 0b11);  // RX
+	// Настроить альтернативную функцию AFR для пина PB6/PB7
+	MODIFY_REG(GPIOB->AFR[0], GPIO_AFRL_AFSEL6_Msk, 0b0110 << GPIO_AFRL_AFSEL6_Pos);
+	MODIFY_REG(GPIOB->AFR[0], GPIO_AFRL_AFSEL7_Msk, 0b0110 << GPIO_AFRL_AFSEL7_Pos);
+	
+    RCC->APB1ENR |= RCC_APB1ENR_LPUART1EN;// Включаємо тактування для LPUART1
+    LPUART1->CR1 &= ~USART_CR1_UE; // Скидаємо налаштування LPUART1 перед конфігуруванням // Вимикаємо UART для конфігурації
+    // Встановлюємо швидкість передачі (Baud rate) = 115200
+    // Для LPUART1 швидкість передачі обчислюється за формулою: baud = (ClockFreq) / (PRESC * (USARTDIV+1))
+    // У даному випадку PRESC = 1 (немає переддільника), тому:
+    // Baud rate = (System clock) / (USARTDIV+1), де USARTDIV = (System clock / Baud) - 1
+    uint32_t uartdiv = (SystemCoreClock / 115200) - 1;
+    LPUART1->BRR = uartdiv;
+    LPUART1->CR1 |= USART_CR1_M1; // Конфігуруємо довжину слова - 7 біт (M1=1, M0=0)
+    LPUART1->CR2 &= ~USART_CR2_STOP; // Налаштовуємо стоп-біти - 1 стоп-біт (SBK=0)
+    LPUART1->CR1 &= ~USART_CR1_PCE; // Встановлюємо парність - без парності (PCE=0)
+    LPUART1->CR1 |= USART_CR1_RE | USART_CR1_TE;// Увімкнення режиму прийому та передачі (RE=1, TE=1)
+    LPUART1->CR1 |= USART_CR1_UE;// Увімкнення LPUART1
 
 }
 
-/**
- * @brief RTC Initialization Function with Date and Time setting
- * @param None
- * @retval None
- * 
- * #Development
- */
 void RTC_Init(void) {
-
     // 1. Enable power and backup domain access
     SET_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN);
     SET_BIT(PWR->CR, PWR_CR_DBP);
@@ -950,7 +933,7 @@ void setTimeNow(){
                (menu[4].value%10 << RTC_DR_DU_Pos)  |  // Day units (1 -> 01)
                (menu[7].value << RTC_DR_WDU_Pos)); // Weekday (3 -> Monday)
 }
-
+SystemCoreClock 
 char* setActualMenu(int v, int h) {
 	if (v != 0) {               // Рухаємося по вертикалі
 		if (v == -1) {            // Команда ВГОРУ (скасування)
@@ -1098,17 +1081,10 @@ void SysTick_Handler(void) {
 	}
 }
 
-void EXTI0_1_IRQHandler(void)
-{
-    // Перевірка, чи було переривання від лінії EXTI 0
-    if (EXTI->PR & EXTI_PR_PR0)
-    {
-        // Скидаємо прапорець EXTI 0
-        EXTI->PR = EXTI_PR_PR0;
-
-        // Обробка кнопки decrement
-        if (flagDecrementButtonDown)
-        {
+void EXTI0_1_IRQHandler(void){
+    if (EXTI->PR & EXTI_PR_PR0){				// Перевірка, чи було переривання від лінії EXTI 0
+        EXTI->PR = EXTI_PR_PR0;					// Скидаємо прапорець EXTI 0
+        if (flagDecrementButtonDown){			// Обробка кнопки decrement
             if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonLongPressed)
             {
                 flagDecrementButtonLong = true;
@@ -1118,35 +1094,22 @@ void EXTI0_1_IRQHandler(void)
                 flagDecrementButton = true;
             }
             flagDecrementButtonDown = false;
-        }
-        else
-        {
+        }else{
             timeDecrementButtonDown = HAL_GetTick();
             flagDecrementButtonDown = true;
         }
     }
-
-    // Перевірка, чи було переривання від лінії EXTI 1
-    if (EXTI->PR & EXTI_PR_PR1)
-    {
-        // Скидаємо прапорець EXTI 1
-        EXTI->PR = EXTI_PR_PR1;
-
-        // Обробка кнопки enter
-        if (flagEnterButtonDown)
-        {
-            if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonLongPressed)
-            {
+    if (EXTI->PR & EXTI_PR_PR1){				// Перевірка, чи було переривання від лінії EXTI 1
+		EXTI->PR = EXTI_PR_PR1;					// Скидаємо прапорець EXTI 1 
+        if (flagEnterButtonDown){				// Обробка кнопки enter
+            if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonLongPressed){
                 flagEnterButtonLong = true;
             }
-            else if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonPressed)
-            {
+            else if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonPressed){
                 flagEnterButton = true;
             }
             flagEnterButtonDown = false;
-        }
-        else
-        {
+        }else{
             timeEnterButtonDown = HAL_GetTick();
             flagEnterButtonDown = true;
         }

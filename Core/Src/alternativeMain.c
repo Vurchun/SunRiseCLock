@@ -2,15 +2,9 @@
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 #include <stdbool.h>            // Підключаємо бібліотеку для використання булевих значень
 #include "math.h"               // Підключаємо бібліотеку для математичних операцій
-/* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-// Немає користувацьких визначень структур
-/* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
@@ -70,17 +64,13 @@
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
+/* PM */
 // Немає користувацьких макросів
-/* USER CODE END PM */
+/* END PM */
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef hlpuart1;    // Структура для UART
-RTC_HandleTypeDef hrtc;         // Структура для годинника реального часу
-TIM_HandleTypeDef htim2;        // Структура для таймера 2
-TIM_HandleTypeDef htim21;       // Структура для таймера 21
 
-/* USER CODE BEGIN PV */
 // Користувацькі змінні
 bool flagDecrementButton;       // Прапорець для натискання кнопки зменшення
 bool flagEnterButton;           // Прапорець для натискання кнопки підтвердження
@@ -88,8 +78,18 @@ bool flagIncrementButton;       // Прапорець для натисканн�
 bool flagDecrementButtonLong;   // Прапорець для довгого утримання кнопки зменшення
 bool flagEnterButtonLong;       // Прапорець для довгого утримання кнопки підтвердження
 bool flagIncrementButtonLong;   // Прапорець для довгого утримання кнопки збільшення
+bool flagDecrementButtonDown;  // Було натискання кнопки
+bool flagEnterButtonDown;  // Було натискання кнопки
+bool flagIncrementButtonDown;  // Було натискання кнопки
 
-int menuArraySize = 23;         // Встановлюємо розмір масиву меню
+unsigned int timeButtonLongPressed = 675; // Довге утримання кнопки після 1,5 секунд
+unsigned int timeButtonPressed = 175; // Довге утримання кнопки після 1,5 секунд
+unsigned int timeDecrementButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
+unsigned int timeEnterButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
+unsigned int timeIncrementButtonDown = 0;  // Змінна, що зберігає час натискання кнопки
+
+
+int menuArraySize = 26;         // Встановлюємо розмір масиву меню
 int actualIndex = 0;            // Поточний індекс меню
 bool isParamEditMode = false;   // Прапорець режиму редагування параметра
 int tmpVValue = 0;              // Тимчасова змінна для зберігання параметра
@@ -139,30 +139,39 @@ struct strMenu {
  *24 	P__5		Clock(StartWork)
  */
 struct strMenu menu[] = {                         // Встановлюємо пункти меню
-	  {0, -1,    false,	"PPPP",		0, 0, 	0},
-	  //-----------------------------------------------------------------------
-	  {1, 0,     false,	"P__0",		0, 0, 	0},
-	  {2, 1,     true,	"P_00",		0, 2, 	0},
-	  {3, 2,     true,	"P_01", 	0, 59, 	0},
-	  {4, 1,     false, "P_02", 	0, 0, 	0},
-	  //-----------------------------------------------------------------------
-	  {5, 0,     false, "P__1", 	0, 0, 	0},
-	  {6, 5,     true,	"P_10", 	0, 23, 	0},
-	  {7, 5,     true,	"P_11", 	0, 59, 	0},
-	  //-----------------------------------------------------------------------
-	  {8, 0,   	 false, "P__2", 	0, 0, 	0},
-	  {9, 8,     true,	"P_20", 	0, 255, 64},
-	  //-----------------------------------------------------------------------
-	  {10, 0,    false, "P__3", 	0, 0, 	0},
-	  {11, 10,   true,	"P_30", 	0, 1, 	1},
-	  {12, 10,   true,	"P_31", 	0, 8, 	0},
-	  {13, 10,   false,	"P_32", 	0, 0, 	0},
-	  //-----------------------------------------------------------------------
-	  {14, 0,    false, "P__4", 	0, 0, 	1},
-	  {15, 14,   true,	"P_40", 	0, 3, 	0},
-	  {16, 14,   true,	"P_41", 	0, 1, 	1},
-	  {17, 0,    false, "P__5", 	0, 0, 	0}
-	  //-----------------------------------------------------------------------
+	{0, -1,    false,	"PPPP",		0, 0, 	0},
+	//-----------------------------------------------------------------------
+	{1, 0,     false,	"P__0",		0, 0, 	0},
+	{2, 1,     true,	"P_00",		0, 0, 	24},
+	{3, 1,     true,	"P_01", 	0, 0, 	59},
+	{4, 1,     true,	"P_02",		0, 0, 	59},
+	{5, 1,     true,	"P_03", 	0, 0, 	31},
+	{6, 1,     true,	"P_04",		0, 0, 	12},
+	{7, 1,     true,	"P_05", 	0, 0, 	99},
+	{8, 1,     true,	"P_06",		0, 1, 	7},
+	{9, 1,     false, 	"P_07", 	0, 0, 	0},
+	//-----------------------------------------------------------------------
+	{10, 0,    false, 	"P__1", 	0, 0, 	0},
+	{11, 10,   true,	"P_10", 	0, 23, 	0},
+	{12, 10,   true,	"P_11", 	0, 59, 	0},
+	//-----------------------------------------------------------------------
+	{13, 0,    false, 	"P__2", 	0, 0, 	0},
+	{14, 13,   true,	"P_20", 	0, 999, 60},
+	{15, 13,   true,	"P_21", 	0, 272, 224},
+	//-----------------------------------------------------------------------
+	{16, 0,    false, 	"P__3", 	0, 0, 	0},
+	{17, 16,   true,	"P_30", 	0, 1, 	1},
+	{18, 16,   true,	"P_31", 	0, 0, 	24},
+	{19, 16,   true,	"P_32", 	0, 0, 	59},
+	{20, 16,   true,	"P_33", 	0, 7, 	0},
+	{21, 16,   false,	"P_34", 	0, 0, 	0},
+	//-----------------------------------------------------------------------
+	{22, 0,    false, 	"P__4", 	0, 0, 	1},
+	{23, 22,   true,	"P_40", 	0, 3, 	0},
+	{24, 22,   true,	"P_41", 	0, 1, 	1},
+	//-----------------------------------------------------------------------
+	{25, 0,    false, 	"P__5", 	0, 0, 	0}
+	//-----------------------------------------------------------------------
 };
 
 /* Sound/Buzzer variables ---------------------------------------------------------*/
@@ -247,7 +256,6 @@ const SoundTypeDef Music[48] ={
 	{C*2, t2}
 };
 /* END S/BV */
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -298,14 +306,6 @@ void sound (int freq, int time_ms);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
- * @brief  The application entry point.
- * @retval int
- */
 int main(void) {
 	/* USER CODE BEGIN 1 */
 
@@ -352,12 +352,6 @@ int main(void) {
   /* USER CODE END 3 */
 }
 
-/**
- * @brief System Clock Configuration
- * @retval None
- * 
- * #Working
- */
 void SystemClock_Config(void) {
 	// Налаштування PWR CR для регулювання напруги
 	MODIFY_REG(PWR->CR, PWR_CR_VOS_Msk, 0b01 << PWR_CR_VOS_Pos);
@@ -510,14 +504,6 @@ void RTC_Init(void) {
 	RTC->WPR = 0x64; //				-||-
 }
 
-/**
- * @brief TIM2 Initialization Function
- * @param None
- * @retval None
- * 
- * #Working
- * 
- */
 void TIM2_Init(void) {
 
 	// Увімкнення тактування GPIOA (для PA15, як PWM вихід)
@@ -568,13 +554,6 @@ void TIM2_Init(void) {
 		SET_BIT(TIM2->CR1, TIM_CR1_CEN);
 }
 
-/**
- * @brief TIM21 Initialization Function
- * @param None
- * @retval None
- * 
- * #Working
- */
 void TIM21_Init(void) {
 	// Увімкнення тактування GPIOB (для PB5, як PWM вихід)
 	RCC->IOPENR |= RCC_IOPENR_IOPBEN;
@@ -623,13 +602,6 @@ void TIM21_Init(void) {
 	SET_BIT(TIM21->CR1, TIM_CR1_CEN);
 }
 
-/**
- * @brief GPIO Initialization Function
- * @param None
- * @retval None
- * 
- * #Working
- */
 void GPIO_Init(void) {
 	// Включення тактування портів A, B, C
 	RCC->IOPENR |= RCC_IOPENR_IOPAEN | RCC_IOPENR_IOPBEN | RCC_IOPENR_IOPCEN;
@@ -919,21 +891,21 @@ void writeCHARSEG(char CHAR, int seg) {
 }
 
 void pwmFP7103() {
-	if (menu[16].value) {							//*16 		P_3.0	Alarm_Status
-		int timeWakeUp 	= menu[10].value 	* 3600	//*10 		P_1.0	Hour_Rise
-						+ menu[11].value	* 60;	//*11 		P_1.1	Minute_Rise
-		int timeNow 	= (READ_BIT(RTC->TR,RTC_TR_HT)*10+READ_BIT(RTC->TR,RTC_TR_HU))	* 3600
-						+ (READ_BIT(RTC->TR,RTC_TR_MNT)*10+READ_BIT(RTC->TR,RTC_TR_MNU))* 60
-						+ (READ_BIT(RTC->TR,RTC_TR_ST)*10+READ_BIT(RTC->TR,RTC_TR_SU))	;
+	if (menu[16].value) {										//*16 		P_3.0	Alarm_Status
+		int timeWakeUp 	= menu[10].value 	* 3600				//*10 		P_1.0	Hour_Rise
+						+ menu[11].value	* 60;				//*11 		P_1.1	Minute_Rise
+		int timeNow 	= (READ_BIT(RTC->TR,RTC_TR_HT)	*10+READ_BIT(RTC->TR,RTC_TR_HU))	* 3600
+						+ (READ_BIT(RTC->TR,RTC_TR_MNT)	*10+READ_BIT(RTC->TR,RTC_TR_MNU))	* 60
+						+ (READ_BIT(RTC->TR,RTC_TR_ST)	*10+READ_BIT(RTC->TR,RTC_TR_SU))	;
 		if(menu[13].value * 60 >= timeWakeUp - timeNow){		// *13 		P_2.0	Period_Rising
 			pinEN_ON();
-			SET_BIT(TIM21->CR1, TIM_CR1_CEN);  //Запуск таймера
-			TIM21->CCR1 = custom_floor(TIM2->ARR * custom_pow((1 - timeNow / timeWakeUp), menu[14].value));
-			// *14 		P_2.1	ɣ_Coefient_Rising
+			SET_BIT(TIM21->CR1, TIM_CR1_CEN);  					//Запуск таймера
+			TIM21->CCR1 = custom_floor(TIM2->ARR * custom_pow((1 - timeNow / timeWakeUp), menu[14].value/100));
+																// *14 		P_2.1	ɣ_Coefient_Rising
 		}
 	} else {
 			pinEN_OFF();
-			CLEAR_BIT(TIM21->CR1, TIM_CR1_CEN);  //Запуск таймера
+			CLEAR_BIT(TIM21->CR1, TIM_CR1_CEN);  				//Призупинення таймера
 			TIM21->CCR1 = 0;
 		}
 }
@@ -1111,11 +1083,11 @@ void sound (int freq, int time_ms) {
 		TIM2->ARR = 1000;
 		TIM2->CCR1 = 0;
 	}
-	TIM_SetCounter(TIM2, 0);
+	CLEAR_BIT(TIM2->CNT);
 
 	sound_time = ((SYSCLK / timer.TIM_Prescaler / TIM2->ARR) * time_ms ) / 1000;
 	sound_counter = 0;
-	TIM_Cmd(TIM2, ENABLE);
+	SET_BIT(TIM2->CR1, TIM_CR1_CEN);  //Запуск таймера;
 }
 /* Handlers--------------------------------------------------------*/
 
@@ -1128,95 +1100,99 @@ void SysTick_Handler(void) {
 
 void EXTI0_1_IRQHandler(void)
 {
-  /* USER CODE BEGIN EXTI0_1_IRQn 0 */
+    // Перевірка, чи було переривання від лінії EXTI 0
+    if (EXTI->PR & EXTI_PR_PR0)
+    {
+        // Скидаємо прапорець EXTI 0
+        EXTI->PR = EXTI_PR_PR0;
 
-  /* USER CODE END EXTI0_1_IRQn 0 */
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_0) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
-    /* USER CODE BEGIN LL_EXTI_LINE_0 */
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
-       /* USER CODE BEGIN LL_EXTI_LINE_1 */
-  	if (flagDecrementButtonDown){
-   		if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonLongPressed)
-   			{flagDecrementButtonLong=true;}
-   		else if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonPressed)
-   			{flagDecrementButton=true;}
-   			flagDecrementButtonDown=false;
-   	}
-   	else {
-   			timeDecrementButtonDown = HAL_GetTick(); flagDecrementButtonDown=true;
-   	}
-    /* USER CODE END LL_EXTI_LINE_0 */
-  }
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
-    /* USER CODE BEGIN LL_EXTI_LINE_1 */
-  	if (flagEnterButtonDown){
-   		if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonLongPressed)
-   			{flagEnterButtonLong=true;}
-   		else if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonPressed)
-   			{flagEnterButton=true;}
-   			flagEnterButtonDown=false;
-   	}
-   	else {
-   			timeEnterButtonDown = HAL_GetTick(); flagEnterButtonDown=true;
-   	}
-    /* USER CODE END LL_EXTI_LINE_1 */
-  }
-  /* USER CODE BEGIN EXTI0_1_IRQn 1 */
+        // Обробка кнопки decrement
+        if (flagDecrementButtonDown)
+        {
+            if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonLongPressed)
+            {
+                flagDecrementButtonLong = true;
+            }
+            else if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonPressed)
+            {
+                flagDecrementButton = true;
+            }
+            flagDecrementButtonDown = false;
+        }
+        else
+        {
+            timeDecrementButtonDown = HAL_GetTick();
+            flagDecrementButtonDown = true;
+        }
+    }
 
-  /* USER CODE END EXTI0_1_IRQn 1 */
+    // Перевірка, чи було переривання від лінії EXTI 1
+    if (EXTI->PR & EXTI_PR_PR1)
+    {
+        // Скидаємо прапорець EXTI 1
+        EXTI->PR = EXTI_PR_PR1;
+
+        // Обробка кнопки enter
+        if (flagEnterButtonDown)
+        {
+            if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonLongPressed)
+            {
+                flagEnterButtonLong = true;
+            }
+            else if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonPressed)
+            {
+                flagEnterButton = true;
+            }
+            flagEnterButtonDown = false;
+        }
+        else
+        {
+            timeEnterButtonDown = HAL_GetTick();
+            flagEnterButtonDown = true;
+        }
+    }
 }
 
-/**
-  * @brief This function handles EXTI line 2 and line 3 interrupts.
-  */
 void EXTI2_3_IRQHandler(void)
 {
-  /* USER CODE BEGIN EXTI2_3_IRQn 0 */
+    // Перевірка, чи було переривання від лінії EXTI 2
+    if (EXTI->PR & EXTI_PR_PR2)
+    {
+        // Скидаємо прапорець EXTI 2
+        EXTI->PR = EXTI_PR_PR2;
 
-  /* USER CODE END EXTI2_3_IRQn 0 */
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_2) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_2);
-    /* USER CODE BEGIN LL_EXTI_LINE_2 */
-  	if (flagIncrementButtonDown){
-   		if ((HAL_GetTick() - timeIncrementButtonDown) > timeButtonLongPressed)
-   			{flagIncrementButtonLong=true;}
-   		else if ((HAL_GetTick() - timeIncrementButtonDown) > timeButtonPressed)
-   			{flagIncrementButton=true;}
-   			flagIncrementButtonDown=false;
-   	}
-   	else {
-   			timeIncrementButtonDown = HAL_GetTick(); flagIncrementButtonDown=true;
-   	}
-    /* USER CODE END LL_EXTI_LINE_2 */
-  }
-  /* USER CODE BEGIN EXTI2_3_IRQn 1 */
-
-  /* USER CODE END EXTI2_3_IRQn 1 */
+        // Обробка кнопки increment
+        if (flagIncrementButtonDown)
+        {
+            if ((HAL_GetTick() - timeIncrementButtonDown) > timeButtonLongPressed)
+            {
+                flagIncrementButtonLong = true;
+            }
+            else if ((HAL_GetTick() - timeIncrementButtonDown) > timeButtonPressed)
+            {
+                flagIncrementButton = true;
+            }
+            flagIncrementButtonDown = false;
+        }
+        else
+        {
+            timeIncrementButtonDown = HAL_GetTick();
+            flagIncrementButtonDown = true;
+        }
+    }
 }
 
-/**
-  * @brief This function handles EXTI line 4 to 15 interrupts.
-  */
 void EXTI4_15_IRQHandler(void)
 {
-  /* USER CODE BEGIN EXTI4_15_IRQn 0 */
+    // Перевірка, чи було переривання від лінії EXTI 9
+    if (EXTI->PR & EXTI_PR_PR9)
+    {
+        // Скидаємо прапорець EXTI 9
+        EXTI->PR = EXTI_PR_PR9;
 
-  /* USER CODE END EXTI4_15_IRQn 0 */
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_9) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_9);
-    /* USER CODE BEGIN LL_EXTI_LINE_9 */
-
-    /* USER CODE END LL_EXTI_LINE_9 */
-  }
-  /* USER CODE BEGIN EXTI4_15_IRQn 1 */
-
-  /* USER CODE END EXTI4_15_IRQn 1 */
+        // Обробка подій, пов'язаних з EXTI 9
+        // Код обробки може бути доданий тут
+    }
 }
 
 void TIM2_IRQHandler(void) {
@@ -1236,7 +1212,6 @@ void TIM21_IRQHandler(void) {
 }
 
 /* USER CODE END 4 */
-
 /**
  * @brief  This function is executed in case of error occurrence.
  * @retval None

@@ -1,8 +1,5 @@
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
-/* Private includes ----------------------------------------------------------*/
 #include <stdbool.h> // Підключаємо бібліотеку для використання булевих значень
-/* Private define ------------------------------------------------------------*/
 // Макрос для налаштування GPIO
 #define CONFIGURE_GPIO(PORT, PIN, MODE, TYPE, SPEED)                                         \
 	MODIFY_REG(PORT->MODER, GPIO_MODER_MODE##PIN##_Msk, MODE << GPIO_MODER_MODE##PIN##_Pos); \
@@ -56,12 +53,6 @@
 #define pinEN_OFF() GPIOC->BSRR = GPIO_BSRR_BR_15
 
 #define SYSCLK 32000000
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* PM */
-// Немає користувацьких макросів
-/* END PM */
 
 /* Private variables ---------------------------------------------------------*/
 bool flagDecrementButton;	  // Прапорець для натискання кнопки зменшення
@@ -276,13 +267,10 @@ void UsageFault_Handler(void);
 void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
-
-/* USER CODE BEGIN PFP */
+/*----------------------------------------------------------------------------*/
 void Delay_ms(uint32_t Milliseconds);
 double custom_pow(double a, double x);
 int custom_floor(double x);
-/*----------------------------------------------------------------------------*/
-
 /*----------------------------------------------------------------------------*/
 void pwmFP7103();
 /*----------------------------------------------------------------------------*/
@@ -297,9 +285,9 @@ int getNearMenuIndexByID(int parentid, int id, int side);
 /*----------------------------------------------------------------------------*/
 void StartMusic(int melody);
 void sound(int freq, int time_ms);
-/* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
+
+
 int main(void)
 {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -326,13 +314,21 @@ int main(void)
 			hmenu = 1;					 // Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
 			flagDecrementButton = false; // Действие обработано - сбрасываем флаг
 		}
-		// Прапорець обертання за годинниковою стрілкою
-		else if (flagIncrementButton)
+		else if(flagDecrementButtonLong){
+			hmenu = 5;					 // Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
+			flagDecrementButtonLong = false; // Действие обработано - сбрасываем флаг
+		}
+		
+		if (flagIncrementButton)
 		{
-			hmenu = -1;					 // Якщо при спаді лінії A на лінії B лог. нуль, то обертання в інший бік
+			hmenu = -1;					 // Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
 			flagIncrementButton = false; // Действие обработано - сбрасываем флаг
 		}
-		// Прапорець обертання проти годинникової стрілки
+		else if(flagIncrementButtonLong){
+			hmenu = -5;					 // Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
+			flagIncrementButtonLong = false; // Действие обработано - сбрасываем флаг
+		}
+		
 		if (flagEnterButton)
 		{							 // Кнопка нажата
 			vmenu = 1;				 // По нажатию кнопки - переходим на уровень вниз
@@ -348,11 +344,13 @@ int main(void)
 		for (int i = 0; i < 4; i++)
 		{
 			writeCHARSEG(tmpValue[i], i);
+			Delay_ms(50);
 		}
 	}
 }
 
-void SysTickTimerInit(uint32_t ticks) {
+void SysTickTimerInit(uint32_t ticks)
+{
 	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); 	// 1. Вимкнемо таймер для проведення налаштувань
 	SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk); 	// 2. Дозволимо переривання по таймеру
 	SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk); // 3. Виберемо тактуючий сигнал від процесора (HSI через PLL 32 МГц)(Тактуючий сигнал без дільника)
@@ -426,7 +424,7 @@ void SystemClock_Config(void)
 	{
 	}
 }
-
+/*READ INIT*/
 void LPUART1_UART_Init(void)
 {
 	// Увімкнення тактування GPIOB
@@ -452,7 +450,7 @@ void LPUART1_UART_Init(void)
 	LPUART1->CR1 |= USART_CR1_RE | USART_CR1_TE; // Увімкнення режиму прийому та передачі (RE=1, TE=1)
 	LPUART1->CR1 |= USART_CR1_UE;				 // Увімкнення LPUART1
 }
-
+/*READ INIT*/
 void RTC_Init(void)
 {
 	// 1. Enable power and backup domain access
@@ -647,7 +645,7 @@ void Delay_ms(uint32_t Milliseconds)
 {
 	Delay_counter_ms = Milliseconds;
 	while (Delay_counter_ms != 0)
-		;
+		Delay_counter_ms--;
 }
 
 int custom_floor(double x)

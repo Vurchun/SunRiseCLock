@@ -1,13 +1,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
 /* Private includes ----------------------------------------------------------*/
 #include <stdbool.h> // Підключаємо бібліотеку для використання булевих значень
-#include "math.h"	 // Підключаємо бібліотеку для математичних операцій
-
 /* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
 // Макрос для налаштування GPIO
 #define CONFIGURE_GPIO(PORT, PIN, MODE, TYPE, SPEED)                                         \
 	MODIFY_REG(PORT->MODER, GPIO_MODER_MODE##PIN##_Msk, MODE << GPIO_MODER_MODE##PIN##_Pos); \
@@ -105,7 +100,7 @@ struct strMenu
 	bool isParam;  // Чи є пункт змінним параметром
 	char _name[4]; // Назва пункту меню
 	int value;	   // Поточне значення параметра
-	int _min;	   // Мінімально можливе значення
+	int _min;	   // Мінімально можливе значеннял
 	int _max;	   // Максимально можливе значення
 };
 /* PPPP
@@ -255,6 +250,7 @@ const SoundTypeDef Music[48] = {
 /* END S/BV */
 
 /* Private function prototypes -----------------------------------------------*/
+void SysTickTimerInit(uint32_t ticks);
 void SystemClock_Config(void);
 void GPIO_Init(void);
 void LPUART1_UART_Init(void);
@@ -262,6 +258,7 @@ void RTC_Init(void);
 void TIM2_Init(void);
 void TIM21_Init(void);
 /*Handlers*/
+void SysTick_Handler(void);
 void Error_Handler(void);
 void assert_failed(uint8_t *file, uint32_t line);
 void EXTI0_1_IRQHandler(void);
@@ -306,9 +303,9 @@ void sound(int freq, int time_ms);
 int main(void)
 {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	//	HAL_Init();
-
+	SysTickTimerInit(32000); // 1ms
 	SystemClock_Config();
+
 	GPIO_Init();
 	LPUART1_UART_Init();
 	RTC_Init();
@@ -353,6 +350,16 @@ int main(void)
 			writeCHARSEG(tmpValue[i], i);
 		}
 	}
+}
+
+void SysTickTimerInit(uint32_t ticks) {
+	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); 	// 1. Вимкнемо таймер для проведення налаштувань
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk); 	// 2. Дозволимо переривання по таймеру
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk); // 3. Виберемо тактуючий сигнал від процесора (HSI через PLL 32 МГц)(Тактуючий сигнал без дільника)
+	// Системна частота 32 МГц => 32 000 000 / 1000 = 32 000 (лічильник для 1 мс)
+	MODIFY_REG(SysTick->LOAD, SysTick_LOAD_RELOAD_Msk, ticks - 1 << SysTick_LOAD_RELOAD_Pos);// 4. Налаштуємо переривання на частоту (SysTick генерує переривання кожну *с)
+	MODIFY_REG(SysTick->VAL, SysTick_VAL_CURRENT_Msk, ticks - 1 << SysTick_VAL_CURRENT_Pos);// 5. Почнемо відлік з максимального значення
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);	// 6. Запустимо таймер
 }
 
 void SystemClock_Config(void)
@@ -1234,6 +1241,9 @@ void EXTI4_15_IRQHandler(void)
 	// Перевірка, чи було переривання від лінії EXTI 9
 	if (EXTI->PR & EXTI_PR_PR9)
 	{
+/*
+Обработка LPOWER
+*/
 		// Скидаємо прапорець EXTI 9
 		EXTI->PR = EXTI_PR_PR9;
 

@@ -15,6 +15,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define SYSCLOCK 32000000U
+
 #define LEDa_ON() 		GPIOA->BSRR = GPIO_BSRR_BS_7
 #define LEDa_OFF() 		GPIOA->BSRR = GPIO_BSRR_BR_7
 #define LEDb_ON() 		GPIOB->BSRR = GPIO_BSRR_BS_1
@@ -48,6 +50,11 @@
 
 #define pinEN_ON() 		GPIOC->BSRR = GPIO_BSRR_BS_15
 #define pinEN_OFF() 	GPIOC->BSRR = GPIO_BSRR_BR_15
+
+#define TIM_EnableCounter(TIMx) SET_BIT(TIMx->CR1, TIM_CR1_CEN)
+#define TIM_DisableCounter(TIMx) CLEAR_BIT(TIMx->CR1, TIM_CR1_CEN)
+#define TIM_EnableIT_UPDATE(TIMx) SET_BIT(TIMx->DIER, TIM_DIER_UIE)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -207,6 +214,17 @@ const SoundTypeDef Music[48] ={
 	{G, t4},
 	{C*2, t2}
 };
+
+
+__IO uint32_t tmpreg;
+__IO uint32_t SysTick_CNT = 0;
+__IO uint8_t lptim_count = 0;
+__IO uint8_t butIncrement_count = 0;
+__IO uint8_t butIncrement_lock = 0;
+__IO uint8_t butEnter_count = 0;
+__IO uint8_t butEnter_lock = 0;
+__IO uint8_t butDecrement_count = 0;
+__IO uint8_t butDecrement_lock = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -215,8 +233,9 @@ void deinitRCC(void);
 void initRCC(void);
 void initGPIO(void);
 void initRTC(void);
-void initTIM2(void);
-void initTIM21(void);
+static void initTIM2(void);
+static void initTIM21(void);
+static void initLPTIM1(void);
 void initUSART2_UART(void);
 
 void SysTick_Handler (void);
@@ -237,6 +256,7 @@ int getNearMenuIndexByID(int parentid, int id, int side);
 void StartMusic(int melody);
 void sound (int freq, int time_ms);
 
+void delay_ms(uint32_t ms);
 /* USER CODE END PFP */
 
 int main(void){
@@ -247,6 +267,7 @@ int main(void){
   /* MCU Configuration--------------------------------------------------------*/
 
   /* USER CODE BEGIN Init */
+	initRCC();
 	initGPIO();
   /* USER CODE END Init */
   /* Configure the system clock */
@@ -269,6 +290,12 @@ int main(void){
 	int hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
 	char* tmpValue;
 
+	while(1){
+
+LEDdp_ON();
+
+LEDD1_OFF();
+	}
 	 if (flagDecrementButton){
 	  hmenu = 1;// Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
 	  flagDecrementButton = false;       // Действие обработано - сбрасываем флаг
@@ -290,7 +317,6 @@ int main(void){
 	 if (vmenu != 0 || hmenu != 0) tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
 	 for(int i = 0; i<4;i++){
 		 writeCHARSEG(tmpValue[i], i);
-		 LL_mDelay(50);
 	 }
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
@@ -299,34 +325,34 @@ int main(void){
 }
 
 /* USER CODE BEGIN 4 */
-void deinitRCC(void){
-//	Включим для начала HSI (внутренний генератор 8 МГц)
-	 SET_BIT(RCC->CR, RCC_CR_HSION);
-//	 Дождёмся его стабилизации
-	 while(READ_BIT(RCC->CR, RCC_CR_HSIRDY == RESET)) {}
-//	 Сбросим калибровку
-//	 Полностью очистим конфигурационный регистр
-//	 MODIFY_REG(RCC->CR, RCC_CR_HSITRIM, 0x80U);
-
-//	 Дождёмся очистку бита SWS
-//	 System clock switch status
-//	 These bits are set and cleared by hardware to indicate which clock source is used as system clock.
-	 CLEAR_REG(RCC->CFGR);
-	 while (READ_BIT(RCC->CFGR, RCC_CFGR_SWS) != RESET) {}
-//	 Аналогичным образом отключим PLL
-	 CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
-	 while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != RESET) {}
-//	 Выключим HSE и его детектор тактового сигнала, дождавшись затем отключения HSE
-	 CLEAR_BIT(RCC->CR, RCC_CR_HSEON);
-	 while (READ_BIT(RCC->CR, RCC_CR_HSERDY) != RESET) {}
-//	 Сбросим бит, разрешающий использование внешнего генератора
-	 CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
-//	 Сбросим флаги всех прерываний от RCC
-	  CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
-	  SET_BIT(RCC->CSR, RCC_CSR_RMVF);
-//	 Также запретим все прерывания от RCC
-//	   CLEAR_REG(RCC->CIR);
-}
+//void deinitRCC(void){
+////	Включим для начала HSI (внутренний генератор 8 МГц)
+//	 SET_BIT(RCC->CR, RCC_CR_HSION);
+////	 Дождёмся его стабилизации
+//	 while(READ_BIT(RCC->CR, RCC_CR_HSIRDY == RESET)) {}
+////	 Сбросим калибровку
+////	 Полностью очистим конфигурационный регистр
+////	 MODIFY_REG(RCC->CR, RCC_CR_HSITRIM, 0x80U);
+//
+////	 Дождёмся очистку бита SWS
+////	 System clock switch status
+////	 These bits are set and cleared by hardware to indicate which clock source is used as system clock.
+//	 CLEAR_REG(RCC->CFGR);
+//	 while (READ_BIT(RCC->CFGR, RCC_CFGR_SWS) != RESET) {}
+////	 Аналогичным образом отключим PLL
+//	 CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
+//	 while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != RESET) {}
+////	 Выключим HSE и его детектор тактового сигнала, дождавшись затем отключения HSE
+//	 CLEAR_BIT(RCC->CR, RCC_CR_HSEON);
+//	 while (READ_BIT(RCC->CR, RCC_CR_HSERDY) != RESET) {}
+////	 Сбросим бит, разрешающий использование внешнего генератора
+//	 CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
+////	 Сбросим флаги всех прерываний от RCC
+//	  CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
+//	  SET_BIT(RCC->CSR, RCC_CSR_RMVF);
+////	 Также запретим все прерывания от RCC
+////	   CLEAR_REG(RCC->CIR);
+//}
 void initRCC(void){
 //	Включим наш HSE, дождавшись его стабилизации
 	SET_BIT(RCC->CR, RCC_CR_HSEON);
@@ -344,20 +370,22 @@ void initRCC(void){
 //	Выберем PLL в качестве источника системного тактирования, дождавшись затем применения данного действия
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL);
 	while(READ_BIT(RCC->CFGR, RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL) {}
+
+	// 1. Увімкнути тактуючий сигнал для PWR (для доступу до резервного домену)
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+	// 2. Дозволити доступ до резервного домену
+	PWR->CR |= PWR_CR_DBP;
+	// 3. Увімкнути LSE (Low-Speed External) генератор
+	RCC->CSR |= RCC_CSR_LSEON;
+	// 4. Дочекатися готовності LSE
+	while(!(RCC->CSR & RCC_CSR_LSERDY));
+	// 5. Вибрати LSE як джерело тактуючого сигналу для RTC
+	RCC->CSR |= RCC_CSR_RTCSEL_LSE;
+	// 6. Увімкнути RTC
+	RCC->CSR |= RCC_CSR_RTCEN;
 }
 
 void initGPIO(void){
-
-	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
-	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
-	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
-	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
-	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
-	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
-	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
-	/*НАСТРОЙКА ПРЕРЫВАНИЯ*/
-
-
 	// сключаем тактирование порта A
 	RCC->IOPENR = RCC_IOPENR_IOPAEN;
 	// сключаем тактирование порта B
@@ -365,7 +393,6 @@ void initGPIO(void){
 	// сключаем тактирование порта C
 	RCC->IOPENR = RCC_IOPENR_IOPCEN;
 
-	RCC_ABP2ENR_
 	// LEDa (PA7)
 	MODIFY_REG(GPIOA->MODER, GPIO_MODER_MODE7_Msk, 0b01 << GPIO_MODER_MODE7_Pos);
 	GPIOA->OTYPER |= GPIO_OTYPER_OT_7;
@@ -482,28 +509,40 @@ void initGPIO(void){
 void initRTC(void){
 
 }
-void initTIM2(void){
 
+static void initTIM2(void){
+  SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM2EN);
+  NVIC_EnableIRQ(TIM2_IRQn);
+  WRITE_REG(TIM2->PSC, 3599);
+  WRITE_REG(TIM2->ARR, 50);
 }
-void initTIM21(void){
 
+static void initTIM21(void){
+  SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM2EN);
+  NVIC_EnableIRQ(TIM21_IRQn);
+  WRITE_REG(TIM21->PSC, 3599);
+  WRITE_REG(TIM21->ARR, 50);
 }
-void initLPTIM(void){
+static void initLPTIM1(void){
+  SET_BIT(RCC->APB1ENR, RCC_APB1ENR_LPTIM1EN);
+  NVIC_EnableIRQ(LPTIM1_IRQn);
+//  WRITE_REG(LPTIM1->PSC, 3599);
+//  WRITE_REG(LPTIM1->ARR, 25);
+}
 
-}
 void initLPUSART(void){
 
 }
 
-void SysTick_Handler {}
-void EXTI0_1_IRQHandler {}
-void EXTI2_3_IRQHandler {}
-void EXTI4_15_IRQHandler {}
-void LPTIM1_IRQHandler {}
-void TIM21_IRQHandler {}
-void LPUART1_IRQHandler {}
+void SysTick_Handler() {}
+void EXTI0_1_IRQHandler() {}
+void EXTI2_3_IRQHandler() {}
+void EXTI4_15_IRQHandler() {}
+void LPTIM1_IRQHandler() {}
+void TIM21_IRQHandler() {}
+void LPUART1_IRQHandler() {}
 
-//void pwmFP7103() {
+void pwmFP7103() {
 //	if (menu[11].value) {
 //		int timeWakeUp 	= menu[6].value 	* 3600
 //					+ menu[7].value	* 60;
@@ -520,9 +559,9 @@ void LPUART1_IRQHandler {}
 //			//TIM_Cmd(TIM21, DISABLE);
 //			TIM21->CCR1 = 0;
 //		}
-//}
+}
 //
-//int Clock(){
+int Clock(){
 //	char tmpClock[4]={};
 //	int j = 0;
 //	tmpClock[0] = sTime.Hours/10;
@@ -537,14 +576,14 @@ void LPUART1_IRQHandler {}
 //		 LL_mDelay(50);
 //	 }
 //	}
-//	return flagDecrementButtonLong&&flagIncrementButtonLong?0:1;
-//}
+	return flagDecrementButtonLong&&flagIncrementButtonLong?0:1;
+}
 //
-//void setTimeNow(){
+void setTimeNow(){
 //		sTime.Hours 	= menu[2].value;
 //		sTime.Minutes 	= menu[3].value;
 //		sTime.Seconds 	= 00;
-//	}
+	}
 
 void writeCHARSEG(char CHAR, int seg){
 	switch (seg) {
@@ -768,7 +807,7 @@ char* setActualMenu(int v, int h) {
 						setTimeNow();
 						break;
 					case 13:						// Завантажуємо налаштування з комірки памті
-						testMelody();
+						StartMusic(menu[12].value);
 						break;
 					case 17:
 						while (Clock()){Clock();}
@@ -858,21 +897,28 @@ void StartMusic(int melody) {
 	sound(Music[MusicStep].freq, Music[MusicStep].time);
 }
 
-//void sound (int freq, int time_ms) {
-//	if (freq > 0) {
+void sound (int freq, int time_ms) {
+	if (freq > 0) {
 //		TIM2->ARR = SYSCLK / timer.TIM_Prescaler / freq;
-//		TIM2->CCR1 = TIM2->ARR / 2;
-//	}
-//	else {
-//		TIM2->ARR = 1000;
-//		TIM2->CCR1 = 0;
-//	}
+		TIM2->CCR1 = TIM2->ARR / 2;
+	}
+	else {
+		TIM2->ARR = 1000;
+		TIM2->CCR1 = 0;
+	}
 //	TIM_SetCounter(TIM2, 0);
-//
+
 //	sound_time = ((SYSCLK / timer.TIM_Prescaler / TIM2->ARR) * time_ms ) / 1000;
-//	sound_counter = 0;
+	sound_counter = 0;
 //	TIM_Cmd(TIM2, ENABLE);
-//}
+}
+
+void delay_ms(uint32_t ms)
+{
+  MODIFY_REG(SysTick->VAL,SysTick_VAL_CURRENT_Msk,SYSCLOCK / 1000 - 1);
+  SysTick_CNT = ms;
+  while(SysTick_CNT) {}
+}
 /* USER CODE END 4 */
 
 #ifdef  USE_FULL_ASSERT

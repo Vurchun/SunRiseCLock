@@ -65,6 +65,8 @@
 // Макроси для керування додатковими пинами
 #define pinEN_ON()       GPIOC->BSRR = GPIO_BSRR_BS_15
 #define pinEN_OFF()      GPIOC->BSRR = GPIO_BSRR_BR_15
+
+#define SYSCLK 32000000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -110,29 +112,31 @@ struct strMenu {
     int _max;       // Максимально можливе значення
 };
 /* PPPP
- * P__0			Time_Now
- * 		P_0.0	Hour_Now
- * 		P_0.1	Minute_Now
- *		P_0.2	Seconds_Now
- * 		P_0.3	Day_Now
- * 		P_0.4	Month_Now
- * 		P_0.5	Year_Now
- * 		P_0.6	WeekDay_Nows
- * 		P_0.7	Set
- * P__1			Time_Rise
- * 		P_1.0	Hour_Rise
- * 		P_1.1	Minute_Rise
- * P__2			Rising_Parametrs
- * 		P_2.0	Period_Rising
- * 		P_2.1	ɣ_Coefient_Rising
- * P__3			Alarm_Parametrs
- * 		P_3.0	Alarm_Status
- * 		P_3.1	Alarm_Melody
- * 		P_3.2	Alarm_Melody_test
- * P__4			Menu_Parametrs
- * 		P_4.0	Numbers_Change_Style
- * 		P_4.1	Menu_Night_Mode
- * P__5			Clock(StartWork)
+ *0 	P__0		Time_Now
+ *1 		P_0.0	Hour_Now
+ *2 		P_0.1	Minute_Now
+ *3			P_0.2	Seconds_Now
+ *4 		P_0.3	Day_Now
+ *5 		P_0.4	Month_Now
+ *6 		P_0.5	Year_Now
+ *7 		P_0.6	WeekDay_Nows
+ *8 		P_0.7	Set
+ *9 	P__1		Time_Rise
+ *10 		P_1.0	Hour_Rise
+ *11 		P_1.1	Minute_Rise
+ *12 	P__2		Rising_Parametrs
+ *13 		P_2.0	Period_Rising
+ *14 		P_2.1	ɣ_Coefient_Rising
+ *15 	P__3		Alarm_Parametrs
+ *16 		P_3.0	Alarm_Status
+ *17		P_3.1	Alarm_Hours
+ *18		P_3.2	Alarm_Minutes
+ *19 		P_3.3	Alarm_Melody
+ *20 		P_3.4	Alarm_Melody_test
+ *21 	P__4		Menu_Parametrs
+ *22		P_4.0	Numbers_Change_Style
+ *23 		P_4.1	Menu_Night_Mode
+ *24 	P__5		Clock(StartWork)
  */
 struct strMenu menu[] = {                         // Встановлюємо пункти меню
 	  {0, -1,    false,	"PPPP",		0, 0, 	0},
@@ -421,30 +425,30 @@ void SystemClock_Config(void) {
  * #Development
  */
 void LPUART1_UART_Init(void) {
-//
-//  /* USER CODE BEGIN LPUART1_Init 0 */
-//
-//  /* USER CODE END LPUART1_Init 0 */
-//
-//  /* USER CODE BEGIN LPUART1_Init 1 */
-//
-//  /* USER CODE END LPUART1_Init 1 */
-//  hlpuart1.Instance = LPUART1;
-//  hlpuart1.Init.BaudRate = 209700;
-//  hlpuart1.Init.WordLength = UART_WORDLENGTH_7B;
-//  hlpuart1.Init.StopBits = UART_STOPBITS_1;
-//  hlpuart1.Init.Parity = UART_PARITY_NONE;
-//  hlpuart1.Init.Mode = UART_MODE_TX_RX;
-//  hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-//  hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-//  hlpuart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-//  if (HAL_UART_Init(&hlpuart1) != HAL_OK)
-//  {
-//    Error_Handler();
-//  }
-//  /* USER CODE BEGIN LPUART1_Init 2 */
-//
-//  /* USER CODE END LPUART1_Init 2 */
+
+ /* USER CODE BEGIN LPUART1_Init 0 */
+
+ /* USER CODE END LPUART1_Init 0 */
+
+ /* USER CODE BEGIN LPUART1_Init 1 */
+
+ /* USER CODE END LPUART1_Init 1 */
+ hlpuart1.Instance = LPUART1;
+ hlpuart1.Init.BaudRate = 209700;
+ hlpuart1.Init.WordLength = UART_WORDLENGTH_7B;
+ hlpuart1.Init.StopBits = UART_STOPBITS_1;
+ hlpuart1.Init.Parity = UART_PARITY_NONE;
+ hlpuart1.Init.Mode = UART_MODE_TX_RX;
+ hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+ hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+ hlpuart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+ if (HAL_UART_Init(&hlpuart1) != HAL_OK)
+ {
+   Error_Handler();
+ }
+ /* USER CODE BEGIN LPUART1_Init 2 */
+
+ /* USER CODE END LPUART1_Init 2 */
 
 }
 
@@ -501,8 +505,9 @@ void RTC_Init(void) {
     // 8. Exit initialization mode
     CLEAR_BIT(RTC->ISR, RTC_ISR_INIT);
 
-    // 9. Re-enable RTC write protection
-    RTC->WPR = 0xFF;  // Enable write protection again
+    // 9. Re-enable RTC write protection  
+	RTC->WPR = 0xFE; // Disable write access for RTC register
+	RTC->WPR = 0x64; //				-||-
 }
 
 /**
@@ -914,33 +919,304 @@ void writeCHARSEG(char CHAR, int seg) {
 }
 
 void pwmFP7103() {
-	if (menu[11].value) {
-		int timeWakeUp 	= menu[6].value 	* 3600
-					+ menu[7].value	* 60;
-		int timeNow 	= sTime.Hours 		* 3600
-					+ sTime.Minutes		* 60
-					+ sTime.Seconds;
-		if(menu[9].value * 60 >= timeWakeUp - timeNow){
+	if (menu[16].value) {							//*16 		P_3.0	Alarm_Status
+		int timeWakeUp 	= menu[10].value 	* 3600	//*10 		P_1.0	Hour_Rise
+						+ menu[11].value	* 60;	//*11 		P_1.1	Minute_Rise
+		int timeNow 	= (READ_BIT(RTC->TR,RTC_TR_HT)*10+READ_BIT(RTC->TR,RTC_TR_HU))	* 3600
+						+ (READ_BIT(RTC->TR,RTC_TR_MNT)*10+READ_BIT(RTC->TR,RTC_TR_MNU))* 60
+						+ (READ_BIT(RTC->TR,RTC_TR_ST)*10+READ_BIT(RTC->TR,RTC_TR_SU))	;
+		if(menu[13].value * 60 >= timeWakeUp - timeNow){		// *13 		P_2.0	Period_Rising
 			pinEN_ON();
-			//TIM_Cmd(TIM21, ENABLE);
-			TIM21->CCR1 = (int16_t) (65535 * pow((1 - timeNow / timeWakeUp), 2.24));
+			SET_BIT(TIM21->CR1, TIM_CR1_CEN);  //Запуск таймера
+			TIM21->CCR1 = custom_floor(TIM2->ARR * custom_pow((1 - timeNow / timeWakeUp), menu[14].value));
+			// *14 		P_2.1	ɣ_Coefient_Rising
 		}
 	} else {
 			pinEN_OFF();
-			//TIM_Cmd(TIM21, DISABLE);
+			CLEAR_BIT(TIM21->CR1, TIM_CR1_CEN);  //Запуск таймера
 			TIM21->CCR1 = 0;
 		}
 }
 
+int Clock(){
+	char tmpClock[4]={};
+	int j = 0;
+	tmpClock[0] = READ_BIT(RTC->TR,RTC_TR_HT);
+	if (tmpClock[0] == 0){j=1;}
+	tmpClock[1] = READ_BIT(RTC->TR,RTC_TR_HU);
+	tmpClock[2] = READ_BIT(RTC->TR,RTC_TR_MNT);
+	tmpClock[3] = READ_BIT(RTC->TR,RTC_TR_MNU);
+
+	if(READ_BIT(RTC->TR,RTC_TR_HT)*10+READ_BIT(RTC->TR,RTC_TR_HU) > 5 && READ_BIT(RTC->TR,RTC_TR_HT)*10+READ_BIT(RTC->TR,RTC_TR_HU) < 22 
+	|| flagDecrementButton || flagEnterButton || flagIncrementButton 
+	|| flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong)
+	{
+		for(int i = 0 + j; i<4;i++){
+		 writeCHARSEG(tmpClock[i], i);
+		 Delay_ms(50);
+	 }
+	}
+	return flagDecrementButtonLong&&flagIncrementButtonLong?0:1;
+}
+
+void setTimeNow(){
+    MODIFY_REG(RTC->TR,
+               RTC_TR_HT_Msk | RTC_TR_HU_Msk | RTC_TR_MNT_Msk | RTC_TR_MNU_Msk | RTC_TR_ST_Msk | RTC_TR_SU_Msk,
+               (menu[1].value/10 << RTC_TR_HT_Pos)  |   // Hour tens (1 -> 17)
+               (menu[1].value%10 << RTC_TR_HU_Pos)  |   // Hour units (7 -> 17)
+               (menu[2].value/10 << RTC_TR_MNT_Pos) |   // Minute tens (3 -> 36)
+               (menu[2].value%10 << RTC_TR_MNU_Pos) |   // Minute units (6 -> 36)
+               (menu[3].value/10 << RTC_TR_ST_Pos)  |   // Second tens (0 -> 00)
+               (menu[3].value%10 << RTC_TR_SU_Pos));    // Second units (0 -> 00)
+    MODIFY_REG(RTC->DR,
+               RTC_DR_YT_Msk | RTC_DR_YU_Msk | RTC_DR_MT_Msk | RTC_DR_MU_Msk | RTC_DR_DT_Msk | RTC_DR_DU_Msk | RTC_DR_WDU_Msk,
+               (menu[6].value/10 << RTC_DR_YT_Pos)  |  // Year tens (2 -> 24)
+               (menu[6].value%10 << RTC_DR_YU_Pos)  |  // Year units (4 -> 24)
+               (menu[5].value/10 << RTC_DR_MT_Pos)  |  // Month tens (1 -> April)
+               (menu[5].value%10 << RTC_DR_MU_Pos)  |  // Month units (0 -> April)
+               (menu[4].value/10 << RTC_DR_DT_Pos)  |  // Day tens (0 -> 01)
+               (menu[4].value%10 << RTC_DR_DU_Pos)  |  // Day units (1 -> 01)
+               (menu[7].value << RTC_DR_WDU_Pos)); // Weekday (3 -> Monday)
+}
+
+char* setActualMenu(int v, int h) {
+	if (v != 0) {               // Рухаємося по вертикалі
+		if (v == -1) {            // Команда ВГОРУ (скасування)
+			if (isParamEditMode) { // Якщо параметр у режимі редагування, то скасовуємо зміни
+				isParamEditMode = false;
+			} else { // Якщо пункт меню не у режимі редагування, переміщаємося до батька
+				if (menu[actualIndex].parentid > 0) { // Якщо є куди переміщатися вгору (ParentID>0)
+					actualIndex = getMenuIndexByID(menu[actualIndex].parentid);
+				}
+			}
+		} else {                        // Якщо команда ВН�?З - входу/редагування
+			if (menu[actualIndex].isParam && !isParamEditMode) { // Якщо не в режимі редагування, то ...
+				isParamEditMode = true; // Переходимо в режим редагування параметра
+				tmpVValue = menu[actualIndex].value; // Тимчасовій змінній присвоюємо актуальне значення параметра
+			} else if (menu[actualIndex].isParam && isParamEditMode) { // Якщо в режимі редагування
+				menu[actualIndex].value = tmpVValue; // Зберігаємо задане значення
+				isParamEditMode = false;      // І виходимо з режиму редагування
+
+			} else {
+				bool nochild = true;  // Прапорець, чи є дочірні елементи
+				for (int i = 0; i < menuArraySize; i++) {
+					if (menu[i].parentid == menu[actualIndex].id) {
+						actualIndex = i; // Якщо є, робимо перший попавшийся актуальним елементом
+						nochild = false;  // Потомки є
+						break;            // Виходимо з for
+					}
+				}
+				if (nochild) { // Якщо ж потомків немає, воспринимаємо як команду
+					switch (menu[actualIndex].id) { // Serial.println("Executing command...");         // І тут обробляємо за власним баченням
+					case 4:						// Зберігаємо налаштування з комірки памті
+						setTimeNow();
+						break;
+					case 13:						// Завантажуємо налаштування з комірки памті
+						testMelody();
+						break;
+					case 17:
+						while (Clock()){Clock();}
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	if (h != 0) {             // Якщо горизонтальна навігація
+		if (isParamEditMode) {  // У режимі редагування параметра
+			tmpVValue += h;        // Змінюємо його значення і ...
+			// ... контролюємо, щоб воно залишилося в заданому діапазоні
+			if (tmpVValue > menu[actualIndex]._max)
+				tmpVValue = menu[actualIndex]._min;
+			if (tmpVValue < menu[actualIndex]._min)
+				tmpVValue = menu[actualIndex]._max;
+		} else { // Якщо режим редагування не активний, навігація серед дочірніх одного батька
+			actualIndex = getNearMenuIndexByID(menu[actualIndex].parentid,
+					menu[actualIndex].id, h);
+		}
+	}
+	// Отображаем информацию
+	if (isParamEditMode) {
+		int tmpV[4] = {};
+		tmpV[0]=	tmpVValue/1000;
+		tmpV[1]=	tmpVValue/100 	- 	tmpV[0]*10;
+		tmpV[2]=	tmpVValue/10 	- 	tmpV[0]*100 	- tmpV[1]*10;
+		tmpV[3]=	tmpVValue 		- 	tmpV[0]*1000 	- tmpV[1]*100 	- tmpV[2]*10;
+		return tmpV;
+	} else {
+		return menu[actualIndex]._name;
+	}
+}
+
+int getMenuIndexByID(int id) { // Функція отримання індексу пункту меню за його ID
+	for (int i = 0; i < menuArraySize; i++) {
+		if (menu[i].id == id)
+			return i;
+	}
+	return -1;
+}
+
+int getNearMenuIndexByID(int parentid, int id, int side) { // Функція отримання індексу пункту меню наступного або попереднього від актуального
+	int prevID = -1;      // Змінна для зберігання індексу попереднього елемента
+	int nextID = -1;        // Змінна для зберігання індексу наступного елемента
+	int actualID = -1;     // Змінна для зберігання індексу актуального елемента
+
+	int firstID = -1;  // Змінна для зберігання індексу першого елемента
+	int lastID = -1;   // Змінна для зберігання індексу останнього елемента
+
+	for (int i = 0; i < menuArraySize; i++) {
+		if (menu[i].parentid == parentid) { // Перебираємо всі елементи з одним батьківським ID
+			if (firstID == -1)
+				firstID = i;     // Запам'ятовуємо перший елемент списку
+
+			if (menu[i].id == id) {
+				actualID = i;  // Запам'ятовуємо актуальний елемент списку
+			} else {
+				if (actualID == -1) { // Якщо зустрівся елемент до актуального, робимо його попереднім
+					prevID = i;
+				} else if (actualID != -1 && nextID == -1) { // Якщо зустрівся елемент після актуального, робимо його наступним
+					nextID = i;
+				}
+			}
+			lastID = i;  // Кожний наступний елемент - останній
+		}
+	}
+
+	if (nextID == -1)
+		nextID = firstID; // Якщо наступного елемента немає - по колу видаємо перший
+	if (prevID == -1)
+		prevID = lastID; // Якщо попереднього елемента немає - по колу видаємо останній
+	if (side == -1)
+		return prevID; // В залежності від напрямку обертання, видаємо потрібний індекс
+	else
+		return nextID;
+	return -1;
+}
+
+void StartMusic(int melody) {
+	MusicStep = 0;
+	PlayMusic = 1;
+	sound(Music[MusicStep].freq, Music[MusicStep].time);
+}
+
+void sound (int freq, int time_ms) {
+	if (freq > 0) {
+		TIM2->ARR = SYSCLK / timer.TIM_Prescaler / freq;
+		TIM2->CCR1 = TIM2->ARR / 2;
+	}
+	else {
+		TIM2->ARR = 1000;
+		TIM2->CCR1 = 0;
+	}
+	TIM_SetCounter(TIM2, 0);
+
+	sound_time = ((SYSCLK / timer.TIM_Prescaler / TIM2->ARR) * time_ms ) / 1000;
+	sound_counter = 0;
+	TIM_Cmd(TIM2, ENABLE);
+}
 /* Handlers--------------------------------------------------------*/
 
 void SysTick_Handler(void) {
-
 	SysTimer_ms++;
-
 	if (Delay_counter_ms) {
 		Delay_counter_ms--;
 	}
+}
+
+void EXTI0_1_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI0_1_IRQn 0 */
+
+  /* USER CODE END EXTI0_1_IRQn 0 */
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_0) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_0);
+    /* USER CODE BEGIN LL_EXTI_LINE_0 */
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
+       /* USER CODE BEGIN LL_EXTI_LINE_1 */
+  	if (flagDecrementButtonDown){
+   		if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonLongPressed)
+   			{flagDecrementButtonLong=true;}
+   		else if ((HAL_GetTick() - timeDecrementButtonDown) > timeButtonPressed)
+   			{flagDecrementButton=true;}
+   			flagDecrementButtonDown=false;
+   	}
+   	else {
+   			timeDecrementButtonDown = HAL_GetTick(); flagDecrementButtonDown=true;
+   	}
+    /* USER CODE END LL_EXTI_LINE_0 */
+  }
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
+    /* USER CODE BEGIN LL_EXTI_LINE_1 */
+  	if (flagEnterButtonDown){
+   		if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonLongPressed)
+   			{flagEnterButtonLong=true;}
+   		else if ((HAL_GetTick() - timeEnterButtonDown) > timeButtonPressed)
+   			{flagEnterButton=true;}
+   			flagEnterButtonDown=false;
+   	}
+   	else {
+   			timeEnterButtonDown = HAL_GetTick(); flagEnterButtonDown=true;
+   	}
+    /* USER CODE END LL_EXTI_LINE_1 */
+  }
+  /* USER CODE BEGIN EXTI0_1_IRQn 1 */
+
+  /* USER CODE END EXTI0_1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles EXTI line 2 and line 3 interrupts.
+  */
+void EXTI2_3_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI2_3_IRQn 0 */
+
+  /* USER CODE END EXTI2_3_IRQn 0 */
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_2) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_2);
+    /* USER CODE BEGIN LL_EXTI_LINE_2 */
+  	if (flagIncrementButtonDown){
+   		if ((HAL_GetTick() - timeIncrementButtonDown) > timeButtonLongPressed)
+   			{flagIncrementButtonLong=true;}
+   		else if ((HAL_GetTick() - timeIncrementButtonDown) > timeButtonPressed)
+   			{flagIncrementButton=true;}
+   			flagIncrementButtonDown=false;
+   	}
+   	else {
+   			timeIncrementButtonDown = HAL_GetTick(); flagIncrementButtonDown=true;
+   	}
+    /* USER CODE END LL_EXTI_LINE_2 */
+  }
+  /* USER CODE BEGIN EXTI2_3_IRQn 1 */
+
+  /* USER CODE END EXTI2_3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles EXTI line 4 to 15 interrupts.
+  */
+void EXTI4_15_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI4_15_IRQn 0 */
+
+  /* USER CODE END EXTI4_15_IRQn 0 */
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_9) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_9);
+    /* USER CODE BEGIN LL_EXTI_LINE_9 */
+
+    /* USER CODE END LL_EXTI_LINE_9 */
+  }
+  /* USER CODE BEGIN EXTI4_15_IRQn 1 */
+
+  /* USER CODE END EXTI4_15_IRQn 1 */
 }
 
 void TIM2_IRQHandler(void) {
@@ -951,6 +1227,7 @@ void TIM2_IRQHandler(void) {
 
 
 }
+
 void TIM21_IRQHandler(void) {
 	if (READ_BIT(TIM21->SR, TIM_SR_UIF)) {
 //		CounterTIM2++;

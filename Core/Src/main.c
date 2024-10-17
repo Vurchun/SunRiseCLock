@@ -6,13 +6,20 @@
 	MODIFY_REG(PORT->OTYPER, GPIO_OTYPER_OT_##PIN, TYPE << GPIO_OTYPER_OT_##PIN);            \
 	MODIFY_REG(PORT->OSPEEDR, GPIO_OSPEEDER_OSPEED##PIN##_Msk, SPEED << GPIO_OSPEEDER_OSPEED##PIN##_Pos);
 
-// Макрос для налаштування EXTI (зовнішні переривання)
-#define CONFIGURE_EXTI(PIN, PORT_SOURCE, CR, LINE, EDGE)                                                                         \
-	MODIFY_REG(SYSCFG->EXTICR[CR], SYSCFG_EXTICR##LINE##_EXTI##PIN##_Msk, PORT_SOURCE << SYSCFG_EXTICR##LINE##_EXTI##PIN##_Pos); \
-	SET_BIT(EXTI->IMR, EXTI_IMR_IM##PIN);                                                                                        \
-	SET_BIT(EXTI->FTSR, EXTI_FTSR_FT##PIN);                                                                                      \
-	if (EDGE == 1)                                                                                                               \
-		SET_BIT(EXTI->RTSR, EXTI_RTSR_RT##PIN);
+// Макрос для налаштування та ініціалізації EXTI (зовнішні переривання)
+#define CONFIGURE_EXTI(PIN, PORT_SOURCE, CR, LINE, EDGE)                                                                          \
+	/* Налаштування лінії переривання на відповідний пін і порт */                                                                \
+	MODIFY_REG(SYSCFG->EXTICR[CR], SYSCFG_EXTICR##LINE##_EXTI##PIN##_Msk, PORT_SOURCE << SYSCFG_EXTICR##LINE##_EXTI##PIN##_Pos);  \
+	/* Встановлення маски переривання */                                                                                          \
+	SET_BIT(EXTI->IMR, EXTI_IMR_IM##PIN);                                                                                         \
+	/* Встановлення тригера на спадаючий фронт */                                                                                 \
+	SET_BIT(EXTI->FTSR, EXTI_FTSR_FT##PIN);                                                                                       \
+	/* Якщо EDGE == 1, то додатково включаємо тригер на зростаючий фронт */                                                       \
+	if (EDGE == 1)                                                                                                                \
+	{                                                                                                                             \
+		SET_BIT(EXTI->RTSR, EXTI_RTSR_RT##PIN);                                                                                    \
+	}
+
 
 // Макроси для вмикання/вимикання різних світлодіодів (LEDs)
 #define LEDa_ON() GPIOA->BSRR = GPIO_BSRR_BS_7
@@ -65,34 +72,36 @@ bool flagDecrementButtonDown; // Було натискання кнопки
 bool flagEnterButtonDown;	  // Було натискання кнопки
 bool flagIncrementButtonDown; // Було натискання кнопки
 
-unsigned int timeButtonLongPressed = 675; // Довге утримання кнопки після 1,5 секунд
-unsigned int timeButtonPressed = 175;	  // Довге утримання кнопки після 1,5 секунд
-unsigned int timeDecrementButtonDown = 0; // Змінна, що зберігає час натискання кнопки
-unsigned int timeEnterButtonDown = 0;	  // Змінна, що зберігає час натискання кнопки
-unsigned int timeIncrementButtonDown = 0; // Змінна, що зберігає час натискання кнопки
+ uint16_t timeButtonLongPressed = 675; // Довге утримання кнопки після 1,5 секунд
+ uint16_t timeButtonPressed = 175;	  // Довге утримання кнопки після 1,5 секунд
+ uint16_t timeDecrementButtonDown = 0; // Змінна, що зберігає час натискання кнопки
+ uint16_t timeEnterButtonDown = 0;	  // Змінна, що зберігає час натискання кнопки
+ uint16_t timeIncrementButtonDown = 0; // Змінна, що зберігає час натискання кнопки
 
-int menuArraySize = 26;		  // Встановлюємо розмір масиву меню
-int actualIndex = 0;		  // Поточний індекс меню
+uint16_t menuArraySize = 26;		  // Встановлюємо розмір масиву меню
+uint16_t actualIndex = 0;		  // Поточний індекс меню
 bool isParamEditMode = false; // Прапорець режиму редагування параметра
-int tmpVValue = 0;			  // Тимчасова змінна для зберігання параметра
+uint16_t tmpVValue = 0;			  // Тимчасова змінна для зберігання параметра
 
 volatile uint32_t SysTimer_ms = 0;		// Системний таймер (аналог HAL_GetTick)
 volatile uint32_t Delay_counter_ms = 0; // Лічильник для затримки
 
-int pwmcount = 0;	  // Лічильник PWM
-int CounterTIM2 = 0;  // Лічильник таймера 2
-int CounterTIM21 = 0; // Лічильник таймера 21
+uint16_t pwmcount = 0;	  // Лічильник PWM
+uint16_t CounterTIM2 = 0;  // Лічильник таймера 2
+uint16_t CounterTIM21 = 0; // Лічильник таймера 21
 
+
+char tmpV[4] = {};
 // Структура меню
 struct strMenu
 {
-	int id;		   // Унікальний ідентифікаційний індекс ID
-	int parentid;  // ID батька (вкладеність)
+	uint16_t id;		   // Унікальний ідентифікаційний індекс ID
+	uint16_t parentid;  // ID батька (вкладеність)
 	bool isParam;  // Чи є пункт змінним параметром
 	char _name[4]; // Назва пункту меню
-	int value;	   // Поточне значення параметра
-	int _min;	   // Мінімально можливе значеннял
-	int _max;	   // Максимально можливе значення
+	uint16_t value;	   // Поточне значення параметра
+	uint16_t _min;	   // Мінімально можливе значеннял
+	uint16_t _max;	   // Максимально можливе значення
 };
 /* PPPP
  *0 	P__0		Time_Now
@@ -159,10 +168,10 @@ struct strMenu menu[] = {
 };
 
 /* Sound/Buzzer variables ---------------------------------------------------------*/
-int MusicStep = 0;
+uint16_t MusicStep = 0;
 char PlayMusic = 0;
-int sound_time;
-int sound_counter;
+uint16_t sound_time;
+uint16_t sound_counter;
 
 #define C 261  // Do
 #define C_ 277 // Do#
@@ -241,24 +250,24 @@ const SoundTypeDef Music[48] = {
 /* END S/BV */
 
 /* Private function prototypes -----------------------------------------------*/
-void SysTickTimerInit(uint32_t ticks);
+void CMSIS_FullInit(void);
+uint32_t SysTickTimerInit(uint32_t ticks);
 void SystemClock_Config(void);
+void WWDG_Init(uint8_t counter, uint8_t window, uint8_t prescaler);
 void GPIO_Init(void);
-void LPUART1_UART_Init(void);
 void RTC_Init(void);
 void TIM2_Init(void);
 void TIM21_Init(void);
 /*Handlers*/
 void SysTick_Handler(void);
 void Error_Handler(void);
-void assert_failed(uint8_t *file, uint32_t line);
+void assert_failed(uint8_t *file, uint8_t line);
 void EXTI0_1_IRQHandler(void);
 void EXTI2_3_IRQHandler(void);
 void EXTI4_15_IRQHandler(void);
 void LPTIM1_IRQHandler(void);
 void TIM2_IRQHandler(void);
 void TIM21_IRQHandler(void);
-void LPUART1_IRQHandler(void);
 void NMI_Handler(void);
 void HardFault_Handler(void);
 void MemManage_Handler(void);
@@ -267,44 +276,50 @@ void UsageFault_Handler(void);
 void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
+
+void WWDG_IRQHandler(void);
+void Reset_Handler(void);
 /*----------------------------------------------------------------------------*/
 void Delay_ms(uint32_t Milliseconds);
 double custom_pow(double a, double x);
-int custom_floor(double x);
+uint16_t custom_floor(double x);
 /*----------------------------------------------------------------------------*/
 void pwmFP7103();
 /*----------------------------------------------------------------------------*/
 void setTimeNow();
-int Clock();
+uint16_t Clock();
 /*----------------------------------------------------------------------------*/
-char intToChar(int num);
-void writeCHARSEG(char CHAR, int seg);
-char *setActualMenu(int v, int h);
-int getMenuIndexByID(int id);
-int getNearMenuIndexByID(int parentid, int id, int side);
+char uint16_tToChar(uint16_t num);
+void writeCHARSEG(char CHAR, uint16_t seg);
+char *setActualMenu(uint16_t v, uint16_t h);
+uint16_t getMenuIndexByID(uint16_t id);
+uint16_t getNearMenuIndexByID(uint16_t parentid, uint16_t id, uint16_t side);
 /*----------------------------------------------------------------------------*/
-void StartMusic(int melody);
-void sound(int freq, int time_ms);
+void StartMusic(uint16_t melody);
+void sound(uint16_t freq, uint16_t time_ms);
 
 
 
-int main(void)
+uint16_t main(void)
 {
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	SysTickTimerInit(32000); // 1ms
+	/* Reset of all peripherals, Initializes the Flash uint16_terface and the Systick. */
+//	WWDG_Init(0x7F, 0x50, 1);
+	CMSIS_FullInit(); // 1ms
+
 	SystemClock_Config();
 
 	GPIO_Init();
-	LPUART1_UART_Init();
 	RTC_Init();
 	TIM2_Init();
 	TIM21_Init();
 
 	writeCHARSEG(' ', ' ');
 	pinEN_OFF();
+	writeCHARSEG('8', 1);
+	pinEN_ON();
 
-	int vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
-	int hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
+	uint16_t vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
+	uint16_t hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
 	char *tmpValue;
 
 	while (1)
@@ -318,7 +333,7 @@ int main(void)
 			hmenu = 5;					 // Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
 			flagDecrementButtonLong = false; // Действие обработано - сбрасываем флаг
 		}
-		
+
 		if (flagIncrementButton)
 		{
 			hmenu = -1;					 // Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
@@ -328,7 +343,7 @@ int main(void)
 			hmenu = -5;					 // Якщо при спаді лінії A на лінії B лог. одиниця, то обертання в один бік
 			flagIncrementButtonLong = false; // Действие обработано - сбрасываем флаг
 		}
-		
+
 		if (flagEnterButton)
 		{							 // Кнопка нажата
 			vmenu = 1;				 // По нажатию кнопки - переходим на уровень вниз
@@ -341,7 +356,7 @@ int main(void)
 		}
 		if (vmenu != 0 || hmenu != 0)
 			tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
-		for (int i = 0; i < 4; i++)
+		for (uint16_t i = 0; i < 4; i++)
 		{
 			writeCHARSEG(tmpValue[i], i);
 			Delay_ms(50);
@@ -349,15 +364,83 @@ int main(void)
 	}
 }
 
-void SysTickTimerInit(uint32_t ticks)
+uint32_t SysTickTimerInit(uint32_t ticks)
 {
-	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); 	// 1. Вимкнемо таймер для проведення налаштувань
-	SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk); 	// 2. Дозволимо переривання по таймеру
-	SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk); // 3. Виберемо тактуючий сигнал від процесора (HSI через PLL 32 МГц)(Тактуючий сигнал без дільника)
-	// Системна частота 32 МГц => 32 000 000 / 1000 = 32 000 (лічильник для 1 мс)
-	MODIFY_REG(SysTick->LOAD, SysTick_LOAD_RELOAD_Msk, ticks - 1 << SysTick_LOAD_RELOAD_Pos);// 4. Налаштуємо переривання на частоту (SysTick генерує переривання кожну *с)
-	MODIFY_REG(SysTick->VAL, SysTick_VAL_CURRENT_Msk, ticks - 1 << SysTick_VAL_CURRENT_Pos);// 5. Почнемо відлік з максимального значення
-	SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);	// 6. Запустимо таймер
+
+  if ((ticks - 1UL) > SysTick_LOAD_RELOAD_Msk)
+  {
+    return (1UL);                                                   /* Reload value impossible */
+  }
+  CLEAR_BIT(SysTick->CTRL,SysTick_CTRL_ENABLE_Msk);					/* Disenable SysTick Timer */
+  SysTick->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
+  NVIC_SetPriority (SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick uint16_terrupt */
+  SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
+  SysTick->CTRL  = 	SysTick_CTRL_CLKSOURCE_Msk |
+		  	  	  	SysTick_CTRL_TICKINT_Msk   |
+					SysTick_CTRL_ENABLE_Msk;                         /* Enable SysTick IRQ and SysTick Timer */
+  return (0UL);                                                     /* Function successful */
+}
+
+
+void CMSIS_FullInit(void)
+{
+    // *** Налаштування кешу, передвибірки і попереднього читання *** //
+
+    // Вимкнути буфер кешу, якщо це налаштовано
+		CLEAR_BIT(FLASH->ACR,FLASH_ACR_DISAB_BUF);
+    // Включити попереднє читання, якщо це налаштовано
+		SET_BIT(FLASH->ACR,FLASH_ACR_PRE_READ);
+    // Включити буфер передвибірки, якщо це налаштовано
+		SET_BIT(FLASH->ACR,FLASH_ACR_PRFTEN);
+		SET_BIT(FLASH->ACR,FLASH_ACR_LATENCY);
+
+    // *** Налаштування SysTick для переривань кожну 1 мс *** //
+
+    uint32_t ticks = SYSCLK / 1000U;  // Розрахунок кількості тактів для 1 мс
+
+    // Використовуємо SysTick_Config для налаштування таймера
+    if (ticks > SysTick_LOAD_RELOAD_Msk) // Якщо кількість тактів більше дозволеного
+    {
+        while (1); // Помилка, зациклюємося
+    }
+
+    SysTickTimerInit(ticks);
+
+    // Встановлення пріоритету для переривання SysTick
+    uint32_t tickPriority = 0;  // Пріоритет для SysTick (без макросів)
+    if (tickPriority < (1UL << __NVIC_PRIO_BITS))
+    {
+        NVIC_SetPriority(SysTick_IRQn, tickPriority);
+    }
+    else
+    {
+        while (1);  // Помилка пріоритету
+    }
+}
+
+
+
+
+void WWDG_Init(uint8_t counter, uint8_t window, uint8_t prescaler) {
+
+
+	// Увімкнемо тактування WWDG
+    RCC->APB1ENR |= RCC_APB1ENR_WWDGEN;  // Увімкнемо тактування на APB1 для WWDG
+    CLEAR_BIT(WWDG->CR, WWDG_CR_WDGA);;// Вимкнемо WWDG
+//    // Налаштуємо регістр WWDG_CFR
+//    // PRES[1:0] - прескалер, W[6:0] - значення вікна
+//    WWDG->CFR = (prescaler << WWDG_CFR_WDGTB_Pos) | (window & 0x7F);
+//
+//    // Налаштуємо регістр WWDG_CR
+//    // T[6:0] - початкове значення лічильника, WDGA - увімкнення WWDG
+//    SET_BIT(WWDG->CR, WWDG_CR_WDGA);// Увімкнемо WWDG
+//    MODIFY_REG(WWDG->CR, WWDG_CR_T_Msk, (counter & 0x7F) << WWDG_CR_T_Pos);// і встановимо початкове значення
+//
+//    // Активуємо переривання (Early Wakeup uint16_terrupt)
+//    WWDG->CFR |= WWDG_CFR_EWI;  // Дозволимо переривання EWIF
+//
+//    // Увімкнемо переривання WWDG у NVIC
+//    NVIC_EnableIRQ(WWDG_IRQn);  // Увімкнемо переривання WWDG у контролері NVIC
 }
 
 void SystemClock_Config(void)
@@ -424,32 +507,7 @@ void SystemClock_Config(void)
 	{
 	}
 }
-/*READ INIT*/
-void LPUART1_UART_Init(void)
-{
-	// Увімкнення тактування GPIOB
-	RCC->IOPENR |= RCC_IOPENR_IOPBEN;
-	// Настроить пин PB6/PB7 на режим альтернативной функции
-	CONFIGURE_GPIO(GPIOB, 6, 0b10, 0, 0b11); // TX
-	CONFIGURE_GPIO(GPIOB, 7, 0b10, 0, 0b11); // RX
-	// Настроить альтернативную функцию AFR для пина PB6/PB7
-	MODIFY_REG(GPIOB->AFR[0], GPIO_AFRL_AFSEL6_Msk, 0b0110 << GPIO_AFRL_AFSEL6_Pos);
-	MODIFY_REG(GPIOB->AFR[0], GPIO_AFRL_AFSEL7_Msk, 0b0110 << GPIO_AFRL_AFSEL7_Pos);
 
-	RCC->APB1ENR |= RCC_APB1ENR_LPUART1EN; // Включаємо тактування для LPUART1
-	LPUART1->CR1 &= ~USART_CR1_UE;		   // Скидаємо налаштування LPUART1 перед конфігуруванням // Вимикаємо UART для конфігурації
-	// Встановлюємо швидкість передачі (Baud rate) = 115200
-	// Для LPUART1 швидкість передачі обчислюється за формулою: baud = (ClockFreq) / (PRESC * (USARTDIV+1))
-	// У даному випадку PRESC = 1 (немає переддільника), тому:
-	// Baud rate = (System clock) / (USARTDIV+1), де USARTDIV = (System clock / Baud) - 1
-	uint32_t uartdiv = (SYSCLK / 115200) - 1;
-	LPUART1->BRR = uartdiv;
-	LPUART1->CR1 |= USART_CR1_M1;				 // Конфігуруємо довжину слова - 7 біт (M1=1, M0=0)
-	LPUART1->CR2 &= ~USART_CR2_STOP;			 // Налаштовуємо стоп-біти - 1 стоп-біт (SBK=0)
-	LPUART1->CR1 &= ~USART_CR1_PCE;				 // Встановлюємо парність - без парності (PCE=0)
-	LPUART1->CR1 |= USART_CR1_RE | USART_CR1_TE; // Увімкнення режиму прийому та передачі (RE=1, TE=1)
-	LPUART1->CR1 |= USART_CR1_UE;				 // Увімкнення LPUART1
-}
 /*READ INIT*/
 void RTC_Init(void)
 {
@@ -532,8 +590,8 @@ void TIM2_Init(void)
 	MODIFY_REG(TIM2->CR1, TIM_CR1_CKD_Msk, 0b00 << TIM_CR1_CKD_Pos); // Предделение выключено
 
 	/*Настройка прерываний*/
-	// TIMx DMA/Interrupt enable register (TIMx_DIER)
-	SET_BIT(TIM2->DIER, TIM_DIER_UIE); // Update interrupt enable
+	// TIMx DMA/uint16_terrupt enable register (TIMx_DIER)
+	SET_BIT(TIM2->DIER, TIM_DIER_UIE); // Update uint16_terrupt enable
 
 	// TIMx status register (TIMx_SR) - Статусные регистры
 
@@ -581,11 +639,11 @@ void TIM21_Init(void)
 	MODIFY_REG(TIM21->CR1, TIM_CR1_CKD_Msk, 0b00 << TIM_CR1_CKD_Pos); // Предделение выключено
 
 	/*Настройка прерываний*/
-	// TIMx DMA/Interrupt enable register (TIMx_DIER)
-	SET_BIT(TIM21->DIER, TIM_DIER_UIE); // Update interrupt enable
+	// TIMx DMA/uint16_terrupt enable register (TIMx_DIER)
+	SET_BIT(TIM21->DIER, TIM_DIER_UIE); // Update uint16_terrupt enable
 
 	// TIMx status register (TIMx_SR) - Статусные регистры
-	TIM21->PSC = 32 - 1;
+	TIM21->PSC = 3200 - 1;
 	TIM21->ARR = 10000 - 1;
 
 	NVIC_EnableIRQ(TIM21_IRQn); // Разрешить прерывания по таймеру 21
@@ -639,18 +697,24 @@ void GPIO_Init(void)
 
 	CONFIGURE_GPIO(GPIOB, 9, 0b00, 0, 0b11); // pwr
 	CONFIGURE_EXTI(9, 0b000, 2, 3, 1);		 // EXTI для pwr з обробкою по зростанню
+
+	/* Включення переривання */                                                                                                   \
+	NVIC_EnableIRQ(EXTI0_1_IRQn);                                                                                                  \
+	NVIC_EnableIRQ(EXTI2_3_IRQn);
 }
 
 void Delay_ms(uint32_t Milliseconds)
 {
 	Delay_counter_ms = Milliseconds;
 	while (Delay_counter_ms != 0)
+	{
 		Delay_counter_ms--;
+	}
 }
 
-int custom_floor(double x)
+uint16_t custom_floor(double x)
 {
-	int result = (int)x; // Приведення до int обрізає дробову частину
+	uint16_t result = (uint16_t)x; // Приведення до uint16_t обрізає дробову частину
 	if (x < 0 && x != result)
 	{
 		result--; // Якщо x від'ємне і не ціле, округляємо до меншого
@@ -661,12 +725,12 @@ int custom_floor(double x)
 double custom_pow(double a, double x)
 {
 	// Разделяем x на целую и дробную части
-	int intPart = (int)x;		   // целая часть x
-	double fracPart = x - intPart; // дробная часть x
+	uint16_t uint16_tPart = (uint16_t)x;		   // целая часть x
+	double fracPart = x - uint16_tPart; // дробная часть x
 
 	// Возведение a в целую степень
 	double result = 1.0;
-	for (int i = 0; i < intPart; ++i)
+	for (uint16_t i = 0; i < uint16_tPart; ++i)
 	{
 		result *= a;
 	}
@@ -681,7 +745,7 @@ double custom_pow(double a, double x)
 	return result * fractionalMultiplier;
 }
 
-char intToChar(int num)
+char uint16_tToChar(uint16_t num)
 {
 	switch (num)
 	{
@@ -710,7 +774,7 @@ char intToChar(int num)
 	}
 }
 
-void writeCHARSEG(char CHAR, int seg)
+void writeCHARSEG(char CHAR, uint16_t seg)
 {
 	switch (seg)
 	{
@@ -747,16 +811,6 @@ void writeCHARSEG(char CHAR, int seg)
 	}
 	switch (CHAR)
 	{
-	case 'A':
-		LEDa_ON();
-		LEDb_ON();
-		LEDc_OFF();
-		LEDd_ON();
-		LEDe_ON();
-		LEDf_ON();
-		LEDg_ON();
-		LEDdp_OFF();
-		break;
 	case 'P':
 		LEDa_ON();
 		LEDb_ON();
@@ -905,9 +959,9 @@ void pwmFP7103()
 {
 	if (menu[16].value)
 	{											//*16 		P_3.0	Alarm_Status
-		int timeWakeUp = menu[10].value * 3600	//*10 		P_1.0	Hour_Rise
+		uint16_t timeWakeUp = menu[10].value * 3600	//*10 		P_1.0	Hour_Rise
 						 + menu[11].value * 60; //*11 		P_1.1	Minute_Rise
-		int timeNow = (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU)) * 3600 + (READ_BIT(RTC->TR, RTC_TR_MNT) * 10 + READ_BIT(RTC->TR, RTC_TR_MNU)) * 60 + (READ_BIT(RTC->TR, RTC_TR_ST) * 10 + READ_BIT(RTC->TR, RTC_TR_SU));
+		uint16_t timeNow = (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU)) * 3600 + (READ_BIT(RTC->TR, RTC_TR_MNT) * 10 + READ_BIT(RTC->TR, RTC_TR_MNU)) * 60 + (READ_BIT(RTC->TR, RTC_TR_ST) * 10 + READ_BIT(RTC->TR, RTC_TR_SU));
 		if (menu[13].value * 60 >= timeWakeUp - timeNow)
 		{ // *13 		P_2.0	Period_Rising
 			pinEN_ON();
@@ -924,10 +978,10 @@ void pwmFP7103()
 	}
 }
 
-int Clock()
+uint16_t Clock()
 {
 	char tmpClock[4] = {};
-	int j = 0;
+	uint16_t j = 0;
 	tmpClock[0] = READ_BIT(RTC->TR, RTC_TR_HT);
 	if (tmpClock[0] == 0)
 	{
@@ -937,9 +991,9 @@ int Clock()
 	tmpClock[2] = READ_BIT(RTC->TR, RTC_TR_MNT);
 	tmpClock[3] = READ_BIT(RTC->TR, RTC_TR_MNU);
 
-	if (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5 && READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22 || flagDecrementButton || flagEnterButton || flagIncrementButton || flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong)
+	if (((READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5) && (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22)) || flagDecrementButton || flagEnterButton || flagIncrementButton || flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong)
 	{
-		for (int i = 0 + j; i < 4; i++)
+		for (uint16_t i = 0 + j; i < 4; i++)
 		{
 			writeCHARSEG(tmpClock[i], i);
 			Delay_ms(50);
@@ -969,7 +1023,7 @@ void setTimeNow()
 				   (menu[7].value << RTC_DR_WDU_Pos));	   // Weekday (3 -> Monday)
 }
 
-char *setActualMenu(int v, int h)
+char *setActualMenu(uint16_t v, uint16_t h)
 {
 	if (v != 0)
 	{ // Рухаємося по вертикалі
@@ -1002,7 +1056,7 @@ char *setActualMenu(int v, int h)
 			else
 			{
 				bool nochild = true; // Прапорець, чи є дочірні елементи
-				for (int i = 0; i < menuArraySize; i++)
+				for (uint16_t i = 0; i < menuArraySize; i++)
 				{
 					if (menu[i].parentid == menu[actualIndex].id)
 					{
@@ -1014,7 +1068,7 @@ char *setActualMenu(int v, int h)
 				if (nochild)
 				{ // Якщо ж потомків немає, воспринимаємо як команду
 					switch (menu[actualIndex].id)
-					{		// Serial.println("Executing command...");         // І тут обробляємо за власним баченням
+					{		// Serial.pruint16_tln("Executing command...");         // І тут обробляємо за власним баченням
 					case 4: // Зберігаємо налаштування з комірки памті
 						setTimeNow();
 						break;
@@ -1055,11 +1109,10 @@ char *setActualMenu(int v, int h)
 	// Отображаем информацию
 	if (isParamEditMode)
 	{
-		int tmpV[4] = {};
-		tmpV[0] = tmpVValue / 1000;
-		tmpV[1] = tmpVValue / 100 - tmpV[0] * 10;
-		tmpV[2] = tmpVValue / 10 - tmpV[0] * 100 - tmpV[1] * 10;
-		tmpV[3] = tmpVValue - tmpV[0] * 1000 - tmpV[1] * 100 - tmpV[2] * 10;
+		tmpV[0] = uint16_tToChar(tmpVValue / 1000);
+		tmpV[1] = uint16_tToChar(tmpVValue / 100 - tmpV[0] * 10);
+		tmpV[2] = uint16_tToChar(tmpVValue / 10 - tmpV[0] * 100 - tmpV[1] * 10);
+		tmpV[3] = uint16_tToChar(tmpVValue - tmpV[0] * 1000 - tmpV[1] * 100 - tmpV[2] * 10);
 		return tmpV;
 	}
 	else
@@ -1068,9 +1121,9 @@ char *setActualMenu(int v, int h)
 	}
 }
 
-int getMenuIndexByID(int id)
+uint16_t getMenuIndexByID(uint16_t id)
 { // Функція отримання індексу пункту меню за його ID
-	for (int i = 0; i < menuArraySize; i++)
+	for (uint16_t i = 0; i < menuArraySize; i++)
 	{
 		if (menu[i].id == id)
 			return i;
@@ -1078,16 +1131,16 @@ int getMenuIndexByID(int id)
 	return -1;
 }
 
-int getNearMenuIndexByID(int parentid, int id, int side)
+uint16_t getNearMenuIndexByID(uint16_t parentid, uint16_t id, uint16_t side)
 {					   // Функція отримання індексу пункту меню наступного або попереднього від актуального
-	int prevID = -1;   // Змінна для зберігання індексу попереднього елемента
-	int nextID = -1;   // Змінна для зберігання індексу наступного елемента
-	int actualID = -1; // Змінна для зберігання індексу актуального елемента
+	uint16_t prevID = -1;   // Змінна для зберігання індексу попереднього елемента
+	uint16_t nextID = -1;   // Змінна для зберігання індексу наступного елемента
+	uint16_t actualID = -1; // Змінна для зберігання індексу актуального елемента
 
-	int firstID = -1; // Змінна для зберігання індексу першого елемента
-	int lastID = -1;  // Змінна для зберігання індексу останнього елемента
+	uint16_t firstID = -1; // Змінна для зберігання індексу першого елемента
+	uint16_t lastID = -1;  // Змінна для зберігання індексу останнього елемента
 
-	for (int i = 0; i < menuArraySize; i++)
+	for (uint16_t i = 0; i < menuArraySize; i++)
 	{
 		if (menu[i].parentid == parentid)
 		{ // Перебираємо всі елементи з одним батьківським ID
@@ -1124,14 +1177,14 @@ int getNearMenuIndexByID(int parentid, int id, int side)
 	return -1;
 }
 
-void StartMusic(int melody)
+void StartMusic(uint16_t melody)
 {
 	MusicStep = 0;
 	PlayMusic = 1;
 	sound(Music[MusicStep].freq, Music[MusicStep].time);
 }
 
-void sound(int freq, int time_ms)
+void sound(uint16_t freq, uint16_t time_ms)
 {
 	if (freq > 0)
 	{
@@ -1268,6 +1321,25 @@ void TIM21_IRQHandler(void)
 	}
 }
 
+void WWDG_IRQHandler(void){
+    // Перевіряємо, чи сталося переривання WWDG (флаг EWI - Early Wakeup uint16_terrupt)
+    if (READ_BIT(WWDG->SR, WWDG_SR_EWIF) != 0) {
+        // Очистимо флаг переривання EWIF (Early Wakeup uint16_terrupt Flag)
+        CLEAR_BIT(WWDG->SR, WWDG_SR_EWIF);
+
+        // Додайте ваш код для обробки переривання тут
+        // Наприклад, можна перезавантажити WWDG або виконати певні дії для обробки помилки
+
+        // У даному прикладі просто перезавантажимо таймер, щоб уникнути системного ресету
+        WWDG->CR = (WWDG->CR & WWDG_CR_T) | (0x7F); // Перезавантажуємо значення лічильника WWDG
+    }
+}
+
+//void Reset_Handler(void)
+//{
+//
+//}
+
 void Error_Handler(void)
 {
 	/* USER CODE BEGIN Error_Handler_Debug */
@@ -1283,11 +1355,11 @@ void Error_Handler(void)
 /**
  * @brief  Reports the name of the source file and the source line number
  *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
+ * @param  file: pouint16_ter to the source file name
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t *file, uint32_t line)
+void assert_failed(uuint16_t8_t *file, uuint16_t32_t line)
 {
 	/* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,

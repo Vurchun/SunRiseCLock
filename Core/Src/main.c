@@ -315,8 +315,7 @@ uint16_t main(void)
 
 	writeCHARSEG(' ', ' ');
 	pinEN_OFF();
-	writeCHARSEG('8', 1);
-	pinEN_ON();
+	tmpValue = setActualMenu(0, 0);
 
 	uint16_t vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
 	uint16_t hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
@@ -381,7 +380,6 @@ uint32_t SysTickTimerInit(uint32_t ticks)
   return (0UL);                                                     /* Function successful */
 }
 
-
 void CMSIS_FullInit(void)
 {
     // *** Налаштування кешу, передвибірки і попереднього читання *** //
@@ -417,9 +415,6 @@ void CMSIS_FullInit(void)
         while (1);  // Помилка пріоритету
     }
 }
-
-
-
 
 void WWDG_Init(uint8_t counter, uint8_t window, uint8_t prescaler) {
 
@@ -508,7 +503,6 @@ void SystemClock_Config(void)
 	}
 }
 
-/*READ INIT*/
 void RTC_Init(void)
 {
 	// 1. Enable power and backup domain access
@@ -1219,11 +1213,11 @@ void EXTI0_1_IRQHandler(void)
 		EXTI->PR = EXTI_PR_PR0; // Скидаємо прапорець EXTI 0
 		if (flagDecrementButtonDown)
 		{ // Обробка кнопки decrement
-			if ((/*HAL_GetTick()*/ -timeDecrementButtonDown) > timeButtonLongPressed)
+			if ((SysTimer_ms -timeDecrementButtonDown) > timeButtonLongPressed)
 			{
 				flagDecrementButtonLong = true;
 			}
-			else if ((/**HAL_GetTick()*/ -timeDecrementButtonDown) > timeButtonPressed)
+			else if ((SysTimer_ms -timeDecrementButtonDown) > timeButtonPressed)
 			{
 				flagDecrementButton = true;
 			}
@@ -1231,7 +1225,7 @@ void EXTI0_1_IRQHandler(void)
 		}
 		else
 		{
-			timeDecrementButtonDown = /*HAL_GetTick()*/ 0;
+			timeDecrementButtonDown = SysTimer_ms;
 			flagDecrementButtonDown = true;
 		}
 	}
@@ -1240,11 +1234,11 @@ void EXTI0_1_IRQHandler(void)
 		EXTI->PR = EXTI_PR_PR1; // Скидаємо прапорець EXTI 1
 		if (flagEnterButtonDown)
 		{ // Обробка кнопки enter
-			if ((/*HAL_GetTick()*/ -timeEnterButtonDown) > timeButtonLongPressed)
+			if ((SysTimer_ms -timeEnterButtonDown) > timeButtonLongPressed)
 			{
 				flagEnterButtonLong = true;
 			}
-			else if ((/*HAL_GetTick()*/ -timeEnterButtonDown) > timeButtonPressed)
+			else if ((SysTimer_ms -timeEnterButtonDown) > timeButtonPressed)
 			{
 				flagEnterButton = true;
 			}
@@ -1252,7 +1246,7 @@ void EXTI0_1_IRQHandler(void)
 		}
 		else
 		{
-			timeEnterButtonDown = /*HAL_GetTick()*/ 0;
+			timeEnterButtonDown = SysTimer_ms;
 			flagEnterButtonDown = true;
 		}
 	}
@@ -1269,11 +1263,11 @@ void EXTI2_3_IRQHandler(void)
 		// Обробка кнопки increment
 		if (flagIncrementButtonDown)
 		{
-			if ((/*HAL_GetTick()*/ -timeIncrementButtonDown) > timeButtonLongPressed)
+			if ((SysTimer_ms -timeIncrementButtonDown) > timeButtonLongPressed)
 			{
 				flagIncrementButtonLong = true;
 			}
-			else if ((/*HAL_GetTick()*/ -timeIncrementButtonDown) > timeButtonPressed)
+			else if ((SysTimer_ms -timeIncrementButtonDown) > timeButtonPressed)
 			{
 				flagIncrementButton = true;
 			}
@@ -1281,7 +1275,7 @@ void EXTI2_3_IRQHandler(void)
 		}
 		else
 		{
-			timeIncrementButtonDown = /*HAL_GetTick()*/ 0;
+			timeIncrementButtonDown = SysTimer_ms;
 			flagIncrementButtonDown = true;
 		}
 	}

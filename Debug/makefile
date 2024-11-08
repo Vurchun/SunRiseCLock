@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (11.3.rel1)
+# Toolchain: GNU Tools for STM32 (12.3.rel1)
 ################################################################################
 
 -include ../makefile.init
@@ -51,6 +51,12 @@ default.size.stdout \
 OBJDUMP_LIST += \
 CMSIS_SunRiseClock.list \
 
+OBJCOPY_HEX += \
+CMSIS_SunRiseClock.hex \
+
+OBJCOPY_BIN += \
+CMSIS_SunRiseClock.bin \
+
 
 # All Target
 all: main-build
@@ -74,12 +80,22 @@ CMSIS_SunRiseClock.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DE
 	@echo 'Finished building: $@'
 	@echo ' '
 
+CMSIS_SunRiseClock.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "CMSIS_SunRiseClock.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+CMSIS_SunRiseClock.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "CMSIS_SunRiseClock.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) CMSIS_SunRiseClock.elf CMSIS_SunRiseClock.list CMSIS_SunRiseClock.map default.size.stdout
+	-$(RM) CMSIS_SunRiseClock.bin CMSIS_SunRiseClock.elf CMSIS_SunRiseClock.hex CMSIS_SunRiseClock.list CMSIS_SunRiseClock.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX) $(OBJCOPY_BIN)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'

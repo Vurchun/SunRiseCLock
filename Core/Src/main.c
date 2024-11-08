@@ -62,12 +62,13 @@
 
 #define SYSCLK 32000000
 
-// Задаємо часові параметри для короткого, довгого та подвійного натискання (в мс)
-#define timeButtonPressed  100      // Час короткого натискання
-#define timeButtonLongPressed  200 // Час довгого натискання
-#define timeDoubleClick  150        // Час для подвійного натискання
-#define debounceTime  50             // Час для антидребезка (в мс)
+volatile uint16_t	decrementButtonCounter = 0;
+volatile uint16_t	enterButtonCounter = 0;
+volatile uint16_t	incrementButtonCounter = 0;
 
+uint32_t 	DecrementButtonDebounce = 0;
+uint32_t 	EnterButtonDebounce = 0;
+uint32_t 	IncrementButtonDebounce = 0;
 // Змінні для збереження часу натискання для кожної кнопки
 uint8_t timeIncrementButtonDown = 0;
 uint8_t timeDecrementButtonDown = 0;
@@ -98,7 +99,7 @@ bool flagPendingIncrementDoubleClick = false;
 bool flagPendingDecrementDoubleClick = false;
 bool flagPendingEnterDoubleClick = false;
 
-#define menuArraySize  26		  // Встановлюємо розмір масиву меню
+#define menuArraySize  31		  // Встановлюємо розмір масиву меню
 uint8_t actualIndex = 0;		  // Поточний індекс меню
 bool isParamEditMode = false; // Прапорець режиму редагування параметра
 uint8_t tmpVal = 0;			  // Тимчасова змінна для зберігання параметра
@@ -108,6 +109,9 @@ volatile uint16_t Delay_counter_ms = 0; // Лічильник для затри�
 
 
 char tmpV[4] = {};
+
+uint8_t vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
+uint8_t hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
 // Структура меню
 struct strMenu
 {
@@ -144,20 +148,25 @@ struct strMenu
  *21 	P__4		Menu_Parametrs
  *22		P_4.0	Numbers_Change_Style
  *23 		P_4.1	Menu_Night_Mode
- *24 	P__5		Clock(StartWork)
+ *24 	P__5		Menu_Parametrs
+ *25 		P_5.0	debounceTime
+ *26		P_5.1	timeButtonPressed
+ *27 		P_5.2	timeButtonLongPressed
+ *28 		P_5.3	timeDoubleClick
+ *30 	P__6		Clock(StartWork)
  */
 struct strMenu menu[] = {
 	// Встановлюємо пункти меню
 	{0, -1, false, "PPPP", 0, 0, 0},
 	//-----------------------------------------------------------------------
 	{1, 0, false, "P__0", 0, 0, 0},
-	{2, 1, true, "P_00", 0, 0, 24},
-	{3, 1, true, "P_01", 0, 0, 59},
-	{4, 1, true, "P_02", 0, 0, 59},
-	{5, 1, true, "P_03", 0, 0, 31},
-	{6, 1, true, "P_04", 0, 0, 12},
-	{7, 1, true, "P_05", 0, 0, 99},
-	{8, 1, true, "P_06", 0, 1, 7},
+	{2, 1, true,  "P_00", 0, 0, 24},
+	{3, 1, true,  "P_01", 0, 0, 59},
+	{4, 1, true,  "P_02", 0, 0, 59},
+	{5, 1, true,  "P_03", 0, 0, 31},
+	{6, 1, true,  "P_04", 0, 0, 12},
+	{7, 1, true,  "P_05", 0, 0, 99},
+	{8, 1, true,  "P_06", 0, 1, 7},
 	{9, 1, false, "P_07", 0, 0, 0},
 	//-----------------------------------------------------------------------
 	{10, 0, false, "P__1", 0, 0, 0},
@@ -179,7 +188,13 @@ struct strMenu menu[] = {
 	{23, 22, true, "P_40", 0, 3, 0},
 	{24, 22, true, "P_41", 0, 1, 1},
 	//-----------------------------------------------------------------------
-	{25, 0, false, "P__5", 0, 0, 0}
+	{25, 0, false, "P__5", 0, 0, 0},
+	{26, 25, true, "P_50", 0, 100, 75},
+	{27, 25, true, "P_51", 0, 231, 125},
+	{28, 25, true, "P_52", 0, 231, 200},
+	{29, 25, true, "P_53", 0, 231, 125},
+	//-----------------------------------------------------------------------
+	{30, 0, false, "P__5", 0, 0, 0}
 	//-----------------------------------------------------------------------
 };
 
@@ -307,11 +322,9 @@ void sound(uint16_t freq, uint16_t time_ms);
 int main(void)
 {
 
-	uint8_t vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
-	uint8_t hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
 	char *tmpValue;
-	CMSIS_FullInit(); // 1ms
 
+	CMSIS_FullInit(); // 1ms
 	SystemClock_Config();
 
 	GPIO_Init();
@@ -325,12 +338,17 @@ int main(void)
 
 	while (1)
 	{
+		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
+		if(SysTimer_ms-EnterButtonDebounce 		>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM1) == 0) 	EXTI->IMR |= EXTI_IMR_IM1;	// *25 		P_5.0	debounceTime
+		if(SysTimer_ms-IncrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM2) == 0) 	EXTI->IMR |= EXTI_IMR_IM2;	// *25 		P_5.0	debounceTime
+
 		if (flagDecrementButton)
 		{
 			hmenu = 1;
 			flagDecrementButton = false; // Действие обработано - сбрасываем флаг
 		}
-		else if(flagDecrementButtonLong){
+			else if(flagDecrementButtonLong){
+				hmenu = 1;
 			flagDecrementButtonLong = false; // Действие обработано - сбрасываем флаг
 		}
 
@@ -339,8 +357,8 @@ int main(void)
 			hmenu = -1;
 			flagIncrementButton = false; // Действие обработано - сбрасываем флаг
 		}
-		else if(flagIncrementButtonLong){
-
+			else if(flagIncrementButtonLong){
+				hmenu = -1;
 			flagIncrementButtonLong = false; // Действие обработано - сбрасываем флаг
 		}
 
@@ -349,22 +367,17 @@ int main(void)
 			vmenu = 1;				 // По нажатию кнопки - переходим на уровень вниз
 			flagEnterButton = false; // Действие обработано - сбрасываем флаг
 		}
-		else if (flagEnterButtonLong)
+			else if (flagEnterButtonLong)
 		{
 			vmenu = -1;
 			flagEnterButtonLong = false; // Действие обработано - сбрасываем флаг
 		}
-		if (vmenu != 0 || hmenu != 0){
-			tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
-		}
-			if(SysTimer_ms%4==0)
-							writeCHARSEG(tmpValue[0], 0);
-			if(SysTimer_ms%4==1)
-							writeCHARSEG(tmpValue[1], 1);
-			if(SysTimer_ms%4==2)
-							writeCHARSEG(tmpValue[2], 2);
-			if(SysTimer_ms%4==3)
-							writeCHARSEG(tmpValue[3], 3);
+		
+		if (vmenu != 0 || hmenu != 0)	tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
+			if(SysTimer_ms%4==0)		writeCHARSEG(tmpValue[0], 0);
+			if(SysTimer_ms%4==1)		writeCHARSEG(tmpValue[1], 1);
+			if(SysTimer_ms%4==2)		writeCHARSEG(tmpValue[2], 2);
+			if(SysTimer_ms%4==3)		writeCHARSEG(tmpValue[3], 3);
 	}
 	return 0;
 }
@@ -543,35 +556,6 @@ void RTC_Init(void)
 	RTC->WPR = 0x64; //				-||-
 }
 
-void LPTIM1_Init(void)
-{
-	// Увімкнення тактування TIM2
-	RCC->APB1ENR |= RCC_APB1ENR_LPTIM1EN;
-	CLEAR_BIT(LPTIM1->CR1, TIM_CR1_CEN);
-
-	/*Настройка таймера 2*/
-	// TIMx control register 1 (TIMx_CR1)
-	// SET_BIT(LPTIM1->CR1, TIM_CR1_CEN);  //Запуск таймера
-	CLEAR_BIT(LPTIM1->CR1, TIM_CR1_UDIS);								 // Генерировать событие Update
-	CLEAR_BIT(LPTIM1->CR1, TIM_CR1_URS);								 // Генерировать прерывание
-	// CLEAR_BIT(LPTIM1->CR1, TIM_CR1_OPM);								 // One pulse mode off(Счетчик не останавливается при обновлении)
-	// CLEAR_BIT(LPTIM1->CR1, TIM_CR1_DIR);								 // Считаем вверх
-	// MODIFY_REG(LPTIM1->CR1, TIM_CR1_CMS_Msk, 0b00 << TIM_CR1_CMS_Pos); // Выравнивание по краю
-	// SET_BIT(LPTIM1->CR1, TIM_CR1_ARPE);								 // Auto-reload preload enable
-	MODIFY_REG(LPTIM1->CR1, TIM_CR1_CKD_Msk, 0b00 << TIM_CR1_CKD_Pos); // Предделение выключено
-
-	/*Настройка прерываний*/
-	// TIMx DMA/interrupt enable register (TIMx_DIER)
-	SET_BIT(LPTIM1->DIER, TIM_DIER_UIE); // Update interrupt enable
-
-	// TIMx status register (TIMx_SR) - Статусные регистры
-
-	LPTIM1->PSC = 3200 - 1;
-	LPTIM1->ARR = debounceTime - 1;
-
-	NVIC_EnableIRQ(TIM2_IRQn); // Разрешить прерывания по таймеру 2
-}
-
 void TIM2_Init(void)
 {
 
@@ -709,18 +693,33 @@ void GPIO_Init(void)
 	/* Включення переривання */                                                                                                   \
 	NVIC_EnableIRQ(EXTI0_1_IRQn);                                                                                                  \
 	NVIC_EnableIRQ(EXTI2_3_IRQn);
+	NVIC_EnableIRQ(EXTI4_15_IRQn);
 }
 
 void LowPowerMode(uint8_t status)
 {
     if(status){// Встановлюємо режим STOP з RTC працюючим у нормальному режимі
-//    PWR->CR |= PWR_CR_LPDS;  // Налаштовуємо режим глибокого сну
-//    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;  // Налаштовуємо контролер для глибокого сну
+//	pinEN_OFF();
+//	RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
+//	RCC->APB1ENR &= ~RCC_APB2ENR_TIM21EN;
+//	RCC->IOPENR &= ~RCC_IOPENR_IOPAEN | ~RCC_IOPENR_IOPBEN | ~RCC_IOPENR_IOPCEN;
+//	RCC->IOPENR |= RCC_IOPENR_IOPBEN | RCC_IOPENR_IOPCEN;
+//	CONFIGURE_GPIO(GPIOC, 15, 0b01, 0, 0b11); // pinEN
+//	CONFIGURE_GPIO(GPIOB, 9, 0b00, 0, 0b11); // pwr
+//	CONFIGURE_EXTI(9, 0b000, 2, 3);		 // EXTI для pwr з обробкою по зростанню
 //
-//    // Входимо у режим STOP, поки не відбудеться переривання від RTC чи EXTI
-    __WFI();  // Чекаємо на переривання для виходу з режиму STOP
+////    PWR->CR |= PWR_CR_LPDS;  // Налаштовуємо режим глибокого сну
+////    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;  // Налаштовуємо контролер для глибокого сну
+////
+////    // Входимо у режим STOP, поки не відбудеться переривання від RTC чи EXTI
+////     __WFI();  // Чекаємо на переривання для виходу з режиму STOP
+
     }else{
-//    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;  // Вимикаємо режим глибокого сну
+//	pinEN_ON();
+//	GPIO_Init();
+//	TIM2_Init();
+//	TIM21_Init();
+////    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;  // Вимикаємо режим глибокого сну
 //    PWR->CR &= ~PWR_CR_LPDS;  // Відновлюємо нормальний режим живлення
 }
 }
@@ -1003,28 +1002,25 @@ void pwmFP7103()
 uint8_t Clock()
 {
 	char tmpClock[4] = {};
+	uint8_t i = 0;
 	uint8_t j = 0;
 	tmpClock[0] = READ_BIT(RTC->TR, RTC_TR_HT);
-	if (tmpClock[0] == 0)
-	{
-		j = 1;
-	}
+	if (tmpClock[0] == 0)	i = 1;
 	tmpClock[1] = READ_BIT(RTC->TR, RTC_TR_HU);
 	tmpClock[2] = READ_BIT(RTC->TR, RTC_TR_MNT);
+	if (tmpClock[2] == 0)	j = 1;
 	tmpClock[3] = READ_BIT(RTC->TR, RTC_TR_MNU);
 
-	if (((READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5) && (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22)) || flagDecrementButton || flagEnterButton || flagIncrementButton || flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong)
+	pwmFP7103();
+//	 *23 		P_4.1	Menu_Night_Mode
+	if (((READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5) && (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22) && menu[23].value) || flagDecrementButton || flagEnterButton || flagIncrementButton || menu[23].value)
 	{
-		if(SysTimer_ms%4==0 && j == 0)
-						writeCHARSEG(tmpClock[0], 0);
-		if(SysTimer_ms%4==1)
-						writeCHARSEG(tmpClock[1], 1);
-		if(SysTimer_ms%4==2)
-						writeCHARSEG(tmpClock[2], 2);
-		if(SysTimer_ms%4==3)
-						writeCHARSEG(tmpClock[3], 3);
+		if(SysTimer_ms%4==0 && i == 0) 	writeCHARSEG(tmpClock[0], 0);
+		if(SysTimer_ms%4==1)			writeCHARSEG(tmpClock[1], 1);
+		if(SysTimer_ms%4==2 && j == 0)	writeCHARSEG(tmpClock[2], 2);
+		if(SysTimer_ms%4==3)			writeCHARSEG(tmpClock[3], 3);
 	}
-	return flagDecrementButtonLong && flagIncrementButtonLong ? 0 : 1;
+	return flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong ? 0 : 1;
 }
 
 void setTimeNow()
@@ -1242,17 +1238,7 @@ void EXTI0_1_IRQHandler(void)
     if (EXTI->PR & EXTI_PR_PR0)
     {
         EXTI->IMR &= ~EXTI_IMR_IM0;
-        uint8_t button_Decrement_pressed = 0;
-
-        for (uint8_t i = 0; i < debounceTime; i++)
-        {
-
-            button_Decrement_pressed += (flagDecrementButtonDown)?((BUTTON_PRESSED(0, GPIOA)==0)?0:1):((BUTTON_PRESSED(0, GPIOA)==0)?1:0);
-            Delay_ms(1);
-        }
-
-        if ((!flagDecrementButtonDown && (button_Decrement_pressed>3*debounceTime/4)) || ( flagDecrementButtonDown && ( button_Decrement_pressed < debounceTime/4 )))
-        {
+		DecrementButtonDebounce = SysTimer_ms;
             if (!flagDecrementButtonDown)
             {
                 timeDecrementButtonDown = SysTimer_ms;
@@ -1268,49 +1254,39 @@ void EXTI0_1_IRQHandler(void)
                 EXTI->FTSR &= ~EXTI_FTSR_FT0;
                 EXTI->RTSR |= EXTI_RTSR_RT0;
 
-                if (pressDecrementButtonDuration >= timeButtonLongPressed)
-                {
-                    flagDecrementButtonLong = true;
-                }
-                else if (pressDecrementButtonDuration >= timeButtonPressed)
+                // *26		P_5.1	timeButtonPressed
+                // *27 		P_5.2	timeButtonLongPressed
+                if (pressDecrementButtonDuration < menu[27].value && pressDecrementButtonDuration > menu[26].value)
                 {
                     flagDecrementButton = true;
-
-                    if (flagPendingDecrementDoubleClick && (SysTimer_ms - timeLastDecrementButtonPress <= timeDoubleClick))
-                    {
-                        flagDecrementButtonDouble = true;
-                        flagDecrementButton = false;
-                        flagPendingDecrementDoubleClick = false;
-                    }
-                    else
-                    {
-                        flagPendingDecrementDoubleClick = true;
-                        timeLastDecrementButtonPress = SysTimer_ms;
-                    }
+                    if (flagPendingDecrementDoubleClick && (SysTimer_ms - timeLastDecrementButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
+                                        {
+                                            flagDecrementButtonDouble = true;
+                                            flagDecrementButton = false;
+                                            flagPendingDecrementDoubleClick = false;
+                                        }
+                                        else
+                                        {
+                flagPendingDecrementDoubleClick = true;
+                timeLastDecrementButtonPress = SysTimer_ms;
+                }
+                }
+                else if (pressDecrementButtonDuration >= menu[27].value)
+                {
+                	flagDecrementButtonLong = true;
                 }
 
                 flagDecrementButtonDown = false;
             }
-        }
 
         EXTI->PR = EXTI_PR_PR0;
-        EXTI->IMR |= EXTI_IMR_IM0;
     }
 
     // Перевірка для EnterButton (EXTI1)
     if (EXTI->PR & EXTI_PR_PR1)
     {
         EXTI->IMR &= ~EXTI_IMR_IM1;
-        uint8_t button_Enter_pressed = 0;
-
-        for (uint8_t i = 0; i < debounceTime; i++)
-        {
-        	button_Enter_pressed += (flagEnterButtonDown)?((BUTTON_PRESSED(1, GPIOA)==0)?0:1):((BUTTON_PRESSED(1, GPIOA)==0)?1:0);
-            Delay_ms(1);
-        }
-
-        if ( (!flagEnterButtonDown && (button_Enter_pressed>3*debounceTime/4)) || ( flagEnterButtonDown && (button_Enter_pressed < debounceTime/4 )))
-        {
+		EnterButtonDebounce = SysTimer_ms;
             if (!flagEnterButtonDown)
             {
                 timeEnterButtonDown = SysTimer_ms;
@@ -1326,33 +1302,35 @@ void EXTI0_1_IRQHandler(void)
                 EXTI->FTSR &= ~EXTI_FTSR_FT1;
                 EXTI->RTSR |= EXTI_RTSR_RT1;
 
-                if (pressEnterButtonDuration >= timeButtonLongPressed)
+                // *26		P_5.1	timeButtonPressed
+                // *27 		P_5.2	timeButtonLongPressed
+                if (pressEnterButtonDuration > menu[26].value && pressEnterButtonDuration < menu[27].value)
                 {
-                    flagEnterButtonLong = true;
-                }
-                else if (pressEnterButtonDuration >= timeButtonPressed)
-                {
-                    flagEnterButton = true;
+                     flagEnterButton = true;
 
-                    if (flagPendingEnterDoubleClick && (SysTimer_ms - timeLastEnterButtonPress <= timeDoubleClick))
-                    {
-                        flagEnterButtonDouble = true;
-                        flagEnterButton = false;
-                        flagPendingEnterDoubleClick = false;
-                    }
-                    else
-                    {
-                        flagPendingEnterDoubleClick = true;
-                        timeLastEnterButtonPress = SysTimer_ms;
-                    }
+                     if (flagPendingEnterDoubleClick && (SysTimer_ms - timeLastEnterButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
+                                         {
+                                             flagEnterButtonDouble = true;
+                                             flagEnterButton = false;
+                                             flagPendingEnterDoubleClick = false;
+                                         }
+                                         else
+                                         {
+                                             flagPendingEnterDoubleClick = true;
+                                             timeLastEnterButtonPress = SysTimer_ms;
+                                         }
+                }
+                else if (pressEnterButtonDuration >= menu[27].value)
+                {
+                	flagEnterButtonLong = true;
+
+
                 }
 
                 flagEnterButtonDown = false;
             }
-        }
 
         EXTI->PR = EXTI_PR_PR1;
-        EXTI->IMR |= EXTI_IMR_IM1;
     }
 }
 
@@ -1363,14 +1341,6 @@ void EXTI2_3_IRQHandler(void)
     {
         // Забороняємо переривання для даної лінії, поки не завершимо обробку
         EXTI->IMR &= ~EXTI_IMR_IM2;
-		uint8_t button_Increment_pressed = 0;
-        for(uint8_t i=0;i<debounceTime;i++){
-			button_Increment_pressed += (flagIncrementButtonDown)?((BUTTON_PRESSED(2, GPIOA)==0)?0:1):((BUTTON_PRESSED(2, GPIOA)==0)?1:0);
-			Delay_ms(1);
-		}
-
-        if ((!flagIncrementButtonDown && (button_Increment_pressed>3*debounceTime/4)) || ( flagIncrementButtonDown && ( button_Increment_pressed < debounceTime/4 ))) // Перевіряємо стан кнопки після затримки
-        {
             if ( !flagIncrementButtonDown )
             {
                 // Початок натискання
@@ -1391,38 +1361,36 @@ void EXTI2_3_IRQHandler(void)
                 EXTI->RTSR |= EXTI_RTSR_RT2;  // Включаємо переривання по зростаючому фронту
             
                 // Обробка короткого та довгого натискання
-                if (pressIncrementButtonDuration >= timeButtonLongPressed)
+                if (pressIncrementButtonDuration < menu[27].value && pressIncrementButtonDuration > menu[26].value)// *27 		P_5.2	timeButtonLongPressed
                 {
-                    // Довге натискання
-                    flagIncrementButtonLong = true;
+                    //  Коротке натискання
+                     flagIncrementButton= true;
+                     // Обробка подвійного натискання
+                     if (flagPendingIncrementDoubleClick && (SysTimer_ms - timeLastIncrementButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
+                     {
+                         flagIncrementButtonDouble = true;
+                         flagIncrementButton = false;
+                         flagPendingIncrementDoubleClick = false;
+                     }
+                     else
+                     {
+                         flagPendingIncrementDoubleClick = true;
+                         timeLastIncrementButtonPress = SysTimer_ms;
+                     }
                 }
-                else if (pressIncrementButtonDuration >= timeButtonPressed)
+                else if (pressIncrementButtonDuration > menu[27].value)
                 {
-                    // Коротке натискання
-                    flagIncrementButton = true;
+                    //  Довге натискання
+                	flagIncrementButtonLong = true;
 
-                    // Обробка подвійного натискання
-                    if (flagPendingIncrementDoubleClick && (SysTimer_ms - timeLastIncrementButtonPress <= timeDoubleClick))
-                    {
-                        flagIncrementButtonDouble = true;
-                        flagIncrementButton = false;
-                        flagPendingIncrementDoubleClick = false;
-                    }
-                    else
-                    {
-                        flagPendingIncrementDoubleClick = true;
-                        timeLastIncrementButtonPress = SysTimer_ms;
-                    }
+
                 }
 
                 // Скидаємо прапорець натискання
                 flagIncrementButtonDown = false;
             }
-        }
         // Скидаємо прапорець EXTI2
         EXTI->PR = EXTI_PR_PR2;
-        // Увімкнення переривань після обробки
-        EXTI->IMR |= EXTI_IMR_IM2;
     }
 }
 
@@ -1461,16 +1429,6 @@ void EXTI4_15_IRQHandler(void)
         EXTI->IMR |= EXTI_IMR_IM9;
     }
 }
-
-void LPTIM1_IRQHandler(void)
-{
-	if (READ_BIT(LPTIM1->SR, TIM_SR_UIF))
-	{
-		//		CounterTIM2++;
-		CLEAR_BIT(LPTIM1->SR, TIM_SR_UIF); // Сбросим флаг прерывания
-	}
-}
-
 
 void TIM2_IRQHandler(void)
 {

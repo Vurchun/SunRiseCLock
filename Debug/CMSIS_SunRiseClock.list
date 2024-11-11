@@ -5,49 +5,49 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 .isr_vector   000000c0  08000000  08000000  00001000  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  1 .text         00002f18  080000c0  080000c0  000010c0  2**2
+  1 .text         00002f00  080000c0  080000c0  000010c0  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       000000c8  08002fd8  08002fd8  00003fd8  2**2
+  2 .rodata       000000c8  08002fc0  08002fc0  00003fc0  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .ARM.extab    00000000  080030a0  080030a0  00005138  2**0
+  3 .ARM.extab    00000000  08003088  08003088  00005124  2**0
                   CONTENTS
-  4 .ARM          00000000  080030a0  080030a0  00005138  2**0
+  4 .ARM          00000000  08003088  08003088  00005124  2**0
                   CONTENTS
-  5 .preinit_array 00000000  080030a0  080030a0  00005138  2**0
+  5 .preinit_array 00000000  08003088  08003088  00005124  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  6 .init_array   00000004  080030a0  080030a0  000040a0  2**2
+  6 .init_array   00000004  08003088  08003088  00004088  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  7 .fini_array   00000004  080030a4  080030a4  000040a4  2**2
+  7 .fini_array   00000004  0800308c  0800308c  0000408c  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  8 .data         00000138  20000000  080030a8  00005000  2**2
+  8 .data         00000124  20000000  08003090  00005000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00000058  20000138  080031e0  00005138  2**2
+  9 .bss          00000058  20000124  080031b4  00005124  2**2
                   ALLOC
- 10 ._user_heap_stack 00000400  20000190  080031e0  00005190  2**0
+ 10 ._user_heap_stack 00000404  2000017c  080031b4  0000517c  2**0
                   ALLOC
- 11 .ARM.attributes 00000028  00000000  00000000  00005138  2**0
+ 11 .ARM.attributes 00000028  00000000  00000000  00005124  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00001ed8  00000000  00000000  00005160  2**0
+ 12 .debug_info   00001e13  00000000  00000000  0000514c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00000592  00000000  00000000  00007038  2**0
+ 13 .debug_abbrev 000005b3  00000000  00000000  00006f5f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_loclists 000008a8  00000000  00000000  000075ca  2**0
+ 14 .debug_loclists 000009a1  00000000  00000000  00007512  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_aranges 00000150  00000000  00000000  00007e78  2**3
+ 15 .debug_aranges 00000150  00000000  00000000  00007eb8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_rnglists 000001f6  00000000  00000000  00007fc8  2**0
+ 16 .debug_rnglists 000001f3  00000000  00000000  00008008  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  00008ff2  00000000  00000000  000081be  2**0
+ 17 .debug_macro  00009004  00000000  00000000  000081fb  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   00002129  00000000  00000000  000111b0  2**0
+ 18 .debug_line   00002007  00000000  00000000  000111ff  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    0003042d  00000000  00000000  000132d9  2**0
+ 19 .debug_str    00030309  00000000  00000000  00013206  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000043  00000000  00000000  00043706  2**0
+ 20 .comment      00000043  00000000  00000000  0004350f  2**0
                   CONTENTS, READONLY
- 21 .debug_frame  00000598  00000000  00000000  0004374c  2**2
+ 21 .debug_frame  0000058c  00000000  00000000  00043554  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 22 .debug_line_str 00000086  00000000  00000000  00043ce4  2**0
+ 22 .debug_line_str 00000086  00000000  00000000  00043ae0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -67,9 +67,9 @@ Disassembly of section .text:
  80000d6:	2301      	movs	r3, #1
  80000d8:	7023      	strb	r3, [r4, #0]
  80000da:	bd10      	pop	{r4, pc}
- 80000dc:	20000138 	.word	0x20000138
+ 80000dc:	20000124 	.word	0x20000124
  80000e0:	00000000 	.word	0x00000000
- 80000e4:	08002fc0 	.word	0x08002fc0
+ 80000e4:	08002fa8 	.word	0x08002fa8
 
 080000e8 <frame_dummy>:
  80000e8:	4b04      	ldr	r3, [pc, #16]	@ (80000fc <frame_dummy+0x14>)
@@ -83,8 +83,8 @@ Disassembly of section .text:
  80000f8:	bd10      	pop	{r4, pc}
  80000fa:	46c0      	nop			@ (mov r8, r8)
  80000fc:	00000000 	.word	0x00000000
- 8000100:	2000013c 	.word	0x2000013c
- 8000104:	08002fc0 	.word	0x08002fc0
+ 8000100:	20000128 	.word	0x20000128
+ 8000104:	08002fa8 	.word	0x08002fa8
 
 08000108 <__udivsi3>:
  8000108:	2200      	movs	r2, #0
@@ -3277,10 +3277,10 @@ Disassembly of section .text:
 08001a14 <CMSIS_FullInit>:
 void CMSIS_FullInit(void)
 {
-    // *** Налаштування кешу, передвибірки і попереднього читання *** //
+	// *** Налаштування кешу, передвибірки і попереднього читання *** //
 
-    // Вимкнути буфер кешу, якщо це налаштовано
-		CLEAR_BIT(FLASH->ACR,FLASH_ACR_DISAB_BUF);
+	// Вимкнути буфер кешу, якщо це налаштовано
+	CLEAR_BIT(FLASH->ACR, FLASH_ACR_DISAB_BUF);
  8001a14:	2120      	movs	r1, #32
     NVIC->IP[_IP_IDX(IRQn)]  = ((uint32_t)(NVIC->IP[_IP_IDX(IRQn)]  & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
        (((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL) << _BIT_SHIFT(IRQn)));
@@ -3294,29 +3294,29 @@ void CMSIS_FullInit(void)
  8001a1c:	681a      	ldr	r2, [r3, #0]
  8001a1e:	438a      	bics	r2, r1
  8001a20:	601a      	str	r2, [r3, #0]
-    // Включити попереднє читання, якщо це налаштовано
-		SET_BIT(FLASH->ACR,FLASH_ACR_PRE_READ);
+	// Включити попереднє читання, якщо це налаштовано
+	SET_BIT(FLASH->ACR, FLASH_ACR_PRE_READ);
  8001a22:	681a      	ldr	r2, [r3, #0]
  8001a24:	3120      	adds	r1, #32
  8001a26:	430a      	orrs	r2, r1
  8001a28:	601a      	str	r2, [r3, #0]
-    // Включити буфер передвибірки, якщо це налаштовано
-		SET_BIT(FLASH->ACR,FLASH_ACR_PRFTEN);
+	// Включити буфер передвибірки, якщо це налаштовано
+	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
  8001a2a:	681a      	ldr	r2, [r3, #0]
  8001a2c:	393e      	subs	r1, #62	@ 0x3e
  8001a2e:	430a      	orrs	r2, r1
  8001a30:	601a      	str	r2, [r3, #0]
-		SET_BIT(FLASH->ACR,FLASH_ACR_LATENCY);
+	SET_BIT(FLASH->ACR, FLASH_ACR_LATENCY);
  8001a32:	681a      	ldr	r2, [r3, #0]
  8001a34:	3901      	subs	r1, #1
  8001a36:	430a      	orrs	r2, r1
  8001a38:	601a      	str	r2, [r3, #0]
-  CLEAR_BIT(SysTick->CTRL,SysTick_CTRL_ENABLE_Msk);					/* Disenable SysTick Timer */
+	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);				 /* Disenable SysTick Timer */
  8001a3a:	4b0b      	ldr	r3, [pc, #44]	@ (8001a68 <CMSIS_FullInit+0x54>)
  8001a3c:	681a      	ldr	r2, [r3, #0]
  8001a3e:	438a      	bics	r2, r1
  8001a40:	601a      	str	r2, [r3, #0]
-  SysTick->LOAD  = (uint16_t)(ticks - 1UL);                         /* set reload register */
+	SysTick->LOAD = (uint32_t)(ticks - 1UL);						 /* set reload register */
  8001a42:	4a0a      	ldr	r2, [pc, #40]	@ (8001a6c <CMSIS_FullInit+0x58>)
  8001a44:	490a      	ldr	r1, [pc, #40]	@ (8001a70 <CMSIS_FullInit+0x5c>)
  8001a46:	605a      	str	r2, [r3, #4]
@@ -3325,21 +3325,21 @@ void CMSIS_FullInit(void)
  8001a4c:	0a12      	lsrs	r2, r2, #8
  8001a4e:	4302      	orrs	r2, r0
  8001a50:	620a      	str	r2, [r1, #32]
-  SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
+	SysTick->VAL = 0UL;												 /* Load the SysTick Counter Value */
  8001a52:	2200      	movs	r2, #0
  8001a54:	609a      	str	r2, [r3, #8]
-  SysTick->CTRL  = 	SysTick_CTRL_CLKSOURCE_Msk |
+	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
  8001a56:	3207      	adds	r2, #7
  8001a58:	601a      	str	r2, [r3, #0]
  8001a5a:	6a0b      	ldr	r3, [r1, #32]
  8001a5c:	021b      	lsls	r3, r3, #8
  8001a5e:	0a1b      	lsrs	r3, r3, #8
  8001a60:	620b      	str	r3, [r1, #32]
-    }
-    else
-    {
-        while (1);  // Помилка пріоритету
-    }
+	else
+	{
+		while (1)
+			; // Помилка пріоритету
+	}
 }
  8001a62:	4770      	bx	lr
  8001a64:	40022000 	.word	0x40022000
@@ -4376,7 +4376,7 @@ void GPIO_Init(void)
 
 	// Налаштування кнопок із EXTI
 	CONFIGURE_GPIO(GPIOA, 0, 0b00, 0, 0b11); // decrement
-	CONFIGURE_EXTI(0, 0b000, 0, 1);		 // EXTI для decrement
+	CONFIGURE_EXTI(0, 0b000, 0, 1);			 // EXTI для decrement
  8002030:	240f      	movs	r4, #15
 	CONFIGURE_GPIO(GPIOA, 0, 0b00, 0, 0b11); // decrement
  8002032:	681f      	ldr	r7, [r3, #0]
@@ -4392,7 +4392,7 @@ void GPIO_Init(void)
  8002040:	689f      	ldr	r7, [r3, #8]
  8002042:	4337      	orrs	r7, r6
  8002044:	609f      	str	r7, [r3, #8]
-	CONFIGURE_EXTI(0, 0b000, 0, 1);		 // EXTI для decrement
+	CONFIGURE_EXTI(0, 0b000, 0, 1);			 // EXTI для decrement
  8002046:	4f3e      	ldr	r7, [pc, #248]	@ (8002140 <GPIO_Init+0x324>)
  8002048:	68be      	ldr	r6, [r7, #8]
  800204a:	43a6      	bics	r6, r4
@@ -4405,7 +4405,7 @@ void GPIO_Init(void)
  8002058:	4321      	orrs	r1, r4
 	CONFIGURE_GPIO(GPIOA, 1, 0b00, 0, 0b11); // enter
  800205a:	2402      	movs	r4, #2
-	CONFIGURE_EXTI(0, 0b000, 0, 1);		 // EXTI для decrement
+	CONFIGURE_EXTI(0, 0b000, 0, 1);			 // EXTI для decrement
  800205c:	60f1      	str	r1, [r6, #12]
 	CONFIGURE_GPIO(GPIOA, 1, 0b00, 0, 0b11); // enter
  800205e:	6819      	ldr	r1, [r3, #0]
@@ -4417,7 +4417,7 @@ void GPIO_Init(void)
  800206a:	6899      	ldr	r1, [r3, #8]
  800206c:	4329      	orrs	r1, r5
  800206e:	6099      	str	r1, [r3, #8]
-	CONFIGURE_EXTI(1, 0b000, 0, 1);		 // EXTI для enter
+	CONFIGURE_EXTI(1, 0b000, 0, 1);			 // EXTI для enter
  8002070:	68b9      	ldr	r1, [r7, #8]
  8002072:	35e4      	adds	r5, #228	@ 0xe4
  8002074:	43a9      	bics	r1, r5
@@ -4440,7 +4440,7 @@ void GPIO_Init(void)
  8002092:	6899      	ldr	r1, [r3, #8]
  8002094:	4321      	orrs	r1, r4
  8002096:	6099      	str	r1, [r3, #8]
-	CONFIGURE_EXTI(2, 0b000, 0, 1);		 // EXTI для increment
+	CONFIGURE_EXTI(2, 0b000, 0, 1);			 // EXTI для increment
  8002098:	68bb      	ldr	r3, [r7, #8]
  800209a:	492b      	ldr	r1, [pc, #172]	@ (8002148 <GPIO_Init+0x32c>)
  800209c:	400b      	ands	r3, r1
@@ -4467,7 +4467,7 @@ void GPIO_Init(void)
  80020c2:	0300      	lsls	r0, r0, #12
  80020c4:	4303      	orrs	r3, r0
  80020c6:	6093      	str	r3, [r2, #8]
-	CONFIGURE_EXTI(9, 0b000, 2, 3);		 // EXTI для pwr з обробкою по зростанню
+	CONFIGURE_EXTI(9, 0b000, 2, 3);			 // EXTI для pwr з обробкою по зростанню
  80020c8:	693b      	ldr	r3, [r7, #16]
  80020ca:	43ab      	bics	r3, r5
  80020cc:	613b      	str	r3, [r7, #16]
@@ -4486,8 +4486,8 @@ void GPIO_Init(void)
  80020e6:	601a      	str	r2, [r3, #0]
  80020e8:	6019      	str	r1, [r3, #0]
 
-	/* Включення переривання */                                                                                                   \
-	NVIC_EnableIRQ(EXTI0_1_IRQn);                                                                                                  \
+	/* Включення переривання */
+	NVIC_EnableIRQ(EXTI0_1_IRQn);
 	NVIC_EnableIRQ(EXTI2_3_IRQn);
 	NVIC_EnableIRQ(EXTI4_15_IRQn);
 }
@@ -4976,7 +4976,7 @@ void writeCHARSEG(char CHAR, uint8_t seg)
  80023a4:	e712      	b.n	80021cc <writeCHARSEG+0x7c>
  80023a6:	46c0      	nop			@ (mov r8, r8)
  80023a8:	50000400 	.word	0x50000400
- 80023ac:	08002fd8 	.word	0x08002fd8
+ 80023ac:	08002fc0 	.word	0x08002fc0
 
 080023b0 <pwmFP7103>:
 
@@ -4997,10 +4997,10 @@ void pwmFP7103()
  80023be:	2b00      	cmp	r3, #0
  80023c0:	d100      	bne.n	80023c4 <pwmFP7103+0x14>
  80023c2:	e09d      	b.n	8002500 <pwmFP7103+0x150>
-	{											//*16 		P_3.0	Alarm_Status
-		uint16_t timeWakeUp = menu[10].value * 3600	//*10 		P_1.0	Hour_Rise
+	{												 //*16 		P_3.0	Alarm_Status
+		uint16_t timeWakeUp = menu[10].value * 3600	 //*10 		P_1.0	Hour_Rise
  80023c4:	236b      	movs	r3, #107	@ 0x6b
-						 + menu[11].value * 60; //*11 		P_1.1	Minute_Rise
+							  + menu[11].value * 60; //*11 		P_1.1	Minute_Rise
  80023c6:	25e1      	movs	r5, #225	@ 0xe1
  80023c8:	5cf3      	ldrb	r3, [r6, r3]
  80023ca:	012d      	lsls	r5, r5, #4
@@ -5009,11 +5009,11 @@ void pwmFP7103()
  80023d0:	213c      	movs	r1, #60	@ 0x3c
  80023d2:	5cf3      	ldrb	r3, [r6, r3]
  80023d4:	434b      	muls	r3, r1
-		uint16_t timeWakeUp = menu[10].value * 3600	//*10 		P_1.0	Hour_Rise
+		uint16_t timeWakeUp = menu[10].value * 3600	 //*10 		P_1.0	Hour_Rise
  80023d6:	18ed      	adds	r5, r5, r3
 		uint16_t timeNow = (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU)) * 3600 + (READ_BIT(RTC->TR, RTC_TR_MNT) * 10 + READ_BIT(RTC->TR, RTC_TR_MNU)) * 60 + (READ_BIT(RTC->TR, RTC_TR_ST) * 10 + READ_BIT(RTC->TR, RTC_TR_SU));
  80023d8:	4b5e      	ldr	r3, [pc, #376]	@ (8002554 <pwmFP7103+0x1a4>)
-		uint16_t timeWakeUp = menu[10].value * 3600	//*10 		P_1.0	Hour_Rise
+		uint16_t timeWakeUp = menu[10].value * 3600	 //*10 		P_1.0	Hour_Rise
  80023da:	b2ad      	uxth	r5, r5
 		uint16_t timeNow = (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU)) * 3600 + (READ_BIT(RTC->TR, RTC_TR_MNT) * 10 + READ_BIT(RTC->TR, RTC_TR_MNU)) * 60 + (READ_BIT(RTC->TR, RTC_TR_ST) * 10 + READ_BIT(RTC->TR, RTC_TR_SU));
  80023dc:	681a      	ldr	r2, [r3, #0]
@@ -5091,7 +5091,7 @@ void pwmFP7103()
  8002464:	f7fd fe50 	bl	8000108 <__udivsi3>
  8002468:	b2c0      	uxtb	r0, r0
  800246a:	f7ff fa63 	bl	8001934 <__aeabi_i2d>
-	double fracPart = x - intPart; // дробная часть x
+	double fracPart = x - intPart;	// дробная часть x
  800246e:	0002      	movs	r2, r0
  8002470:	000b      	movs	r3, r1
  8002472:	f7fe fe87 	bl	8001184 <__aeabi_dsub>
@@ -5234,1770 +5234,1812 @@ void pwmFP7103()
 uint8_t Clock()
 {
  8002564:	b570      	push	{r4, r5, r6, lr}
-	if (tmpClock[2] == 0)	j = 1;
+	char tmpClock[4] = {};
+	uint8_t i = 0;
+	uint8_t j = 0;
+	tmpClock[0] = READ_BIT(RTC->TR, RTC_TR_HT);
+ 8002566:	4c4d      	ldr	r4, [pc, #308]	@ (800269c <Clock+0x138>)
+		j = 1;
 	tmpClock[3] = READ_BIT(RTC->TR, RTC_TR_MNU);
 
 	pwmFP7103();
-//	 *23 		P_4.1	Menu_Night_Mode
+	//	 *23 		P_4.1	Menu_Night_Mode
 	if (((READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5) && (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22) && menu[23].value) || flagDecrementButton || flagEnterButton || flagIncrementButton || menu[23].value)
- 8002566:	25c0      	movs	r5, #192	@ 0xc0
+ 8002568:	26c0      	movs	r6, #192	@ 0xc0
 	tmpClock[0] = READ_BIT(RTC->TR, RTC_TR_HT);
- 8002568:	4c4e      	ldr	r4, [pc, #312]	@ (80026a4 <Clock+0x140>)
-	if (((READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5) && (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22) && menu[23].value) || flagDecrementButton || flagEnterButton || flagIncrementButton || menu[23].value)
- 800256a:	03ad      	lsls	r5, r5, #14
-	tmpClock[0] = READ_BIT(RTC->TR, RTC_TR_HT);
- 800256c:	6823      	ldr	r3, [r4, #0]
+ 800256a:	6823      	ldr	r3, [r4, #0]
 	tmpClock[1] = READ_BIT(RTC->TR, RTC_TR_HU);
- 800256e:	6823      	ldr	r3, [r4, #0]
+ 800256c:	6823      	ldr	r3, [r4, #0]
 	tmpClock[2] = READ_BIT(RTC->TR, RTC_TR_MNT);
- 8002570:	6823      	ldr	r3, [r4, #0]
+ 800256e:	6823      	ldr	r3, [r4, #0]
 	tmpClock[3] = READ_BIT(RTC->TR, RTC_TR_MNU);
- 8002572:	6823      	ldr	r3, [r4, #0]
+ 8002570:	6823      	ldr	r3, [r4, #0]
 	pwmFP7103();
- 8002574:	f7ff ff1c 	bl	80023b0 <pwmFP7103>
+ 8002572:	f7ff ff1d 	bl	80023b0 <pwmFP7103>
 	if (((READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5) && (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22) && menu[23].value) || flagDecrementButton || flagEnterButton || flagIncrementButton || menu[23].value)
- 8002578:	20f0      	movs	r0, #240	@ 0xf0
- 800257a:	6822      	ldr	r2, [r4, #0]
- 800257c:	6821      	ldr	r1, [r4, #0]
- 800257e:	402a      	ands	r2, r5
- 8002580:	0093      	lsls	r3, r2, #2
- 8002582:	189b      	adds	r3, r3, r2
- 8002584:	0300      	lsls	r0, r0, #12
- 8002586:	005b      	lsls	r3, r3, #1
- 8002588:	4001      	ands	r1, r0
- 800258a:	185b      	adds	r3, r3, r1
- 800258c:	2b05      	cmp	r3, #5
- 800258e:	d928      	bls.n	80025e2 <Clock+0x7e>
- 8002590:	6822      	ldr	r2, [r4, #0]
- 8002592:	6821      	ldr	r1, [r4, #0]
- 8002594:	402a      	ands	r2, r5
- 8002596:	0093      	lsls	r3, r2, #2
- 8002598:	189b      	adds	r3, r3, r2
- 800259a:	005b      	lsls	r3, r3, #1
- 800259c:	4001      	ands	r1, r0
+ 8002576:	22ed      	movs	r2, #237	@ 0xed
+ 8002578:	25f0      	movs	r5, #240	@ 0xf0
+ 800257a:	6821      	ldr	r1, [r4, #0]
+ 800257c:	4b48      	ldr	r3, [pc, #288]	@ (80026a0 <Clock+0x13c>)
+ 800257e:	03b6      	lsls	r6, r6, #14
+ 8002580:	4031      	ands	r1, r6
+ 8002582:	6820      	ldr	r0, [r4, #0]
+ 8002584:	5c9a      	ldrb	r2, [r3, r2]
+ 8002586:	008b      	lsls	r3, r1, #2
+ 8002588:	185b      	adds	r3, r3, r1
+ 800258a:	032d      	lsls	r5, r5, #12
+ 800258c:	005b      	lsls	r3, r3, #1
+ 800258e:	4028      	ands	r0, r5
+ 8002590:	181b      	adds	r3, r3, r0
+ 8002592:	2b05      	cmp	r3, #5
+ 8002594:	d923      	bls.n	80025de <Clock+0x7a>
+ 8002596:	6821      	ldr	r1, [r4, #0]
+ 8002598:	6820      	ldr	r0, [r4, #0]
+ 800259a:	4031      	ands	r1, r6
+ 800259c:	008b      	lsls	r3, r1, #2
  800259e:	185b      	adds	r3, r3, r1
- 80025a0:	2b15      	cmp	r3, #21
- 80025a2:	d81e      	bhi.n	80025e2 <Clock+0x7e>
- 80025a4:	22ed      	movs	r2, #237	@ 0xed
- 80025a6:	4b40      	ldr	r3, [pc, #256]	@ (80026a8 <Clock+0x144>)
- 80025a8:	5c9b      	ldrb	r3, [r3, r2]
- 80025aa:	2b00      	cmp	r3, #0
- 80025ac:	d019      	beq.n	80025e2 <Clock+0x7e>
+ 80025a0:	005b      	lsls	r3, r3, #1
+ 80025a2:	4028      	ands	r0, r5
+ 80025a4:	181b      	adds	r3, r3, r0
+ 80025a6:	2b15      	cmp	r3, #21
+ 80025a8:	d819      	bhi.n	80025de <Clock+0x7a>
+ 80025aa:	2a00      	cmp	r2, #0
+ 80025ac:	d017      	beq.n	80025de <Clock+0x7a>
 	{
-		if(SysTimer_ms%4==0 && i == 0) 	writeCHARSEG(tmpClock[0], 0);
- 80025ae:	4b3f      	ldr	r3, [pc, #252]	@ (80026ac <Clock+0x148>)
+		if (SysTimer_ms % 4 == 0 && i == 0)
+ 80025ae:	4b3d      	ldr	r3, [pc, #244]	@ (80026a4 <Clock+0x140>)
  80025b0:	681a      	ldr	r2, [r3, #0]
-		if(SysTimer_ms%4==1)			writeCHARSEG(tmpClock[1], 1);
+			writeCHARSEG(tmpClock[0], 0);
+		if (SysTimer_ms % 4 == 1)
  80025b2:	2203      	movs	r2, #3
  80025b4:	6819      	ldr	r1, [r3, #0]
  80025b6:	400a      	ands	r2, r1
  80025b8:	2a01      	cmp	r2, #1
- 80025ba:	d024      	beq.n	8002606 <Clock+0xa2>
-		if(SysTimer_ms%4==2 && j == 0)	writeCHARSEG(tmpClock[2], 2);
+ 80025ba:	d021      	beq.n	8002600 <Clock+0x9c>
+			writeCHARSEG(tmpClock[1], 1);
+		if (SysTimer_ms % 4 == 2 && j == 0)
  80025bc:	681a      	ldr	r2, [r3, #0]
-		if(SysTimer_ms%4==3)			writeCHARSEG(tmpClock[3], 3);
+			writeCHARSEG(tmpClock[2], 2);
+		if (SysTimer_ms % 4 == 3)
  80025be:	681b      	ldr	r3, [r3, #0]
  80025c0:	43db      	mvns	r3, r3
  80025c2:	079b      	lsls	r3, r3, #30
- 80025c4:	d048      	beq.n	8002658 <Clock+0xf4>
+ 80025c4:	d045      	beq.n	8002652 <Clock+0xee>
+			writeCHARSEG(tmpClock[3], 3);
 	}
 	return flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong ? 0 : 1;
- 80025c6:	4b3a      	ldr	r3, [pc, #232]	@ (80026b0 <Clock+0x14c>)
- 80025c8:	2000      	movs	r0, #0
- 80025ca:	781b      	ldrb	r3, [r3, #0]
- 80025cc:	2b00      	cmp	r3, #0
- 80025ce:	d107      	bne.n	80025e0 <Clock+0x7c>
- 80025d0:	4b38      	ldr	r3, [pc, #224]	@ (80026b4 <Clock+0x150>)
+ 80025c6:	4a38      	ldr	r2, [pc, #224]	@ (80026a8 <Clock+0x144>)
+ 80025c8:	4b38      	ldr	r3, [pc, #224]	@ (80026ac <Clock+0x148>)
+ 80025ca:	7810      	ldrb	r0, [r2, #0]
+ 80025cc:	781b      	ldrb	r3, [r3, #0]
+ 80025ce:	4318      	orrs	r0, r3
+ 80025d0:	4b37      	ldr	r3, [pc, #220]	@ (80026b0 <Clock+0x14c>)
  80025d2:	781b      	ldrb	r3, [r3, #0]
- 80025d4:	2b00      	cmp	r3, #0
- 80025d6:	d103      	bne.n	80025e0 <Clock+0x7c>
- 80025d8:	4b37      	ldr	r3, [pc, #220]	@ (80026b8 <Clock+0x154>)
- 80025da:	7818      	ldrb	r0, [r3, #0]
- 80025dc:	2301      	movs	r3, #1
- 80025de:	4058      	eors	r0, r3
+ 80025d4:	4318      	orrs	r0, r3
+ 80025d6:	4243      	negs	r3, r0
+ 80025d8:	4158      	adcs	r0, r3
+ 80025da:	b2c0      	uxtb	r0, r0
 }
- 80025e0:	bd70      	pop	{r4, r5, r6, pc}
+ 80025dc:	bd70      	pop	{r4, r5, r6, pc}
 	if (((READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5) && (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22) && menu[23].value) || flagDecrementButton || flagEnterButton || flagIncrementButton || menu[23].value)
- 80025e2:	4b36      	ldr	r3, [pc, #216]	@ (80026bc <Clock+0x158>)
- 80025e4:	781b      	ldrb	r3, [r3, #0]
- 80025e6:	2b00      	cmp	r3, #0
- 80025e8:	d1e1      	bne.n	80025ae <Clock+0x4a>
- 80025ea:	4b35      	ldr	r3, [pc, #212]	@ (80026c0 <Clock+0x15c>)
+ 80025de:	4b35      	ldr	r3, [pc, #212]	@ (80026b4 <Clock+0x150>)
+ 80025e0:	781b      	ldrb	r3, [r3, #0]
+ 80025e2:	431a      	orrs	r2, r3
+ 80025e4:	4b34      	ldr	r3, [pc, #208]	@ (80026b8 <Clock+0x154>)
+ 80025e6:	781b      	ldrb	r3, [r3, #0]
+ 80025e8:	431a      	orrs	r2, r3
+ 80025ea:	4b34      	ldr	r3, [pc, #208]	@ (80026bc <Clock+0x158>)
  80025ec:	781b      	ldrb	r3, [r3, #0]
- 80025ee:	2b00      	cmp	r3, #0
- 80025f0:	d1dd      	bne.n	80025ae <Clock+0x4a>
- 80025f2:	4b34      	ldr	r3, [pc, #208]	@ (80026c4 <Clock+0x160>)
- 80025f4:	781b      	ldrb	r3, [r3, #0]
- 80025f6:	2b00      	cmp	r3, #0
- 80025f8:	d1d9      	bne.n	80025ae <Clock+0x4a>
- 80025fa:	22ed      	movs	r2, #237	@ 0xed
- 80025fc:	4b2a      	ldr	r3, [pc, #168]	@ (80026a8 <Clock+0x144>)
- 80025fe:	5c9b      	ldrb	r3, [r3, r2]
- 8002600:	2b00      	cmp	r3, #0
- 8002602:	d0e0      	beq.n	80025c6 <Clock+0x62>
- 8002604:	e7d3      	b.n	80025ae <Clock+0x4a>
+ 80025ee:	431a      	orrs	r2, r3
+ 80025f0:	d0e9      	beq.n	80025c6 <Clock+0x62>
+		if (SysTimer_ms % 4 == 0 && i == 0)
+ 80025f2:	4b2c      	ldr	r3, [pc, #176]	@ (80026a4 <Clock+0x140>)
+ 80025f4:	681a      	ldr	r2, [r3, #0]
+		if (SysTimer_ms % 4 == 1)
+ 80025f6:	2203      	movs	r2, #3
+ 80025f8:	6819      	ldr	r1, [r3, #0]
+ 80025fa:	400a      	ands	r2, r1
+ 80025fc:	2a01      	cmp	r2, #1
+ 80025fe:	d1dd      	bne.n	80025bc <Clock+0x58>
 		LEDD1_OFF();
- 8002606:	22a0      	movs	r2, #160	@ 0xa0
- 8002608:	2080      	movs	r0, #128	@ 0x80
+ 8002600:	22a0      	movs	r2, #160	@ 0xa0
+ 8002602:	2080      	movs	r0, #128	@ 0x80
 		LEDD2_ON();
- 800260a:	2110      	movs	r1, #16
+ 8002604:	2110      	movs	r1, #16
 		LEDD1_OFF();
- 800260c:	05d2      	lsls	r2, r2, #23
- 800260e:	0300      	lsls	r0, r0, #12
- 8002610:	6190      	str	r0, [r2, #24]
+ 8002606:	05d2      	lsls	r2, r2, #23
+ 8002608:	0300      	lsls	r0, r0, #12
+ 800260a:	6190      	str	r0, [r2, #24]
 		LEDD2_ON();
- 8002612:	6191      	str	r1, [r2, #24]
+ 800260c:	6191      	str	r1, [r2, #24]
 		LEDD3_OFF();
- 8002614:	2180      	movs	r1, #128	@ 0x80
+ 800260e:	2180      	movs	r1, #128	@ 0x80
 		LEDD4_OFF();
- 8002616:	2480      	movs	r4, #128	@ 0x80
+ 8002610:	2480      	movs	r4, #128	@ 0x80
 		LEDD3_OFF();
- 8002618:	0549      	lsls	r1, r1, #21
- 800261a:	6191      	str	r1, [r2, #24]
+ 8002612:	0549      	lsls	r1, r1, #21
+ 8002614:	6191      	str	r1, [r2, #24]
 		LEDD4_OFF();
- 800261c:	492a      	ldr	r1, [pc, #168]	@ (80026c8 <Clock+0x164>)
- 800261e:	0364      	lsls	r4, r4, #13
- 8002620:	618c      	str	r4, [r1, #24]
+ 8002616:	492a      	ldr	r1, [pc, #168]	@ (80026c0 <Clock+0x15c>)
+ 8002618:	0364      	lsls	r4, r4, #13
+ 800261a:	618c      	str	r4, [r1, #24]
 		LEDa_OFF();
+ 800261c:	2480      	movs	r4, #128	@ 0x80
+ 800261e:	0424      	lsls	r4, r4, #16
+ 8002620:	6194      	str	r4, [r2, #24]
+		LEDb_OFF();
  8002622:	2480      	movs	r4, #128	@ 0x80
- 8002624:	0424      	lsls	r4, r4, #16
- 8002626:	6194      	str	r4, [r2, #24]
-		LEDb_OFF();
+ 8002624:	02a4      	lsls	r4, r4, #10
+ 8002626:	618c      	str	r4, [r1, #24]
+		LEDc_OFF();
  8002628:	2480      	movs	r4, #128	@ 0x80
- 800262a:	02a4      	lsls	r4, r4, #10
- 800262c:	618c      	str	r4, [r1, #24]
-		LEDc_OFF();
+ 800262a:	03e4      	lsls	r4, r4, #15
+ 800262c:	6194      	str	r4, [r2, #24]
+		LEDd_OFF();
  800262e:	2480      	movs	r4, #128	@ 0x80
- 8002630:	03e4      	lsls	r4, r4, #15
+ 8002630:	03a4      	lsls	r4, r4, #14
  8002632:	6194      	str	r4, [r2, #24]
-		LEDd_OFF();
+		LEDe_OFF();
  8002634:	2480      	movs	r4, #128	@ 0x80
- 8002636:	03a4      	lsls	r4, r4, #14
+ 8002636:	0524      	lsls	r4, r4, #20
  8002638:	6194      	str	r4, [r2, #24]
-		LEDe_OFF();
+		LEDf_OFF();
  800263a:	2480      	movs	r4, #128	@ 0x80
- 800263c:	0524      	lsls	r4, r4, #20
+ 800263c:	04a4      	lsls	r4, r4, #18
  800263e:	6194      	str	r4, [r2, #24]
-		LEDf_OFF();
- 8002640:	2480      	movs	r4, #128	@ 0x80
- 8002642:	04a4      	lsls	r4, r4, #18
- 8002644:	6194      	str	r4, [r2, #24]
 		LEDg_OFF();
- 8002646:	2280      	movs	r2, #128	@ 0x80
- 8002648:	0252      	lsls	r2, r2, #9
- 800264a:	618a      	str	r2, [r1, #24]
+ 8002640:	2280      	movs	r2, #128	@ 0x80
+ 8002642:	0252      	lsls	r2, r2, #9
+ 8002644:	618a      	str	r2, [r1, #24]
 		LEDdp_OFF();
- 800264c:	6188      	str	r0, [r1, #24]
-		if(SysTimer_ms%4==2 && j == 0)	writeCHARSEG(tmpClock[2], 2);
- 800264e:	681a      	ldr	r2, [r3, #0]
-		if(SysTimer_ms%4==3)			writeCHARSEG(tmpClock[3], 3);
- 8002650:	681b      	ldr	r3, [r3, #0]
- 8002652:	43db      	mvns	r3, r3
- 8002654:	079b      	lsls	r3, r3, #30
- 8002656:	d1b6      	bne.n	80025c6 <Clock+0x62>
+ 8002646:	6188      	str	r0, [r1, #24]
+		if (SysTimer_ms % 4 == 2 && j == 0)
+ 8002648:	681a      	ldr	r2, [r3, #0]
+		if (SysTimer_ms % 4 == 3)
+ 800264a:	681b      	ldr	r3, [r3, #0]
+ 800264c:	43db      	mvns	r3, r3
+ 800264e:	079b      	lsls	r3, r3, #30
+ 8002650:	d1b9      	bne.n	80025c6 <Clock+0x62>
 		LEDD1_OFF();
- 8002658:	23a0      	movs	r3, #160	@ 0xa0
- 800265a:	2180      	movs	r1, #128	@ 0x80
+ 8002652:	23a0      	movs	r3, #160	@ 0xa0
+ 8002654:	2180      	movs	r1, #128	@ 0x80
 		LEDD2_OFF();
- 800265c:	2280      	movs	r2, #128	@ 0x80
+ 8002656:	2280      	movs	r2, #128	@ 0x80
 		LEDD1_OFF();
- 800265e:	05db      	lsls	r3, r3, #23
- 8002660:	0309      	lsls	r1, r1, #12
+ 8002658:	05db      	lsls	r3, r3, #23
+ 800265a:	0309      	lsls	r1, r1, #12
 		LEDD2_OFF();
- 8002662:	0352      	lsls	r2, r2, #13
+ 800265c:	0352      	lsls	r2, r2, #13
 		LEDD1_OFF();
- 8002664:	6199      	str	r1, [r3, #24]
+ 800265e:	6199      	str	r1, [r3, #24]
 		LEDD2_OFF();
- 8002666:	619a      	str	r2, [r3, #24]
+ 8002660:	619a      	str	r2, [r3, #24]
 		LEDD3_OFF();
- 8002668:	2280      	movs	r2, #128	@ 0x80
+ 8002662:	2280      	movs	r2, #128	@ 0x80
 		LEDD4_ON();
- 800266a:	2010      	movs	r0, #16
+ 8002664:	2010      	movs	r0, #16
 		LEDD3_OFF();
- 800266c:	0552      	lsls	r2, r2, #21
- 800266e:	619a      	str	r2, [r3, #24]
+ 8002666:	0552      	lsls	r2, r2, #21
+ 8002668:	619a      	str	r2, [r3, #24]
 		LEDD4_ON();
- 8002670:	4a15      	ldr	r2, [pc, #84]	@ (80026c8 <Clock+0x164>)
- 8002672:	6190      	str	r0, [r2, #24]
+ 800266a:	4a15      	ldr	r2, [pc, #84]	@ (80026c0 <Clock+0x15c>)
+ 800266c:	6190      	str	r0, [r2, #24]
 		LEDa_OFF();
- 8002674:	2080      	movs	r0, #128	@ 0x80
- 8002676:	0400      	lsls	r0, r0, #16
- 8002678:	6198      	str	r0, [r3, #24]
+ 800266e:	2080      	movs	r0, #128	@ 0x80
+ 8002670:	0400      	lsls	r0, r0, #16
+ 8002672:	6198      	str	r0, [r3, #24]
 		LEDb_OFF();
- 800267a:	2080      	movs	r0, #128	@ 0x80
- 800267c:	0280      	lsls	r0, r0, #10
- 800267e:	6190      	str	r0, [r2, #24]
+ 8002674:	2080      	movs	r0, #128	@ 0x80
+ 8002676:	0280      	lsls	r0, r0, #10
+ 8002678:	6190      	str	r0, [r2, #24]
 		LEDc_OFF();
- 8002680:	2080      	movs	r0, #128	@ 0x80
- 8002682:	03c0      	lsls	r0, r0, #15
- 8002684:	6198      	str	r0, [r3, #24]
+ 800267a:	2080      	movs	r0, #128	@ 0x80
+ 800267c:	03c0      	lsls	r0, r0, #15
+ 800267e:	6198      	str	r0, [r3, #24]
 		LEDd_OFF();
- 8002686:	2080      	movs	r0, #128	@ 0x80
- 8002688:	0380      	lsls	r0, r0, #14
- 800268a:	6198      	str	r0, [r3, #24]
+ 8002680:	2080      	movs	r0, #128	@ 0x80
+ 8002682:	0380      	lsls	r0, r0, #14
+ 8002684:	6198      	str	r0, [r3, #24]
 		LEDe_OFF();
- 800268c:	2080      	movs	r0, #128	@ 0x80
- 800268e:	0500      	lsls	r0, r0, #20
- 8002690:	6198      	str	r0, [r3, #24]
+ 8002686:	2080      	movs	r0, #128	@ 0x80
+ 8002688:	0500      	lsls	r0, r0, #20
+ 800268a:	6198      	str	r0, [r3, #24]
 		LEDf_OFF();
- 8002692:	2080      	movs	r0, #128	@ 0x80
- 8002694:	0480      	lsls	r0, r0, #18
- 8002696:	6198      	str	r0, [r3, #24]
+ 800268c:	2080      	movs	r0, #128	@ 0x80
+ 800268e:	0480      	lsls	r0, r0, #18
+ 8002690:	6198      	str	r0, [r3, #24]
 		LEDg_OFF();
- 8002698:	2380      	movs	r3, #128	@ 0x80
- 800269a:	025b      	lsls	r3, r3, #9
- 800269c:	6193      	str	r3, [r2, #24]
+ 8002692:	2380      	movs	r3, #128	@ 0x80
+ 8002694:	025b      	lsls	r3, r3, #9
+ 8002696:	6193      	str	r3, [r2, #24]
 		LEDdp_OFF();
- 800269e:	6191      	str	r1, [r2, #24]
+ 8002698:	6191      	str	r1, [r2, #24]
 		break;
- 80026a0:	e791      	b.n	80025c6 <Clock+0x62>
- 80026a2:	46c0      	nop			@ (mov r8, r8)
- 80026a4:	40002800 	.word	0x40002800
- 80026a8:	20000000 	.word	0x20000000
- 80026ac:	20000168 	.word	0x20000168
- 80026b0:	20000176 	.word	0x20000176
- 80026b4:	20000175 	.word	0x20000175
- 80026b8:	20000177 	.word	0x20000177
- 80026bc:	20000179 	.word	0x20000179
- 80026c0:	20000178 	.word	0x20000178
- 80026c4:	2000017a 	.word	0x2000017a
- 80026c8:	50000400 	.word	0x50000400
+ 800269a:	e794      	b.n	80025c6 <Clock+0x62>
+ 800269c:	40002800 	.word	0x40002800
+ 80026a0:	20000000 	.word	0x20000000
+ 80026a4:	20000154 	.word	0x20000154
+ 80026a8:	2000015c 	.word	0x2000015c
+ 80026ac:	2000015b 	.word	0x2000015b
+ 80026b0:	2000015d 	.word	0x2000015d
+ 80026b4:	2000015f 	.word	0x2000015f
+ 80026b8:	2000015e 	.word	0x2000015e
+ 80026bc:	20000160 	.word	0x20000160
+ 80026c0:	50000400 	.word	0x50000400
 
-080026cc <setTimeNow>:
+080026c4 <setTimeNow>:
 
 void setTimeNow()
 {
- 80026cc:	b5f0      	push	{r4, r5, r6, r7, lr}
- 80026ce:	46d6      	mov	lr, sl
- 80026d0:	464f      	mov	r7, r9
- 80026d2:	4646      	mov	r6, r8
- 80026d4:	b5c0      	push	{r6, r7, lr}
+ 80026c4:	b5f0      	push	{r4, r5, r6, r7, lr}
+ 80026c6:	46d6      	mov	lr, sl
+ 80026c8:	464f      	mov	r7, r9
+ 80026ca:	4646      	mov	r6, r8
+ 80026cc:	b5c0      	push	{r6, r7, lr}
 	MODIFY_REG(RTC->TR,
- 80026d6:	4e3a      	ldr	r6, [pc, #232]	@ (80027c0 <setTimeNow+0xf4>)
- 80026d8:	210a      	movs	r1, #10
- 80026da:	7c73      	ldrb	r3, [r6, #17]
- 80026dc:	4d39      	ldr	r5, [pc, #228]	@ (80027c4 <setTimeNow+0xf8>)
- 80026de:	469a      	mov	sl, r3
- 80026e0:	7ef3      	ldrb	r3, [r6, #27]
- 80026e2:	4650      	mov	r0, sl
- 80026e4:	4699      	mov	r9, r3
- 80026e6:	2325      	movs	r3, #37	@ 0x25
- 80026e8:	5cf3      	ldrb	r3, [r6, r3]
- 80026ea:	682f      	ldr	r7, [r5, #0]
- 80026ec:	4698      	mov	r8, r3
- 80026ee:	f7fd fd0b 	bl	8000108 <__udivsi3>
- 80026f2:	210a      	movs	r1, #10
- 80026f4:	b2c4      	uxtb	r4, r0
- 80026f6:	4650      	mov	r0, sl
- 80026f8:	f7fd fd8c 	bl	8000214 <__aeabi_uidivmod>
- 80026fc:	b2c9      	uxtb	r1, r1
- 80026fe:	0409      	lsls	r1, r1, #16
- 8002700:	0524      	lsls	r4, r4, #20
- 8002702:	4640      	mov	r0, r8
- 8002704:	430c      	orrs	r4, r1
- 8002706:	210a      	movs	r1, #10
- 8002708:	f7fd fd84 	bl	8000214 <__aeabi_uidivmod>
- 800270c:	b2c9      	uxtb	r1, r1
- 800270e:	4648      	mov	r0, r9
- 8002710:	430c      	orrs	r4, r1
- 8002712:	210a      	movs	r1, #10
- 8002714:	f7fd fcf8 	bl	8000108 <__udivsi3>
- 8002718:	b2c0      	uxtb	r0, r0
- 800271a:	0300      	lsls	r0, r0, #12
- 800271c:	4304      	orrs	r4, r0
- 800271e:	210a      	movs	r1, #10
- 8002720:	4648      	mov	r0, r9
- 8002722:	f7fd fd77 	bl	8000214 <__aeabi_uidivmod>
- 8002726:	b2c9      	uxtb	r1, r1
- 8002728:	0209      	lsls	r1, r1, #8
- 800272a:	4640      	mov	r0, r8
- 800272c:	430c      	orrs	r4, r1
- 800272e:	210a      	movs	r1, #10
- 8002730:	f7fd fcea 	bl	8000108 <__udivsi3>
- 8002734:	4b24      	ldr	r3, [pc, #144]	@ (80027c8 <setTimeNow+0xfc>)
- 8002736:	b2c0      	uxtb	r0, r0
- 8002738:	401f      	ands	r7, r3
+ 80026ce:	4e3a      	ldr	r6, [pc, #232]	@ (80027b8 <setTimeNow+0xf4>)
+ 80026d0:	210a      	movs	r1, #10
+ 80026d2:	7c73      	ldrb	r3, [r6, #17]
+ 80026d4:	4d39      	ldr	r5, [pc, #228]	@ (80027bc <setTimeNow+0xf8>)
+ 80026d6:	469a      	mov	sl, r3
+ 80026d8:	7ef3      	ldrb	r3, [r6, #27]
+ 80026da:	4650      	mov	r0, sl
+ 80026dc:	4699      	mov	r9, r3
+ 80026de:	2325      	movs	r3, #37	@ 0x25
+ 80026e0:	5cf3      	ldrb	r3, [r6, r3]
+ 80026e2:	682f      	ldr	r7, [r5, #0]
+ 80026e4:	4698      	mov	r8, r3
+ 80026e6:	f7fd fd0f 	bl	8000108 <__udivsi3>
+ 80026ea:	210a      	movs	r1, #10
+ 80026ec:	b2c4      	uxtb	r4, r0
+ 80026ee:	4650      	mov	r0, sl
+ 80026f0:	f7fd fd90 	bl	8000214 <__aeabi_uidivmod>
+ 80026f4:	b2c9      	uxtb	r1, r1
+ 80026f6:	0409      	lsls	r1, r1, #16
+ 80026f8:	0524      	lsls	r4, r4, #20
+ 80026fa:	4640      	mov	r0, r8
+ 80026fc:	430c      	orrs	r4, r1
+ 80026fe:	210a      	movs	r1, #10
+ 8002700:	f7fd fd88 	bl	8000214 <__aeabi_uidivmod>
+ 8002704:	b2c9      	uxtb	r1, r1
+ 8002706:	4648      	mov	r0, r9
+ 8002708:	430c      	orrs	r4, r1
+ 800270a:	210a      	movs	r1, #10
+ 800270c:	f7fd fcfc 	bl	8000108 <__udivsi3>
+ 8002710:	b2c0      	uxtb	r0, r0
+ 8002712:	0300      	lsls	r0, r0, #12
+ 8002714:	4304      	orrs	r4, r0
+ 8002716:	210a      	movs	r1, #10
+ 8002718:	4648      	mov	r0, r9
+ 800271a:	f7fd fd7b 	bl	8000214 <__aeabi_uidivmod>
+ 800271e:	b2c9      	uxtb	r1, r1
+ 8002720:	0209      	lsls	r1, r1, #8
+ 8002722:	4640      	mov	r0, r8
+ 8002724:	430c      	orrs	r4, r1
+ 8002726:	210a      	movs	r1, #10
+ 8002728:	f7fd fcee 	bl	8000108 <__udivsi3>
+ 800272c:	4b24      	ldr	r3, [pc, #144]	@ (80027c0 <setTimeNow+0xfc>)
+ 800272e:	b2c0      	uxtb	r0, r0
+ 8002730:	401f      	ands	r7, r3
 				   (menu[1].value % 10 << RTC_TR_HU_Pos) |	// Hour units (7 -> 17)
 				   (menu[2].value / 10 << RTC_TR_MNT_Pos) | // Minute tens (3 -> 36)
 				   (menu[2].value % 10 << RTC_TR_MNU_Pos) | // Minute units (6 -> 36)
 				   (menu[3].value / 10 << RTC_TR_ST_Pos) |	// Second tens (0 -> 00)
 				   (menu[3].value % 10 << RTC_TR_SU_Pos));	// Second units (0 -> 00)
 	MODIFY_REG(RTC->DR,
- 800273a:	2343      	movs	r3, #67	@ 0x43
+ 8002732:	2343      	movs	r3, #67	@ 0x43
 	MODIFY_REG(RTC->TR,
- 800273c:	0100      	lsls	r0, r0, #4
- 800273e:	4304      	orrs	r4, r0
- 8002740:	433c      	orrs	r4, r7
- 8002742:	602c      	str	r4, [r5, #0]
+ 8002734:	0100      	lsls	r0, r0, #4
+ 8002736:	4304      	orrs	r4, r0
+ 8002738:	433c      	orrs	r4, r7
+ 800273a:	602c      	str	r4, [r5, #0]
 	MODIFY_REG(RTC->DR,
+ 800273c:	5cf3      	ldrb	r3, [r6, r3]
+ 800273e:	210a      	movs	r1, #10
+ 8002740:	469a      	mov	sl, r3
+ 8002742:	2339      	movs	r3, #57	@ 0x39
  8002744:	5cf3      	ldrb	r3, [r6, r3]
- 8002746:	210a      	movs	r1, #10
- 8002748:	469a      	mov	sl, r3
- 800274a:	2339      	movs	r3, #57	@ 0x39
+ 8002746:	686f      	ldr	r7, [r5, #4]
+ 8002748:	4699      	mov	r9, r3
+ 800274a:	232f      	movs	r3, #47	@ 0x2f
  800274c:	5cf3      	ldrb	r3, [r6, r3]
- 800274e:	686f      	ldr	r7, [r5, #4]
- 8002750:	4699      	mov	r9, r3
- 8002752:	232f      	movs	r3, #47	@ 0x2f
- 8002754:	5cf3      	ldrb	r3, [r6, r3]
- 8002756:	4698      	mov	r8, r3
- 8002758:	234d      	movs	r3, #77	@ 0x4d
- 800275a:	4640      	mov	r0, r8
- 800275c:	5cf4      	ldrb	r4, [r6, r3]
- 800275e:	f7fd fd59 	bl	8000214 <__aeabi_uidivmod>
- 8002762:	0364      	lsls	r4, r4, #13
- 8002764:	b2c9      	uxtb	r1, r1
- 8002766:	4650      	mov	r0, sl
- 8002768:	430c      	orrs	r4, r1
- 800276a:	210a      	movs	r1, #10
- 800276c:	f7fd fccc 	bl	8000108 <__udivsi3>
- 8002770:	b2c0      	uxtb	r0, r0
- 8002772:	0500      	lsls	r0, r0, #20
- 8002774:	4304      	orrs	r4, r0
- 8002776:	210a      	movs	r1, #10
- 8002778:	4650      	mov	r0, sl
- 800277a:	f7fd fd4b 	bl	8000214 <__aeabi_uidivmod>
- 800277e:	b2c9      	uxtb	r1, r1
- 8002780:	0409      	lsls	r1, r1, #16
- 8002782:	4648      	mov	r0, r9
- 8002784:	430c      	orrs	r4, r1
- 8002786:	210a      	movs	r1, #10
- 8002788:	f7fd fcbe 	bl	8000108 <__udivsi3>
- 800278c:	b2c0      	uxtb	r0, r0
- 800278e:	0300      	lsls	r0, r0, #12
- 8002790:	4304      	orrs	r4, r0
- 8002792:	210a      	movs	r1, #10
- 8002794:	4648      	mov	r0, r9
- 8002796:	f7fd fd3d 	bl	8000214 <__aeabi_uidivmod>
- 800279a:	b2c9      	uxtb	r1, r1
- 800279c:	0209      	lsls	r1, r1, #8
- 800279e:	4640      	mov	r0, r8
- 80027a0:	430c      	orrs	r4, r1
- 80027a2:	210a      	movs	r1, #10
- 80027a4:	f7fd fcb0 	bl	8000108 <__udivsi3>
- 80027a8:	4b08      	ldr	r3, [pc, #32]	@ (80027cc <setTimeNow+0x100>)
- 80027aa:	b2c0      	uxtb	r0, r0
- 80027ac:	0100      	lsls	r0, r0, #4
- 80027ae:	401f      	ands	r7, r3
- 80027b0:	4304      	orrs	r4, r0
- 80027b2:	433c      	orrs	r4, r7
- 80027b4:	606c      	str	r4, [r5, #4]
+ 800274e:	4698      	mov	r8, r3
+ 8002750:	234d      	movs	r3, #77	@ 0x4d
+ 8002752:	4640      	mov	r0, r8
+ 8002754:	5cf4      	ldrb	r4, [r6, r3]
+ 8002756:	f7fd fd5d 	bl	8000214 <__aeabi_uidivmod>
+ 800275a:	0364      	lsls	r4, r4, #13
+ 800275c:	b2c9      	uxtb	r1, r1
+ 800275e:	4650      	mov	r0, sl
+ 8002760:	430c      	orrs	r4, r1
+ 8002762:	210a      	movs	r1, #10
+ 8002764:	f7fd fcd0 	bl	8000108 <__udivsi3>
+ 8002768:	b2c0      	uxtb	r0, r0
+ 800276a:	0500      	lsls	r0, r0, #20
+ 800276c:	4304      	orrs	r4, r0
+ 800276e:	210a      	movs	r1, #10
+ 8002770:	4650      	mov	r0, sl
+ 8002772:	f7fd fd4f 	bl	8000214 <__aeabi_uidivmod>
+ 8002776:	b2c9      	uxtb	r1, r1
+ 8002778:	0409      	lsls	r1, r1, #16
+ 800277a:	4648      	mov	r0, r9
+ 800277c:	430c      	orrs	r4, r1
+ 800277e:	210a      	movs	r1, #10
+ 8002780:	f7fd fcc2 	bl	8000108 <__udivsi3>
+ 8002784:	b2c0      	uxtb	r0, r0
+ 8002786:	0300      	lsls	r0, r0, #12
+ 8002788:	4304      	orrs	r4, r0
+ 800278a:	210a      	movs	r1, #10
+ 800278c:	4648      	mov	r0, r9
+ 800278e:	f7fd fd41 	bl	8000214 <__aeabi_uidivmod>
+ 8002792:	b2c9      	uxtb	r1, r1
+ 8002794:	0209      	lsls	r1, r1, #8
+ 8002796:	4640      	mov	r0, r8
+ 8002798:	430c      	orrs	r4, r1
+ 800279a:	210a      	movs	r1, #10
+ 800279c:	f7fd fcb4 	bl	8000108 <__udivsi3>
+ 80027a0:	4b08      	ldr	r3, [pc, #32]	@ (80027c4 <setTimeNow+0x100>)
+ 80027a2:	b2c0      	uxtb	r0, r0
+ 80027a4:	0100      	lsls	r0, r0, #4
+ 80027a6:	401f      	ands	r7, r3
+ 80027a8:	4304      	orrs	r4, r0
+ 80027aa:	433c      	orrs	r4, r7
+ 80027ac:	606c      	str	r4, [r5, #4]
 				   (menu[5].value / 10 << RTC_DR_MT_Pos) | // Month tens (1 -> April)
 				   (menu[5].value % 10 << RTC_DR_MU_Pos) | // Month units (0 -> April)
 				   (menu[4].value / 10 << RTC_DR_DT_Pos) | // Day tens (0 -> 01)
 				   (menu[4].value % 10 << RTC_DR_DU_Pos) | // Day units (1 -> 01)
 				   (menu[7].value << RTC_DR_WDU_Pos));	   // Weekday (3 -> Monday)
 }
- 80027b6:	bce0      	pop	{r5, r6, r7}
- 80027b8:	46ba      	mov	sl, r7
- 80027ba:	46b1      	mov	r9, r6
- 80027bc:	46a8      	mov	r8, r5
- 80027be:	bdf0      	pop	{r4, r5, r6, r7, pc}
- 80027c0:	20000000 	.word	0x20000000
- 80027c4:	40002800 	.word	0x40002800
- 80027c8:	ffc08080 	.word	0xffc08080
- 80027cc:	ff0000c0 	.word	0xff0000c0
+ 80027ae:	bce0      	pop	{r5, r6, r7}
+ 80027b0:	46ba      	mov	sl, r7
+ 80027b2:	46b1      	mov	r9, r6
+ 80027b4:	46a8      	mov	r8, r5
+ 80027b6:	bdf0      	pop	{r4, r5, r6, r7, pc}
+ 80027b8:	20000000 	.word	0x20000000
+ 80027bc:	40002800 	.word	0x40002800
+ 80027c0:	ffc08080 	.word	0xffc08080
+ 80027c4:	ff0000c0 	.word	0xff0000c0
 
-080027d0 <sound>:
+080027c8 <getNearMenuIndexByID>:
+	}
+	return -1;
+}
+
+uint8_t getNearMenuIndexByID(int8_t parentid, int8_t id, int8_t side)
+{						  // Функція отримання індексу пункту меню наступного або попереднього від актуального
+ 80027c8:	b5f0      	push	{r4, r5, r6, r7, lr}
+	int8_t prevID = -1;	  // Змінна для зберігання індексу попереднього елемента
+	int8_t nextID = -1;	  // Змінна для зберігання індексу наступного елемента
+	int8_t actualID = -1; // Змінна для зберігання індексу актуального елемента
+
+	int8_t firstID = -1; // Змінна для зберігання індексу першого елемента
+	int8_t lastID = -1;	 // Змінна для зберігання індексу останнього елемента
+ 80027ca:	2601      	movs	r6, #1
+{						  // Функція отримання індексу пункту меню наступного або попереднього від актуального
+ 80027cc:	4647      	mov	r7, r8
+ 80027ce:	46ce      	mov	lr, r9
+	int8_t lastID = -1;	 // Змінна для зберігання індексу останнього елемента
+ 80027d0:	4276      	negs	r6, r6
+{						  // Функція отримання індексу пункту меню наступного або попереднього від актуального
+ 80027d2:	4690      	mov	r8, r2
+ 80027d4:	b580      	push	{r7, lr}
+
+	for (uint8_t i = 0; i < menuArraySize; i++)
+ 80027d6:	2300      	movs	r3, #0
+	int8_t firstID = -1; // Змінна для зберігання індексу першого елемента
+ 80027d8:	0037      	movs	r7, r6
+	int8_t actualID = -1; // Змінна для зберігання індексу актуального елемента
+ 80027da:	0032      	movs	r2, r6
+	int8_t nextID = -1;	  // Змінна для зберігання індексу наступного елемента
+ 80027dc:	46b4      	mov	ip, r6
+	int8_t prevID = -1;	  // Змінна для зберігання індексу попереднього елемента
+ 80027de:	46b1      	mov	r9, r6
+ 80027e0:	4c1a      	ldr	r4, [pc, #104]	@ (800284c <getNearMenuIndexByID+0x84>)
+ 80027e2:	e004      	b.n	80027ee <getNearMenuIndexByID+0x26>
+	for (uint8_t i = 0; i < menuArraySize; i++)
+ 80027e4:	3301      	adds	r3, #1
+ 80027e6:	b2db      	uxtb	r3, r3
+ 80027e8:	340a      	adds	r4, #10
+ 80027ea:	2b1d      	cmp	r3, #29
+ 80027ec:	d016      	beq.n	800281c <getNearMenuIndexByID+0x54>
+	{
+		if (menu[i].parentid == parentid)
+ 80027ee:	2501      	movs	r5, #1
+ 80027f0:	5765      	ldrsb	r5, [r4, r5]
+ 80027f2:	4285      	cmp	r5, r0
+ 80027f4:	d1f6      	bne.n	80027e4 <getNearMenuIndexByID+0x1c>
+		{ // Перебираємо всі елементи з одним батьківським ID
+			if (firstID == -1)
+				firstID = i; // Запам'ятовуємо перший елемент списку
+ 80027f6:	b25e      	sxtb	r6, r3
+			if (firstID == -1)
+ 80027f8:	1c7d      	adds	r5, r7, #1
+ 80027fa:	d100      	bne.n	80027fe <getNearMenuIndexByID+0x36>
+				firstID = i; // Запам'ятовуємо перший елемент списку
+ 80027fc:	0037      	movs	r7, r6
+
+			if (menu[i].id == id)
+ 80027fe:	2500      	movs	r5, #0
+ 8002800:	5765      	ldrsb	r5, [r4, r5]
+ 8002802:	428d      	cmp	r5, r1
+ 8002804:	d01b      	beq.n	800283e <getNearMenuIndexByID+0x76>
+			{
+				actualID = i; // Запам'ятовуємо актуальний елемент списку
+			}
+			else
+			{
+				if (actualID == -1)
+ 8002806:	1c55      	adds	r5, r2, #1
+ 8002808:	d01b      	beq.n	8002842 <getNearMenuIndexByID+0x7a>
+				{ // Якщо зустрівся елемент до актуального, робимо його попереднім
+					prevID = i;
+				}
+				else if (actualID != -1 && nextID == -1)
+ 800280a:	4665      	mov	r5, ip
+ 800280c:	3501      	adds	r5, #1
+ 800280e:	d1e9      	bne.n	80027e4 <getNearMenuIndexByID+0x1c>
+	for (uint8_t i = 0; i < menuArraySize; i++)
+ 8002810:	3301      	adds	r3, #1
+ 8002812:	b2db      	uxtb	r3, r3
+				firstID = i; // Запам'ятовуємо перший елемент списку
+ 8002814:	46b4      	mov	ip, r6
+	for (uint8_t i = 0; i < menuArraySize; i++)
+ 8002816:	340a      	adds	r4, #10
+ 8002818:	2b1d      	cmp	r3, #29
+ 800281a:	d1e8      	bne.n	80027ee <getNearMenuIndexByID+0x26>
+			}
+			lastID = i; // Кожний наступний елемент - останній
+		}
+	}
+
+	if (nextID == -1)
+ 800281c:	4663      	mov	r3, ip
+ 800281e:	3301      	adds	r3, #1
+ 8002820:	d100      	bne.n	8002824 <getNearMenuIndexByID+0x5c>
+ 8002822:	46bc      	mov	ip, r7
+		nextID = firstID; // Якщо наступного елемента немає - по колу видаємо перший
+	if (prevID == -1)
+ 8002824:	464b      	mov	r3, r9
+ 8002826:	3301      	adds	r3, #1
+ 8002828:	d100      	bne.n	800282c <getNearMenuIndexByID+0x64>
+ 800282a:	46b1      	mov	r9, r6
+		prevID = lastID; // Якщо попереднього елемента немає - по колу видаємо останній
+	if (side == -1)
+ 800282c:	4643      	mov	r3, r8
+ 800282e:	3301      	adds	r3, #1
+ 8002830:	d009      	beq.n	8002846 <getNearMenuIndexByID+0x7e>
+		return prevID; // В залежності від напрямку обертання, видаємо потрібний індекс
+	else
+		return nextID;
+ 8002832:	4663      	mov	r3, ip
+ 8002834:	b2d8      	uxtb	r0, r3
+	return -1;
+}
+ 8002836:	bcc0      	pop	{r6, r7}
+ 8002838:	46b9      	mov	r9, r7
+ 800283a:	46b0      	mov	r8, r6
+ 800283c:	bdf0      	pop	{r4, r5, r6, r7, pc}
+				firstID = i; // Запам'ятовуємо перший елемент списку
+ 800283e:	0032      	movs	r2, r6
+ 8002840:	e7d0      	b.n	80027e4 <getNearMenuIndexByID+0x1c>
+ 8002842:	46b1      	mov	r9, r6
+			lastID = i; // Кожний наступний елемент - останній
+ 8002844:	e7ce      	b.n	80027e4 <getNearMenuIndexByID+0x1c>
+		return prevID; // В залежності від напрямку обертання, видаємо потрібний індекс
+ 8002846:	464b      	mov	r3, r9
+ 8002848:	b2d8      	uxtb	r0, r3
+ 800284a:	e7f4      	b.n	8002836 <getNearMenuIndexByID+0x6e>
+ 800284c:	20000000 	.word	0x20000000
+
+08002850 <sound>:
 	PlayMusic = 1;
 	sound(Music[MusicStep].freq, Music[MusicStep].time);
 }
 
 void sound(uint16_t freq, uint16_t time_ms)
 {
- 80027d0:	b5f0      	push	{r4, r5, r6, r7, lr}
- 80027d2:	46c6      	mov	lr, r8
- 80027d4:	0004      	movs	r4, r0
- 80027d6:	000d      	movs	r5, r1
- 80027d8:	b500      	push	{lr}
+ 8002850:	b5f0      	push	{r4, r5, r6, r7, lr}
+ 8002852:	46c6      	mov	lr, r8
+ 8002854:	0004      	movs	r4, r0
+ 8002856:	000d      	movs	r5, r1
+ 8002858:	b500      	push	{lr}
 	if (freq > 0)
- 80027da:	2800      	cmp	r0, #0
- 80027dc:	d029      	beq.n	8002832 <sound+0x62>
+ 800285a:	2800      	cmp	r0, #0
+ 800285c:	d029      	beq.n	80028b2 <sound+0x62>
 	{
 		TIM2->ARR = SYSCLK / TIM2->PSC / freq;
- 80027de:	2680      	movs	r6, #128	@ 0x80
- 80027e0:	05f6      	lsls	r6, r6, #23
- 80027e2:	6ab1      	ldr	r1, [r6, #40]	@ 0x28
- 80027e4:	4816      	ldr	r0, [pc, #88]	@ (8002840 <sound+0x70>)
- 80027e6:	f7fd fc8f 	bl	8000108 <__udivsi3>
- 80027ea:	0021      	movs	r1, r4
- 80027ec:	f7fd fc8c 	bl	8000108 <__udivsi3>
- 80027f0:	62f0      	str	r0, [r6, #44]	@ 0x2c
+ 800285e:	2680      	movs	r6, #128	@ 0x80
+ 8002860:	05f6      	lsls	r6, r6, #23
+ 8002862:	6ab1      	ldr	r1, [r6, #40]	@ 0x28
+ 8002864:	4816      	ldr	r0, [pc, #88]	@ (80028c0 <sound+0x70>)
+ 8002866:	f7fd fc4f 	bl	8000108 <__udivsi3>
+ 800286a:	0021      	movs	r1, r4
+ 800286c:	f7fd fc4c 	bl	8000108 <__udivsi3>
+ 8002870:	62f0      	str	r0, [r6, #44]	@ 0x2c
 		TIM2->CCR1 = TIM2->ARR / 2;
- 80027f2:	6af3      	ldr	r3, [r6, #44]	@ 0x2c
- 80027f4:	085b      	lsrs	r3, r3, #1
- 80027f6:	6373      	str	r3, [r6, #52]	@ 0x34
+ 8002872:	6af3      	ldr	r3, [r6, #44]	@ 0x2c
+ 8002874:	085b      	lsrs	r3, r3, #1
+ 8002876:	6373      	str	r3, [r6, #52]	@ 0x34
 	else
 	{
 		TIM2->ARR = 1000;
 		TIM2->CCR1 = 0;
 	}
 	TIM2->CNT = 0;
- 80027f8:	2480      	movs	r4, #128	@ 0x80
- 80027fa:	2700      	movs	r7, #0
- 80027fc:	05e4      	lsls	r4, r4, #23
- 80027fe:	6267      	str	r7, [r4, #36]	@ 0x24
+ 8002878:	2480      	movs	r4, #128	@ 0x80
+ 800287a:	2700      	movs	r7, #0
+ 800287c:	05e4      	lsls	r4, r4, #23
+ 800287e:	6267      	str	r7, [r4, #36]	@ 0x24
 
 	sound_time = ((SYSCLK / TIM2->PSC / TIM2->ARR) * time_ms) / 1000;
- 8002800:	6aa1      	ldr	r1, [r4, #40]	@ 0x28
- 8002802:	6ae3      	ldr	r3, [r4, #44]	@ 0x2c
- 8002804:	480e      	ldr	r0, [pc, #56]	@ (8002840 <sound+0x70>)
- 8002806:	4698      	mov	r8, r3
- 8002808:	f7fd fc7e 	bl	8000108 <__udivsi3>
- 800280c:	4641      	mov	r1, r8
- 800280e:	f7fd fc7b 	bl	8000108 <__udivsi3>
- 8002812:	21fa      	movs	r1, #250	@ 0xfa
- 8002814:	4368      	muls	r0, r5
- 8002816:	0089      	lsls	r1, r1, #2
- 8002818:	f7fd fc76 	bl	8000108 <__udivsi3>
+ 8002880:	6aa1      	ldr	r1, [r4, #40]	@ 0x28
+ 8002882:	6ae3      	ldr	r3, [r4, #44]	@ 0x2c
+ 8002884:	480e      	ldr	r0, [pc, #56]	@ (80028c0 <sound+0x70>)
+ 8002886:	4698      	mov	r8, r3
+ 8002888:	f7fd fc3e 	bl	8000108 <__udivsi3>
+ 800288c:	4641      	mov	r1, r8
+ 800288e:	f7fd fc3b 	bl	8000108 <__udivsi3>
+ 8002892:	21fa      	movs	r1, #250	@ 0xfa
+ 8002894:	4368      	muls	r0, r5
+ 8002896:	0089      	lsls	r1, r1, #2
+ 8002898:	f7fd fc36 	bl	8000108 <__udivsi3>
 	sound_counter = 0;
 	SET_BIT(TIM2->CR1, TIM_CR1_CEN); // Запуск таймера;
- 800281c:	2201      	movs	r2, #1
+ 800289c:	2201      	movs	r2, #1
 	sound_counter = 0;
- 800281e:	4b09      	ldr	r3, [pc, #36]	@ (8002844 <sound+0x74>)
+ 800289e:	4b09      	ldr	r3, [pc, #36]	@ (80028c4 <sound+0x74>)
 	sound_time = ((SYSCLK / TIM2->PSC / TIM2->ARR) * time_ms) / 1000;
- 8002820:	4e09      	ldr	r6, [pc, #36]	@ (8002848 <sound+0x78>)
+ 80028a0:	4e09      	ldr	r6, [pc, #36]	@ (80028c8 <sound+0x78>)
 	sound_counter = 0;
- 8002822:	801f      	strh	r7, [r3, #0]
+ 80028a2:	801f      	strh	r7, [r3, #0]
 	SET_BIT(TIM2->CR1, TIM_CR1_CEN); // Запуск таймера;
- 8002824:	6823      	ldr	r3, [r4, #0]
+ 80028a4:	6823      	ldr	r3, [r4, #0]
 	sound_time = ((SYSCLK / TIM2->PSC / TIM2->ARR) * time_ms) / 1000;
- 8002826:	8030      	strh	r0, [r6, #0]
+ 80028a6:	8030      	strh	r0, [r6, #0]
 	SET_BIT(TIM2->CR1, TIM_CR1_CEN); // Запуск таймера;
- 8002828:	4313      	orrs	r3, r2
- 800282a:	6023      	str	r3, [r4, #0]
+ 80028a8:	4313      	orrs	r3, r2
+ 80028aa:	6023      	str	r3, [r4, #0]
 }
- 800282c:	bc80      	pop	{r7}
- 800282e:	46b8      	mov	r8, r7
- 8002830:	bdf0      	pop	{r4, r5, r6, r7, pc}
+ 80028ac:	bc80      	pop	{r7}
+ 80028ae:	46b8      	mov	r8, r7
+ 80028b0:	bdf0      	pop	{r4, r5, r6, r7, pc}
 		TIM2->ARR = 1000;
- 8002832:	2380      	movs	r3, #128	@ 0x80
- 8002834:	22fa      	movs	r2, #250	@ 0xfa
- 8002836:	05db      	lsls	r3, r3, #23
- 8002838:	0092      	lsls	r2, r2, #2
- 800283a:	62da      	str	r2, [r3, #44]	@ 0x2c
+ 80028b2:	2380      	movs	r3, #128	@ 0x80
+ 80028b4:	22fa      	movs	r2, #250	@ 0xfa
+ 80028b6:	05db      	lsls	r3, r3, #23
+ 80028b8:	0092      	lsls	r2, r2, #2
+ 80028ba:	62da      	str	r2, [r3, #44]	@ 0x2c
 		TIM2->CCR1 = 0;
- 800283c:	6358      	str	r0, [r3, #52]	@ 0x34
- 800283e:	e7db      	b.n	80027f8 <sound+0x28>
- 8002840:	01e84800 	.word	0x01e84800
- 8002844:	20000154 	.word	0x20000154
- 8002848:	20000156 	.word	0x20000156
+ 80028bc:	6358      	str	r0, [r3, #52]	@ 0x34
+ 80028be:	e7db      	b.n	8002878 <sound+0x28>
+ 80028c0:	01e84800 	.word	0x01e84800
+ 80028c4:	20000140 	.word	0x20000140
+ 80028c8:	20000142 	.word	0x20000142
 
-0800284c <setActualMenu>:
+080028cc <setActualMenu>:
 {
- 800284c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 800284e:	46ce      	mov	lr, r9
- 8002850:	4647      	mov	r7, r8
- 8002852:	000c      	movs	r4, r1
-			if (menu[actualIndex].isParam && !isParamEditMode)
- 8002854:	4949      	ldr	r1, [pc, #292]	@ (800297c <setActualMenu+0x130>)
-{
- 8002856:	b580      	push	{r7, lr}
-			if (menu[actualIndex].isParam && !isParamEditMode)
- 8002858:	780d      	ldrb	r5, [r1, #0]
+ 80028cc:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 80028ce:	000d      	movs	r5, r1
 	if (v != 0)
- 800285a:	2800      	cmp	r0, #0
- 800285c:	d018      	beq.n	8002890 <setActualMenu+0x44>
+ 80028d0:	2800      	cmp	r0, #0
+ 80028d2:	d01b      	beq.n	800290c <setActualMenu+0x40>
+		if (v == -1)
+ 80028d4:	3001      	adds	r0, #1
+ 80028d6:	d03e      	beq.n	8002956 <setActualMenu+0x8a>
 			if (menu[actualIndex].isParam && !isParamEditMode)
- 800285e:	4e48      	ldr	r6, [pc, #288]	@ (8002980 <setActualMenu+0x134>)
- 8002860:	4a48      	ldr	r2, [pc, #288]	@ (8002984 <setActualMenu+0x138>)
- 8002862:	7837      	ldrb	r7, [r6, #0]
- 8002864:	00bb      	lsls	r3, r7, #2
- 8002866:	19d8      	adds	r0, r3, r7
- 8002868:	0040      	lsls	r0, r0, #1
- 800286a:	4699      	mov	r9, r3
- 800286c:	1813      	adds	r3, r2, r0
- 800286e:	469c      	mov	ip, r3
- 8002870:	789b      	ldrb	r3, [r3, #2]
- 8002872:	2b00      	cmp	r3, #0
- 8002874:	d12e      	bne.n	80028d4 <setActualMenu+0x88>
+ 80028d8:	4e5a      	ldr	r6, [pc, #360]	@ (8002a44 <setActualMenu+0x178>)
+ 80028da:	4c5b      	ldr	r4, [pc, #364]	@ (8002a48 <setActualMenu+0x17c>)
+ 80028dc:	7831      	ldrb	r1, [r6, #0]
+ 80028de:	008a      	lsls	r2, r1, #2
+ 80028e0:	1850      	adds	r0, r2, r1
+ 80028e2:	0040      	lsls	r0, r0, #1
+ 80028e4:	1823      	adds	r3, r4, r0
+ 80028e6:	469c      	mov	ip, r3
+ 80028e8:	789b      	ldrb	r3, [r3, #2]
+ 80028ea:	2b00      	cmp	r3, #0
+ 80028ec:	d000      	beq.n	80028f0 <setActualMenu+0x24>
+ 80028ee:	e06e      	b.n	80029ce <setActualMenu+0x102>
 					if (menu[i].parentid == menu[actualIndex].id)
- 8002876:	5c11      	ldrb	r1, [r2, r0]
- 8002878:	2300      	movs	r3, #0
- 800287a:	3201      	adds	r2, #1
- 800287c:	e004      	b.n	8002888 <setActualMenu+0x3c>
+ 80028f0:	5621      	ldrsb	r1, [r4, r0]
+ 80028f2:	3401      	adds	r4, #1
+ 80028f4:	e005      	b.n	8002902 <setActualMenu+0x36>
 				for (uint8_t i = 0; i < menuArraySize; i++)
- 800287e:	3301      	adds	r3, #1
- 8002880:	b2db      	uxtb	r3, r3
- 8002882:	320a      	adds	r2, #10
- 8002884:	2b1f      	cmp	r3, #31
- 8002886:	d05a      	beq.n	800293e <setActualMenu+0xf2>
+ 80028f6:	3301      	adds	r3, #1
+ 80028f8:	b2db      	uxtb	r3, r3
+ 80028fa:	340a      	adds	r4, #10
+ 80028fc:	2b1d      	cmp	r3, #29
+ 80028fe:	d100      	bne.n	8002902 <setActualMenu+0x36>
+ 8002900:	e07f      	b.n	8002a02 <setActualMenu+0x136>
 					if (menu[i].parentid == menu[actualIndex].id)
- 8002888:	7810      	ldrb	r0, [r2, #0]
- 800288a:	4288      	cmp	r0, r1
- 800288c:	d1f7      	bne.n	800287e <setActualMenu+0x32>
+ 8002902:	2200      	movs	r2, #0
+ 8002904:	56a2      	ldrsb	r2, [r4, r2]
+ 8002906:	428a      	cmp	r2, r1
+ 8002908:	d1f5      	bne.n	80028f6 <setActualMenu+0x2a>
 						actualIndex = i; // Якщо є, робимо перший попавшийся актуальним елементом
- 800288e:	7033      	strb	r3, [r6, #0]
-	if (h != 0)
- 8002890:	2c00      	cmp	r4, #0
- 8002892:	d00b      	beq.n	80028ac <setActualMenu+0x60>
+ 800290a:	7033      	strb	r3, [r6, #0]
 		if (isParamEditMode)
- 8002894:	2d00      	cmp	r5, #0
- 8002896:	d146      	bne.n	8002926 <setActualMenu+0xda>
- 8002898:	4e39      	ldr	r6, [pc, #228]	@ (8002980 <setActualMenu+0x134>)
- 800289a:	4a3a      	ldr	r2, [pc, #232]	@ (8002984 <setActualMenu+0x138>)
-			actualIndex = getNearMenuIndexByID(menu[actualIndex].parentid,
- 800289c:	23ff      	movs	r3, #255	@ 0xff
- 800289e:	7033      	strb	r3, [r6, #0]
- 80028a0:	4b39      	ldr	r3, [pc, #228]	@ (8002988 <setActualMenu+0x13c>)
+ 800290c:	4b4f      	ldr	r3, [pc, #316]	@ (8002a4c <setActualMenu+0x180>)
+ 800290e:	781b      	ldrb	r3, [r3, #0]
+	if (h != 0)
+ 8002910:	2d00      	cmp	r5, #0
+ 8002912:	d10a      	bne.n	800292a <setActualMenu+0x5e>
+	if (isParamEditMode)
+ 8002914:	2b00      	cmp	r3, #0
+ 8002916:	d149      	bne.n	80029ac <setActualMenu+0xe0>
 		return menu[actualIndex]._name;
- 80028a2:	18d0      	adds	r0, r2, r3
+ 8002918:	4b4a      	ldr	r3, [pc, #296]	@ (8002a44 <setActualMenu+0x178>)
+ 800291a:	4c4b      	ldr	r4, [pc, #300]	@ (8002a48 <setActualMenu+0x17c>)
+ 800291c:	7818      	ldrb	r0, [r3, #0]
+ 800291e:	0083      	lsls	r3, r0, #2
+ 8002920:	181b      	adds	r3, r3, r0
+ 8002922:	005b      	lsls	r3, r3, #1
+ 8002924:	3303      	adds	r3, #3
+ 8002926:	18e0      	adds	r0, r4, r3
 }
- 80028a4:	bcc0      	pop	{r6, r7}
- 80028a6:	46b9      	mov	r9, r7
- 80028a8:	46b0      	mov	r8, r6
- 80028aa:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
-	if (isParamEditMode)
- 80028ac:	2d00      	cmp	r5, #0
- 80028ae:	d029      	beq.n	8002904 <setActualMenu+0xb8>
- 80028b0:	4836      	ldr	r0, [pc, #216]	@ (800298c <setActualMenu+0x140>)
-		tmpV[0] = intToChar(tmpVal / 1000);
- 80028b2:	7801      	ldrb	r1, [r0, #0]
- 80028b4:	4a36      	ldr	r2, [pc, #216]	@ (8002990 <setActualMenu+0x144>)
- 80028b6:	4b37      	ldr	r3, [pc, #220]	@ (8002994 <setActualMenu+0x148>)
-		tmpV[3] = intToChar(tmpVal - tmpV[0] * 1000 - tmpV[1] * 100 - tmpV[2] * 10);
- 80028b8:	203f      	movs	r0, #63	@ 0x3f
-		tmpV[0] = intToChar(tmpVal / 1000);
- 80028ba:	8013      	strh	r3, [r2, #0]
-		tmpV[2] = intToChar(tmpVal / 10 - tmpV[0] * 100 - tmpV[1] * 10);
- 80028bc:	233f      	movs	r3, #63	@ 0x3f
- 80028be:	7093      	strb	r3, [r2, #2]
-		tmpV[3] = intToChar(tmpVal - tmpV[0] * 1000 - tmpV[1] * 100 - tmpV[2] * 10);
- 80028c0:	000b      	movs	r3, r1
- 80028c2:	336e      	adds	r3, #110	@ 0x6e
- 80028c4:	b2db      	uxtb	r3, r3
- 80028c6:	2b09      	cmp	r3, #9
- 80028c8:	d801      	bhi.n	80028ce <setActualMenu+0x82>
- 80028ca:	3962      	subs	r1, #98	@ 0x62
- 80028cc:	b2c8      	uxtb	r0, r1
- 80028ce:	70d0      	strb	r0, [r2, #3]
-		return tmpV;
- 80028d0:	0010      	movs	r0, r2
- 80028d2:	e7e7      	b.n	80028a4 <setActualMenu+0x58>
-			if (menu[actualIndex].isParam && !isParamEditMode)
- 80028d4:	2d00      	cmp	r5, #0
- 80028d6:	d11d      	bne.n	8002914 <setActualMenu+0xc8>
-				isParamEditMode = true;				 // Переходимо в режим редагування параметра
- 80028d8:	2001      	movs	r0, #1
-				tmpVal = menu[actualIndex].value; // Тимчасовій змінній присвоюємо актуальне значення параметра
- 80028da:	4663      	mov	r3, ip
-				isParamEditMode = true;				 // Переходимо в режим редагування параметра
- 80028dc:	7008      	strb	r0, [r1, #0]
-				tmpVal = menu[actualIndex].value; // Тимчасовій змінній присвоюємо актуальне значення параметра
- 80028de:	79d9      	ldrb	r1, [r3, #7]
- 80028e0:	482a      	ldr	r0, [pc, #168]	@ (800298c <setActualMenu+0x140>)
- 80028e2:	7001      	strb	r1, [r0, #0]
-	if (h != 0)
- 80028e4:	2c00      	cmp	r4, #0
- 80028e6:	d0e4      	beq.n	80028b2 <setActualMenu+0x66>
-			if (tmpVal > menu[actualIndex]._max)
- 80028e8:	003b      	movs	r3, r7
- 80028ea:	444b      	add	r3, r9
- 80028ec:	005b      	lsls	r3, r3, #1
- 80028ee:	18d3      	adds	r3, r2, r3
+ 8002928:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+			actualIndex = getNearMenuIndexByID(menu[actualIndex].parentid,
+ 800292a:	4e46      	ldr	r6, [pc, #280]	@ (8002a44 <setActualMenu+0x178>)
+ 800292c:	7831      	ldrb	r1, [r6, #0]
+		if (isParamEditMode)
+ 800292e:	2b00      	cmp	r3, #0
+ 8002930:	d02e      	beq.n	8002990 <setActualMenu+0xc4>
 			tmpVal += h; // Змінюємо його значення і ...
- 80028f0:	1864      	adds	r4, r4, r1
+ 8002932:	4e47      	ldr	r6, [pc, #284]	@ (8002a50 <setActualMenu+0x184>)
+ 8002934:	4c44      	ldr	r4, [pc, #272]	@ (8002a48 <setActualMenu+0x17c>)
+ 8002936:	7830      	ldrb	r0, [r6, #0]
+ 8002938:	008a      	lsls	r2, r1, #2
 			if (tmpVal > menu[actualIndex]._max)
- 80028f2:	7a59      	ldrb	r1, [r3, #9]
+ 800293a:	1852      	adds	r2, r2, r1
+ 800293c:	0052      	lsls	r2, r2, #1
+ 800293e:	18a2      	adds	r2, r4, r2
+ 8002940:	7a53      	ldrb	r3, [r2, #9]
 			tmpVal += h; // Змінюємо його значення і ...
- 80028f4:	b2e4      	uxtb	r4, r4
+ 8002942:	1940      	adds	r0, r0, r5
+ 8002944:	b2c0      	uxtb	r0, r0
 				tmpVal = menu[actualIndex]._min;
- 80028f6:	7a1b      	ldrb	r3, [r3, #8]
+ 8002946:	7a12      	ldrb	r2, [r2, #8]
 			tmpVal += h; // Змінюємо його значення і ...
- 80028f8:	7004      	strb	r4, [r0, #0]
+ 8002948:	7030      	strb	r0, [r6, #0]
 			if (tmpVal > menu[actualIndex]._max)
- 80028fa:	428c      	cmp	r4, r1
- 80028fc:	d91b      	bls.n	8002936 <setActualMenu+0xea>
-				tmpVal = menu[actualIndex]._min;
- 80028fe:	0019      	movs	r1, r3
- 8002900:	7003      	strb	r3, [r0, #0]
+ 800294a:	4298      	cmp	r0, r3
+ 800294c:	d84c      	bhi.n	80029e8 <setActualMenu+0x11c>
 			if (tmpVal < menu[actualIndex]._min)
- 8002902:	e7d7      	b.n	80028b4 <setActualMenu+0x68>
- 8002904:	4e1e      	ldr	r6, [pc, #120]	@ (8002980 <setActualMenu+0x134>)
- 8002906:	4a1f      	ldr	r2, [pc, #124]	@ (8002984 <setActualMenu+0x138>)
- 8002908:	7831      	ldrb	r1, [r6, #0]
- 800290a:	008b      	lsls	r3, r1, #2
- 800290c:	185b      	adds	r3, r3, r1
- 800290e:	005b      	lsls	r3, r3, #1
- 8002910:	3303      	adds	r3, #3
- 8002912:	e7c6      	b.n	80028a2 <setActualMenu+0x56>
-				menu[actualIndex].value = tmpVal; // Зберігаємо задане значення
- 8002914:	4660      	mov	r0, ip
- 8002916:	4b1d      	ldr	r3, [pc, #116]	@ (800298c <setActualMenu+0x140>)
- 8002918:	781b      	ldrb	r3, [r3, #0]
- 800291a:	71c3      	strb	r3, [r0, #7]
-				isParamEditMode = false;			 // І виходимо з режиму редагування
- 800291c:	2300      	movs	r3, #0
- 800291e:	700b      	strb	r3, [r1, #0]
-	if (h != 0)
- 8002920:	2c00      	cmp	r4, #0
- 8002922:	d1bb      	bne.n	800289c <setActualMenu+0x50>
- 8002924:	e7f0      	b.n	8002908 <setActualMenu+0xbc>
-			if (tmpVal > menu[actualIndex]._max)
- 8002926:	4b16      	ldr	r3, [pc, #88]	@ (8002980 <setActualMenu+0x134>)
-			tmpVal += h; // Змінюємо його значення і ...
- 8002928:	4818      	ldr	r0, [pc, #96]	@ (800298c <setActualMenu+0x140>)
-			if (tmpVal > menu[actualIndex]._max)
- 800292a:	781f      	ldrb	r7, [r3, #0]
-			tmpVal += h; // Змінюємо його значення і ...
- 800292c:	7801      	ldrb	r1, [r0, #0]
- 800292e:	00bb      	lsls	r3, r7, #2
- 8002930:	4699      	mov	r9, r3
- 8002932:	4a14      	ldr	r2, [pc, #80]	@ (8002984 <setActualMenu+0x138>)
- 8002934:	e7d8      	b.n	80028e8 <setActualMenu+0x9c>
-			if (tmpVal < menu[actualIndex]._min)
- 8002936:	429c      	cmp	r4, r3
- 8002938:	d21d      	bcs.n	8002976 <setActualMenu+0x12a>
+ 800294e:	4290      	cmp	r0, r2
+ 8002950:	d276      	bcs.n	8002a40 <setActualMenu+0x174>
 				tmpVal = menu[actualIndex]._max;
- 800293a:	7001      	strb	r1, [r0, #0]
- 800293c:	e7ba      	b.n	80028b4 <setActualMenu+0x68>
-					switch (menu[actualIndex].id)
- 800293e:	290d      	cmp	r1, #13
- 8002940:	d00d      	beq.n	800295e <setActualMenu+0x112>
- 8002942:	2911      	cmp	r1, #17
- 8002944:	d006      	beq.n	8002954 <setActualMenu+0x108>
- 8002946:	2904      	cmp	r1, #4
- 8002948:	d1a2      	bne.n	8002890 <setActualMenu+0x44>
-						setTimeNow();
- 800294a:	f7ff febf 	bl	80026cc <setTimeNow>
-						break;
- 800294e:	e79f      	b.n	8002890 <setActualMenu+0x44>
-							Clock();
- 8002950:	f7ff fe08 	bl	8002564 <Clock>
-						while (Clock())
- 8002954:	f7ff fe06 	bl	8002564 <Clock>
- 8002958:	2800      	cmp	r0, #0
- 800295a:	d1f9      	bne.n	8002950 <setActualMenu+0x104>
- 800295c:	e798      	b.n	8002890 <setActualMenu+0x44>
-	MusicStep = 0;
- 800295e:	2200      	movs	r2, #0
-	sound(Music[MusicStep].freq, Music[MusicStep].time);
- 8002960:	21fa      	movs	r1, #250	@ 0xfa
-	MusicStep = 0;
- 8002962:	4b0d      	ldr	r3, [pc, #52]	@ (8002998 <setActualMenu+0x14c>)
-	sound(Music[MusicStep].freq, Music[MusicStep].time);
- 8002964:	480d      	ldr	r0, [pc, #52]	@ (800299c <setActualMenu+0x150>)
-	MusicStep = 0;
- 8002966:	801a      	strh	r2, [r3, #0]
-	PlayMusic = 1;
- 8002968:	4b0d      	ldr	r3, [pc, #52]	@ (80029a0 <setActualMenu+0x154>)
- 800296a:	3201      	adds	r2, #1
-	sound(Music[MusicStep].freq, Music[MusicStep].time);
- 800296c:	0049      	lsls	r1, r1, #1
-	PlayMusic = 1;
- 800296e:	701a      	strb	r2, [r3, #0]
-	sound(Music[MusicStep].freq, Music[MusicStep].time);
- 8002970:	f7ff ff2e 	bl	80027d0 <sound>
-}
- 8002974:	e78c      	b.n	8002890 <setActualMenu+0x44>
- 8002976:	0021      	movs	r1, r4
+ 8002952:	7033      	strb	r3, [r6, #0]
+ 8002954:	e02c      	b.n	80029b0 <setActualMenu+0xe4>
+			if (isParamEditMode)
+ 8002956:	4f3d      	ldr	r7, [pc, #244]	@ (8002a4c <setActualMenu+0x180>)
+ 8002958:	783b      	ldrb	r3, [r7, #0]
+ 800295a:	2b00      	cmp	r3, #0
+ 800295c:	d14b      	bne.n	80029f6 <setActualMenu+0x12a>
+				if (menu[actualIndex].parentid > 0)
+ 800295e:	4e39      	ldr	r6, [pc, #228]	@ (8002a44 <setActualMenu+0x178>)
+ 8002960:	4c39      	ldr	r4, [pc, #228]	@ (8002a48 <setActualMenu+0x17c>)
+ 8002962:	7831      	ldrb	r1, [r6, #0]
+ 8002964:	008a      	lsls	r2, r1, #2
+ 8002966:	1852      	adds	r2, r2, r1
+ 8002968:	2101      	movs	r1, #1
+ 800296a:	0052      	lsls	r2, r2, #1
+ 800296c:	18a2      	adds	r2, r4, r2
+ 800296e:	5651      	ldrsb	r1, [r2, r1]
+ 8002970:	2900      	cmp	r1, #0
+ 8002972:	dc05      	bgt.n	8002980 <setActualMenu+0xb4>
+ 8002974:	e009      	b.n	800298a <setActualMenu+0xbe>
+	for (uint8_t i = 0; i < menuArraySize; i++)
+ 8002976:	3301      	adds	r3, #1
+ 8002978:	b2db      	uxtb	r3, r3
+ 800297a:	340a      	adds	r4, #10
+ 800297c:	2b1d      	cmp	r3, #29
+ 800297e:	d05d      	beq.n	8002a3c <setActualMenu+0x170>
+		if (menu[i].id == id)
+ 8002980:	2200      	movs	r2, #0
+ 8002982:	56a2      	ldrsb	r2, [r4, r2]
+ 8002984:	428a      	cmp	r2, r1
+ 8002986:	d1f6      	bne.n	8002976 <setActualMenu+0xaa>
+					actualIndex = getMenuIndexByID(menu[actualIndex].parentid);
+ 8002988:	7033      	strb	r3, [r6, #0]
+	if (h != 0)
+ 800298a:	2d00      	cmp	r5, #0
+ 800298c:	d037      	beq.n	80029fe <setActualMenu+0x132>
+ 800298e:	4e2d      	ldr	r6, [pc, #180]	@ (8002a44 <setActualMenu+0x178>)
+			actualIndex = getNearMenuIndexByID(menu[actualIndex].parentid,
+ 8002990:	2001      	movs	r0, #1
+ 8002992:	7832      	ldrb	r2, [r6, #0]
+ 8002994:	4c2c      	ldr	r4, [pc, #176]	@ (8002a48 <setActualMenu+0x17c>)
+ 8002996:	0093      	lsls	r3, r2, #2
+ 8002998:	189b      	adds	r3, r3, r2
+ 800299a:	005b      	lsls	r3, r3, #1
+ 800299c:	56e1      	ldrsb	r1, [r4, r3]
+ 800299e:	18e3      	adds	r3, r4, r3
+ 80029a0:	5618      	ldrsb	r0, [r3, r0]
+ 80029a2:	002a      	movs	r2, r5
+ 80029a4:	f7ff ff10 	bl	80027c8 <getNearMenuIndexByID>
+ 80029a8:	7030      	strb	r0, [r6, #0]
 	if (isParamEditMode)
- 8002978:	e79c      	b.n	80028b4 <setActualMenu+0x68>
- 800297a:	46c0      	nop			@ (mov r8, r8)
- 800297c:	2000016d 	.word	0x2000016d
- 8002980:	2000016e 	.word	0x2000016e
- 8002984:	20000000 	.word	0x20000000
- 8002988:	000009f9 	.word	0x000009f9
- 800298c:	2000016c 	.word	0x2000016c
- 8002990:	20000160 	.word	0x20000160
- 8002994:	00003f30 	.word	0x00003f30
- 8002998:	2000015a 	.word	0x2000015a
- 800299c:	0000020a 	.word	0x0000020a
- 80029a0:	20000158 	.word	0x20000158
+ 80029aa:	e7b8      	b.n	800291e <setActualMenu+0x52>
+ 80029ac:	4e28      	ldr	r6, [pc, #160]	@ (8002a50 <setActualMenu+0x184>)
+		tmpV[0] = intToChar(tmpVal / 1000);
+ 80029ae:	7833      	ldrb	r3, [r6, #0]
+ 80029b0:	4828      	ldr	r0, [pc, #160]	@ (8002a54 <setActualMenu+0x188>)
+ 80029b2:	4a29      	ldr	r2, [pc, #164]	@ (8002a58 <setActualMenu+0x18c>)
+		tmpV[3] = intToChar(tmpVal - tmpV[0] * 1000 - tmpV[1] * 100 - tmpV[2] * 10);
+ 80029b4:	213f      	movs	r1, #63	@ 0x3f
+		tmpV[0] = intToChar(tmpVal / 1000);
+ 80029b6:	8002      	strh	r2, [r0, #0]
+		tmpV[2] = intToChar(tmpVal / 10 - tmpV[0] * 100 - tmpV[1] * 10);
+ 80029b8:	223f      	movs	r2, #63	@ 0x3f
+ 80029ba:	7082      	strb	r2, [r0, #2]
+		tmpV[3] = intToChar(tmpVal - tmpV[0] * 1000 - tmpV[1] * 100 - tmpV[2] * 10);
+ 80029bc:	001a      	movs	r2, r3
+ 80029be:	326e      	adds	r2, #110	@ 0x6e
+ 80029c0:	b2d2      	uxtb	r2, r2
+ 80029c2:	2a09      	cmp	r2, #9
+ 80029c4:	d801      	bhi.n	80029ca <setActualMenu+0xfe>
+ 80029c6:	3b62      	subs	r3, #98	@ 0x62
+ 80029c8:	b2d9      	uxtb	r1, r3
+ 80029ca:	70c1      	strb	r1, [r0, #3]
+		return tmpV;
+ 80029cc:	e7ac      	b.n	8002928 <setActualMenu+0x5c>
+			if (menu[actualIndex].isParam && !isParamEditMode)
+ 80029ce:	4f1f      	ldr	r7, [pc, #124]	@ (8002a4c <setActualMenu+0x180>)
+ 80029d0:	783b      	ldrb	r3, [r7, #0]
+ 80029d2:	2b00      	cmp	r3, #0
+ 80029d4:	d10b      	bne.n	80029ee <setActualMenu+0x122>
+				isParamEditMode = true;			  // Переходимо в режим редагування параметра
+ 80029d6:	3301      	adds	r3, #1
+ 80029d8:	703b      	strb	r3, [r7, #0]
+				tmpVal = menu[actualIndex].value; // Тимчасовій змінній присвоюємо актуальне значення параметра
+ 80029da:	4663      	mov	r3, ip
+ 80029dc:	4e1c      	ldr	r6, [pc, #112]	@ (8002a50 <setActualMenu+0x184>)
+ 80029de:	79d8      	ldrb	r0, [r3, #7]
+ 80029e0:	7030      	strb	r0, [r6, #0]
+	if (h != 0)
+ 80029e2:	2d00      	cmp	r5, #0
+ 80029e4:	d1a9      	bne.n	800293a <setActualMenu+0x6e>
+ 80029e6:	e7e2      	b.n	80029ae <setActualMenu+0xe2>
+				tmpVal = menu[actualIndex]._min;
+ 80029e8:	0013      	movs	r3, r2
+ 80029ea:	7032      	strb	r2, [r6, #0]
+			if (tmpVal < menu[actualIndex]._min)
+ 80029ec:	e7e0      	b.n	80029b0 <setActualMenu+0xe4>
+				menu[actualIndex].value = tmpVal; // Зберігаємо задане значення
+ 80029ee:	4662      	mov	r2, ip
+ 80029f0:	4e17      	ldr	r6, [pc, #92]	@ (8002a50 <setActualMenu+0x184>)
+ 80029f2:	7833      	ldrb	r3, [r6, #0]
+ 80029f4:	71d3      	strb	r3, [r2, #7]
+				isParamEditMode = false;		  // І виходимо з режиму редагування
+ 80029f6:	2300      	movs	r3, #0
+ 80029f8:	703b      	strb	r3, [r7, #0]
+	if (h != 0)
+ 80029fa:	2d00      	cmp	r5, #0
+ 80029fc:	d1c7      	bne.n	800298e <setActualMenu+0xc2>
+	if (isParamEditMode)
+ 80029fe:	783b      	ldrb	r3, [r7, #0]
+ 8002a00:	e788      	b.n	8002914 <setActualMenu+0x48>
+					switch (menu[actualIndex].id)
+ 8002a02:	290d      	cmp	r1, #13
+ 8002a04:	d00e      	beq.n	8002a24 <setActualMenu+0x158>
+ 8002a06:	2911      	cmp	r1, #17
+ 8002a08:	d007      	beq.n	8002a1a <setActualMenu+0x14e>
+ 8002a0a:	2904      	cmp	r1, #4
+ 8002a0c:	d000      	beq.n	8002a10 <setActualMenu+0x144>
+ 8002a0e:	e77d      	b.n	800290c <setActualMenu+0x40>
+						setTimeNow();
+ 8002a10:	f7ff fe58 	bl	80026c4 <setTimeNow>
+						break;
+ 8002a14:	e77a      	b.n	800290c <setActualMenu+0x40>
+							Clock();
+ 8002a16:	f7ff fda5 	bl	8002564 <Clock>
+						while (Clock())
+ 8002a1a:	f7ff fda3 	bl	8002564 <Clock>
+ 8002a1e:	2800      	cmp	r0, #0
+ 8002a20:	d1f9      	bne.n	8002a16 <setActualMenu+0x14a>
+ 8002a22:	e773      	b.n	800290c <setActualMenu+0x40>
+	MusicStep = 0;
+ 8002a24:	2200      	movs	r2, #0
+	sound(Music[MusicStep].freq, Music[MusicStep].time);
+ 8002a26:	21fa      	movs	r1, #250	@ 0xfa
+	MusicStep = 0;
+ 8002a28:	4b0c      	ldr	r3, [pc, #48]	@ (8002a5c <setActualMenu+0x190>)
+	sound(Music[MusicStep].freq, Music[MusicStep].time);
+ 8002a2a:	480d      	ldr	r0, [pc, #52]	@ (8002a60 <setActualMenu+0x194>)
+	MusicStep = 0;
+ 8002a2c:	801a      	strh	r2, [r3, #0]
+	PlayMusic = 1;
+ 8002a2e:	4b0d      	ldr	r3, [pc, #52]	@ (8002a64 <setActualMenu+0x198>)
+ 8002a30:	3201      	adds	r2, #1
+	sound(Music[MusicStep].freq, Music[MusicStep].time);
+ 8002a32:	0049      	lsls	r1, r1, #1
+	PlayMusic = 1;
+ 8002a34:	701a      	strb	r2, [r3, #0]
+	sound(Music[MusicStep].freq, Music[MusicStep].time);
+ 8002a36:	f7ff ff0b 	bl	8002850 <sound>
+}
+ 8002a3a:	e767      	b.n	800290c <setActualMenu+0x40>
+	return -1;
+ 8002a3c:	33e2      	adds	r3, #226	@ 0xe2
+ 8002a3e:	e7a3      	b.n	8002988 <setActualMenu+0xbc>
+ 8002a40:	0003      	movs	r3, r0
+	if (isParamEditMode)
+ 8002a42:	e7b5      	b.n	80029b0 <setActualMenu+0xe4>
+ 8002a44:	2000015a 	.word	0x2000015a
+ 8002a48:	20000000 	.word	0x20000000
+ 8002a4c:	20000159 	.word	0x20000159
+ 8002a50:	20000158 	.word	0x20000158
+ 8002a54:	2000014c 	.word	0x2000014c
+ 8002a58:	00003f30 	.word	0x00003f30
+ 8002a5c:	20000146 	.word	0x20000146
+ 8002a60:	0000020a 	.word	0x0000020a
+ 8002a64:	20000144 	.word	0x20000144
 
-080029a4 <main>:
+08002a68 <main>:
 {
- 80029a4:	b5f0      	push	{r4, r5, r6, r7, lr}
- 80029a6:	46de      	mov	lr, fp
- 80029a8:	4657      	mov	r7, sl
- 80029aa:	464e      	mov	r6, r9
- 80029ac:	4645      	mov	r5, r8
- 80029ae:	b5e0      	push	{r5, r6, r7, lr}
- 80029b0:	b08b      	sub	sp, #44	@ 0x2c
+ 8002a68:	b5f0      	push	{r4, r5, r6, r7, lr}
+ 8002a6a:	46de      	mov	lr, fp
+ 8002a6c:	4657      	mov	r7, sl
+ 8002a6e:	464e      	mov	r6, r9
+ 8002a70:	4645      	mov	r5, r8
+ 8002a72:	b5e0      	push	{r5, r6, r7, lr}
+ 8002a74:	b08b      	sub	sp, #44	@ 0x2c
 	CMSIS_FullInit(); // 1ms
- 80029b2:	f7ff f82f 	bl	8001a14 <CMSIS_FullInit>
+ 8002a76:	f7fe ffcd 	bl	8001a14 <CMSIS_FullInit>
 	SystemClock_Config();
- 80029b6:	f7ff f85d 	bl	8001a74 <SystemClock_Config>
+ 8002a7a:	f7fe fffb 	bl	8001a74 <SystemClock_Config>
 	GPIO_Init();
- 80029ba:	f7ff fa2f 	bl	8001e1c <GPIO_Init>
+ 8002a7e:	f7ff f9cd 	bl	8001e1c <GPIO_Init>
 	RTC_Init();
- 80029be:	f7ff f8db 	bl	8001b78 <RTC_Init>
+ 8002a82:	f7ff f879 	bl	8001b78 <RTC_Init>
 	TIM2_Init();
- 80029c2:	f7ff f92b 	bl	8001c1c <TIM2_Init>
+ 8002a86:	f7ff f8c9 	bl	8001c1c <TIM2_Init>
 	TIM21_Init();
- 80029c6:	f7ff f9a9 	bl	8001d1c <TIM21_Init>
+ 8002a8a:	f7ff f947 	bl	8001d1c <TIM21_Init>
 	writeCHARSEG(' ', ' ');
- 80029ca:	2120      	movs	r1, #32
- 80029cc:	2020      	movs	r0, #32
- 80029ce:	f7ff fbbf 	bl	8002150 <writeCHARSEG>
+ 8002a8e:	2120      	movs	r1, #32
+ 8002a90:	2020      	movs	r0, #32
+ 8002a92:	f7ff fb5d 	bl	8002150 <writeCHARSEG>
 	pinEN_OFF();
- 80029d2:	2280      	movs	r2, #128	@ 0x80
- 80029d4:	4b66      	ldr	r3, [pc, #408]	@ (8002b70 <main+0x1cc>)
- 80029d6:	0612      	lsls	r2, r2, #24
- 80029d8:	619a      	str	r2, [r3, #24]
+ 8002a96:	2280      	movs	r2, #128	@ 0x80
+ 8002a98:	4b65      	ldr	r3, [pc, #404]	@ (8002c30 <main+0x1c8>)
+ 8002a9a:	0612      	lsls	r2, r2, #24
+ 8002a9c:	619a      	str	r2, [r3, #24]
 	tmpValue = setActualMenu(0, 0);
- 80029da:	2100      	movs	r1, #0
- 80029dc:	2000      	movs	r0, #0
- 80029de:	f7ff ff35 	bl	800284c <setActualMenu>
-		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
- 80029e2:	4b64      	ldr	r3, [pc, #400]	@ (8002b74 <main+0x1d0>)
-			if(SysTimer_ms%4==0)		writeCHARSEG(tmpValue[0], 0);
- 80029e4:	2503      	movs	r5, #3
-		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
- 80029e6:	001a      	movs	r2, r3
- 80029e8:	9306      	str	r3, [sp, #24]
- 80029ea:	2302      	movs	r3, #2
+ 8002a9e:	2100      	movs	r1, #0
+ 8002aa0:	2000      	movs	r0, #0
+ 8002aa2:	f7ff ff13 	bl	80028cc <setActualMenu>
+		if (((SysTimer_ms - DecrementButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0))
+ 8002aa6:	4b63      	ldr	r3, [pc, #396]	@ (8002c34 <main+0x1cc>)
+		if (SysTimer_ms % 4 == 0)
+ 8002aa8:	2503      	movs	r5, #3
+		if (((SysTimer_ms - DecrementButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0))
+ 8002aaa:	001a      	movs	r2, r3
+ 8002aac:	9309      	str	r3, [sp, #36]	@ 0x24
+ 8002aae:	230c      	movs	r3, #12
 	tmpValue = setActualMenu(0, 0);
- 80029ec:	9001      	str	r0, [sp, #4]
-		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
- 80029ee:	33ff      	adds	r3, #255	@ 0xff
- 80029f0:	5cd6      	ldrb	r6, [r2, r3]
-		if (flagEnterButton)
- 80029f2:	4b61      	ldr	r3, [pc, #388]	@ (8002b78 <main+0x1d4>)
- 80029f4:	4c61      	ldr	r4, [pc, #388]	@ (8002b7c <main+0x1d8>)
- 80029f6:	9303      	str	r3, [sp, #12]
- 80029f8:	781b      	ldrb	r3, [r3, #0]
-		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
- 80029fa:	4f61      	ldr	r7, [pc, #388]	@ (8002b80 <main+0x1dc>)
-		if (flagEnterButton)
- 80029fc:	4698      	mov	r8, r3
- 80029fe:	4b61      	ldr	r3, [pc, #388]	@ (8002b84 <main+0x1e0>)
- 8002a00:	469b      	mov	fp, r3
- 8002a02:	4b61      	ldr	r3, [pc, #388]	@ (8002b88 <main+0x1e4>)
- 8002a04:	4699      	mov	r9, r3
- 8002a06:	4b61      	ldr	r3, [pc, #388]	@ (8002b8c <main+0x1e8>)
- 8002a08:	469a      	mov	sl, r3
- 8002a0a:	4b61      	ldr	r3, [pc, #388]	@ (8002b90 <main+0x1ec>)
- 8002a0c:	9304      	str	r3, [sp, #16]
- 8002a0e:	4b61      	ldr	r3, [pc, #388]	@ (8002b94 <main+0x1f0>)
- 8002a10:	9300      	str	r3, [sp, #0]
- 8002a12:	4b61      	ldr	r3, [pc, #388]	@ (8002b98 <main+0x1f4>)
- 8002a14:	9307      	str	r3, [sp, #28]
- 8002a16:	4b61      	ldr	r3, [pc, #388]	@ (8002b9c <main+0x1f8>)
- 8002a18:	9305      	str	r3, [sp, #20]
- 8002a1a:	4b61      	ldr	r3, [pc, #388]	@ (8002ba0 <main+0x1fc>)
- 8002a1c:	9308      	str	r3, [sp, #32]
- 8002a1e:	4b61      	ldr	r3, [pc, #388]	@ (8002ba4 <main+0x200>)
- 8002a20:	9302      	str	r3, [sp, #8]
- 8002a22:	4b61      	ldr	r3, [pc, #388]	@ (8002ba8 <main+0x204>)
- 8002a24:	9309      	str	r3, [sp, #36]	@ 0x24
-		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
- 8002a26:	465a      	mov	r2, fp
- 8002a28:	6823      	ldr	r3, [r4, #0]
- 8002a2a:	6812      	ldr	r2, [r2, #0]
- 8002a2c:	1a9b      	subs	r3, r3, r2
- 8002a2e:	42b3      	cmp	r3, r6
- 8002a30:	d306      	bcc.n	8002a40 <main+0x9c>
- 8002a32:	2201      	movs	r2, #1
- 8002a34:	683b      	ldr	r3, [r7, #0]
- 8002a36:	421a      	tst	r2, r3
- 8002a38:	d102      	bne.n	8002a40 <main+0x9c>
- 8002a3a:	683b      	ldr	r3, [r7, #0]
- 8002a3c:	4313      	orrs	r3, r2
- 8002a3e:	603b      	str	r3, [r7, #0]
-		if(SysTimer_ms-EnterButtonDebounce 		>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM1) == 0) 	EXTI->IMR |= EXTI_IMR_IM1;	// *25 		P_5.0	debounceTime
- 8002a40:	464a      	mov	r2, r9
- 8002a42:	6823      	ldr	r3, [r4, #0]
- 8002a44:	6812      	ldr	r2, [r2, #0]
- 8002a46:	1a9b      	subs	r3, r3, r2
- 8002a48:	429e      	cmp	r6, r3
- 8002a4a:	d806      	bhi.n	8002a5a <main+0xb6>
- 8002a4c:	2302      	movs	r3, #2
- 8002a4e:	683a      	ldr	r2, [r7, #0]
- 8002a50:	4213      	tst	r3, r2
- 8002a52:	d102      	bne.n	8002a5a <main+0xb6>
- 8002a54:	683a      	ldr	r2, [r7, #0]
- 8002a56:	4313      	orrs	r3, r2
- 8002a58:	603b      	str	r3, [r7, #0]
-		if(SysTimer_ms-IncrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM2) == 0) 	EXTI->IMR |= EXTI_IMR_IM2;	// *25 		P_5.0	debounceTime
- 8002a5a:	4652      	mov	r2, sl
- 8002a5c:	6823      	ldr	r3, [r4, #0]
- 8002a5e:	6812      	ldr	r2, [r2, #0]
- 8002a60:	1a9b      	subs	r3, r3, r2
- 8002a62:	429e      	cmp	r6, r3
- 8002a64:	d806      	bhi.n	8002a74 <main+0xd0>
- 8002a66:	2304      	movs	r3, #4
- 8002a68:	683a      	ldr	r2, [r7, #0]
- 8002a6a:	4213      	tst	r3, r2
- 8002a6c:	d102      	bne.n	8002a74 <main+0xd0>
- 8002a6e:	683a      	ldr	r2, [r7, #0]
- 8002a70:	4313      	orrs	r3, r2
- 8002a72:	603b      	str	r3, [r7, #0]
+ 8002ab0:	9002      	str	r0, [sp, #8]
+		if (((SysTimer_ms - DecrementButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0))
+ 8002ab2:	33ff      	adds	r3, #255	@ 0xff
+ 8002ab4:	5cd6      	ldrb	r6, [r2, r3]
+ 8002ab6:	4b60      	ldr	r3, [pc, #384]	@ (8002c38 <main+0x1d0>)
+ 8002ab8:	4c60      	ldr	r4, [pc, #384]	@ (8002c3c <main+0x1d4>)
+ 8002aba:	469b      	mov	fp, r3
+ 8002abc:	4b60      	ldr	r3, [pc, #384]	@ (8002c40 <main+0x1d8>)
+ 8002abe:	4f61      	ldr	r7, [pc, #388]	@ (8002c44 <main+0x1dc>)
+ 8002ac0:	469a      	mov	sl, r3
+ 8002ac2:	4b61      	ldr	r3, [pc, #388]	@ (8002c48 <main+0x1e0>)
+ 8002ac4:	4699      	mov	r9, r3
+ 8002ac6:	4b61      	ldr	r3, [pc, #388]	@ (8002c4c <main+0x1e4>)
+ 8002ac8:	9304      	str	r3, [sp, #16]
+ 8002aca:	4b61      	ldr	r3, [pc, #388]	@ (8002c50 <main+0x1e8>)
+ 8002acc:	4698      	mov	r8, r3
+ 8002ace:	4b61      	ldr	r3, [pc, #388]	@ (8002c54 <main+0x1ec>)
+ 8002ad0:	9305      	str	r3, [sp, #20]
+ 8002ad2:	4b61      	ldr	r3, [pc, #388]	@ (8002c58 <main+0x1f0>)
+ 8002ad4:	9306      	str	r3, [sp, #24]
+ 8002ad6:	4b61      	ldr	r3, [pc, #388]	@ (8002c5c <main+0x1f4>)
+ 8002ad8:	9307      	str	r3, [sp, #28]
+ 8002ada:	4b61      	ldr	r3, [pc, #388]	@ (8002c60 <main+0x1f8>)
+ 8002adc:	9303      	str	r3, [sp, #12]
+ 8002ade:	4b61      	ldr	r3, [pc, #388]	@ (8002c64 <main+0x1fc>)
+ 8002ae0:	9308      	str	r3, [sp, #32]
+ 8002ae2:	4b61      	ldr	r3, [pc, #388]	@ (8002c68 <main+0x200>)
+ 8002ae4:	9301      	str	r3, [sp, #4]
+ 8002ae6:	465a      	mov	r2, fp
+ 8002ae8:	6823      	ldr	r3, [r4, #0]
+ 8002aea:	6812      	ldr	r2, [r2, #0]
+ 8002aec:	1a9b      	subs	r3, r3, r2
+ 8002aee:	42b3      	cmp	r3, r6
+ 8002af0:	d906      	bls.n	8002b00 <main+0x98>
+ 8002af2:	2201      	movs	r2, #1
+ 8002af4:	683b      	ldr	r3, [r7, #0]
+ 8002af6:	421a      	tst	r2, r3
+ 8002af8:	d102      	bne.n	8002b00 <main+0x98>
+			SET_BIT(EXTI->IMR, EXTI_IMR_IM0);
+ 8002afa:	683b      	ldr	r3, [r7, #0]
+ 8002afc:	4313      	orrs	r3, r2
+ 8002afe:	603b      	str	r3, [r7, #0]
+		if (((SysTimer_ms - EnterButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM1) == 0))
+ 8002b00:	4652      	mov	r2, sl
+ 8002b02:	6823      	ldr	r3, [r4, #0]
+ 8002b04:	6812      	ldr	r2, [r2, #0]
+ 8002b06:	1a9b      	subs	r3, r3, r2
+ 8002b08:	429e      	cmp	r6, r3
+ 8002b0a:	d206      	bcs.n	8002b1a <main+0xb2>
+ 8002b0c:	2302      	movs	r3, #2
+ 8002b0e:	683a      	ldr	r2, [r7, #0]
+ 8002b10:	4213      	tst	r3, r2
+ 8002b12:	d102      	bne.n	8002b1a <main+0xb2>
+			SET_BIT(EXTI->IMR, EXTI_IMR_IM1);
+ 8002b14:	683a      	ldr	r2, [r7, #0]
+ 8002b16:	4313      	orrs	r3, r2
+ 8002b18:	603b      	str	r3, [r7, #0]
+		if (((SysTimer_ms - IncrementButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM2) == 0))
+ 8002b1a:	464a      	mov	r2, r9
+ 8002b1c:	6823      	ldr	r3, [r4, #0]
+ 8002b1e:	6812      	ldr	r2, [r2, #0]
+ 8002b20:	1a9b      	subs	r3, r3, r2
+ 8002b22:	429e      	cmp	r6, r3
+ 8002b24:	d206      	bcs.n	8002b34 <main+0xcc>
+ 8002b26:	2304      	movs	r3, #4
+ 8002b28:	683a      	ldr	r2, [r7, #0]
+ 8002b2a:	4213      	tst	r3, r2
+ 8002b2c:	d102      	bne.n	8002b34 <main+0xcc>
+			SET_BIT(EXTI->IMR, EXTI_IMR_IM2);
+ 8002b2e:	683a      	ldr	r2, [r7, #0]
+ 8002b30:	4313      	orrs	r3, r2
+ 8002b32:	603b      	str	r3, [r7, #0]
 		if (flagDecrementButton)
- 8002a74:	9a04      	ldr	r2, [sp, #16]
- 8002a76:	7813      	ldrb	r3, [r2, #0]
- 8002a78:	2b00      	cmp	r3, #0
- 8002a7a:	d070      	beq.n	8002b5e <main+0x1ba>
+ 8002b34:	9a04      	ldr	r2, [sp, #16]
+ 8002b36:	7813      	ldrb	r3, [r2, #0]
+ 8002b38:	2b00      	cmp	r3, #0
+ 8002b3a:	d004      	beq.n	8002b46 <main+0xde>
 			hmenu = 1;
- 8002a7c:	2101      	movs	r1, #1
- 8002a7e:	9b00      	ldr	r3, [sp, #0]
- 8002a80:	7019      	strb	r1, [r3, #0]
+ 8002b3c:	4643      	mov	r3, r8
+ 8002b3e:	2101      	movs	r1, #1
+ 8002b40:	7019      	strb	r1, [r3, #0]
 			flagDecrementButton = false; // Действие обработано - сбрасываем флаг
- 8002a82:	2300      	movs	r3, #0
- 8002a84:	7013      	strb	r3, [r2, #0]
+ 8002b42:	2300      	movs	r3, #0
+ 8002b44:	7013      	strb	r3, [r2, #0]
+		if (flagDecrementButtonLong)
+ 8002b46:	9a05      	ldr	r2, [sp, #20]
+ 8002b48:	7813      	ldrb	r3, [r2, #0]
+ 8002b4a:	2b00      	cmp	r3, #0
+ 8002b4c:	d001      	beq.n	8002b52 <main+0xea>
+			flagDecrementButtonLong = false; // Действие обработано - сбрасываем флаг
+ 8002b4e:	2300      	movs	r3, #0
+ 8002b50:	7013      	strb	r3, [r2, #0]
 		if (flagIncrementButton)
- 8002a86:	9a05      	ldr	r2, [sp, #20]
- 8002a88:	7813      	ldrb	r3, [r2, #0]
- 8002a8a:	2b00      	cmp	r3, #0
- 8002a8c:	d05e      	beq.n	8002b4c <main+0x1a8>
+ 8002b52:	9a06      	ldr	r2, [sp, #24]
+ 8002b54:	7813      	ldrb	r3, [r2, #0]
+ 8002b56:	2b00      	cmp	r3, #0
+ 8002b58:	d004      	beq.n	8002b64 <main+0xfc>
 			hmenu = -1;
- 8002a8e:	23ff      	movs	r3, #255	@ 0xff
- 8002a90:	9900      	ldr	r1, [sp, #0]
- 8002a92:	700b      	strb	r3, [r1, #0]
+ 8002b5a:	23ff      	movs	r3, #255	@ 0xff
+ 8002b5c:	4641      	mov	r1, r8
+ 8002b5e:	700b      	strb	r3, [r1, #0]
 			flagIncrementButton = false; // Действие обработано - сбрасываем флаг
- 8002a94:	2300      	movs	r3, #0
- 8002a96:	7013      	strb	r3, [r2, #0]
+ 8002b60:	2300      	movs	r3, #0
+ 8002b62:	7013      	strb	r3, [r2, #0]
+		if (flagIncrementButtonLong)
+ 8002b64:	9a07      	ldr	r2, [sp, #28]
+ 8002b66:	7813      	ldrb	r3, [r2, #0]
+ 8002b68:	2b00      	cmp	r3, #0
+ 8002b6a:	d001      	beq.n	8002b70 <main+0x108>
+			flagIncrementButtonLong = false; // Действие обработано - сбрасываем флаг
+ 8002b6c:	2300      	movs	r3, #0
+ 8002b6e:	7013      	strb	r3, [r2, #0]
 		if (flagEnterButton)
- 8002a98:	4643      	mov	r3, r8
- 8002a9a:	2b00      	cmp	r3, #0
- 8002a9c:	d027      	beq.n	8002aee <main+0x14a>
+ 8002b70:	9908      	ldr	r1, [sp, #32]
+		if (flagEnterButtonLong)
+ 8002b72:	9b03      	ldr	r3, [sp, #12]
+		if (flagEnterButton)
+ 8002b74:	780a      	ldrb	r2, [r1, #0]
+		if (flagEnterButtonLong)
+ 8002b76:	781b      	ldrb	r3, [r3, #0]
+		if (flagEnterButton)
+ 8002b78:	2a00      	cmp	r2, #0
+ 8002b7a:	d02d      	beq.n	8002bd8 <main+0x170>
 			vmenu = 1;				 // По нажатию кнопки - переходим на уровень вниз
- 8002a9e:	2201      	movs	r2, #1
- 8002aa0:	9b02      	ldr	r3, [sp, #8]
- 8002aa2:	2001      	movs	r0, #1
- 8002aa4:	701a      	strb	r2, [r3, #0]
+ 8002b7c:	2001      	movs	r0, #1
+ 8002b7e:	9a01      	ldr	r2, [sp, #4]
+ 8002b80:	7010      	strb	r0, [r2, #0]
 			flagEnterButton = false; // Действие обработано - сбрасываем флаг
- 8002aa6:	2300      	movs	r3, #0
- 8002aa8:	9a03      	ldr	r2, [sp, #12]
- 8002aaa:	7013      	strb	r3, [r2, #0]
-		if (vmenu != 0 || hmenu != 0)	tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
- 8002aac:	9b00      	ldr	r3, [sp, #0]
- 8002aae:	7819      	ldrb	r1, [r3, #0]
- 8002ab0:	f7ff fecc 	bl	800284c <setActualMenu>
-		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
- 8002ab4:	2302      	movs	r3, #2
- 8002ab6:	9a06      	ldr	r2, [sp, #24]
- 8002ab8:	33ff      	adds	r3, #255	@ 0xff
-		if (vmenu != 0 || hmenu != 0)	tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
- 8002aba:	9001      	str	r0, [sp, #4]
-		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
- 8002abc:	5cd6      	ldrb	r6, [r2, r3]
-		if (flagEnterButton)
- 8002abe:	9b03      	ldr	r3, [sp, #12]
- 8002ac0:	781b      	ldrb	r3, [r3, #0]
- 8002ac2:	4698      	mov	r8, r3
-			if(SysTimer_ms%4==0)		writeCHARSEG(tmpValue[0], 0);
- 8002ac4:	6823      	ldr	r3, [r4, #0]
- 8002ac6:	421d      	tst	r5, r3
- 8002ac8:	d028      	beq.n	8002b1c <main+0x178>
-			if(SysTimer_ms%4==1)		writeCHARSEG(tmpValue[1], 1);
- 8002aca:	6823      	ldr	r3, [r4, #0]
- 8002acc:	402b      	ands	r3, r5
- 8002ace:	2b01      	cmp	r3, #1
- 8002ad0:	d02d      	beq.n	8002b2e <main+0x18a>
-			if(SysTimer_ms%4==2)		writeCHARSEG(tmpValue[2], 2);
- 8002ad2:	6823      	ldr	r3, [r4, #0]
- 8002ad4:	402b      	ands	r3, r5
- 8002ad6:	2b02      	cmp	r3, #2
- 8002ad8:	d032      	beq.n	8002b40 <main+0x19c>
-			if(SysTimer_ms%4==3)		writeCHARSEG(tmpValue[3], 3);
- 8002ada:	6823      	ldr	r3, [r4, #0]
- 8002adc:	402b      	ands	r3, r5
- 8002ade:	2b03      	cmp	r3, #3
- 8002ae0:	d1a1      	bne.n	8002a26 <main+0x82>
- 8002ae2:	9b01      	ldr	r3, [sp, #4]
- 8002ae4:	2103      	movs	r1, #3
- 8002ae6:	78d8      	ldrb	r0, [r3, #3]
- 8002ae8:	f7ff fb32 	bl	8002150 <writeCHARSEG>
- 8002aec:	e79b      	b.n	8002a26 <main+0x82>
-			else if (flagEnterButtonLong)
- 8002aee:	9a09      	ldr	r2, [sp, #36]	@ 0x24
- 8002af0:	7813      	ldrb	r3, [r2, #0]
- 8002af2:	4698      	mov	r8, r3
-		if (vmenu != 0 || hmenu != 0)	tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
- 8002af4:	9b00      	ldr	r3, [sp, #0]
- 8002af6:	7819      	ldrb	r1, [r3, #0]
-			else if (flagEnterButtonLong)
- 8002af8:	4643      	mov	r3, r8
- 8002afa:	2b00      	cmp	r3, #0
- 8002afc:	d006      	beq.n	8002b0c <main+0x168>
+ 8002b82:	2200      	movs	r2, #0
+ 8002b84:	700a      	strb	r2, [r1, #0]
+		if (flagEnterButtonLong)
+ 8002b86:	2b00      	cmp	r3, #0
+ 8002b88:	d04c      	beq.n	8002c24 <main+0x1bc>
 			vmenu = -1;
- 8002afe:	23ff      	movs	r3, #255	@ 0xff
- 8002b00:	9902      	ldr	r1, [sp, #8]
-			flagEnterButtonLong = false; // Действие обработано - сбрасываем флаг
- 8002b02:	20ff      	movs	r0, #255	@ 0xff
+ 8002b8a:	23ff      	movs	r3, #255	@ 0xff
+ 8002b8c:	9a01      	ldr	r2, [sp, #4]
+		if (vmenu != 0 || hmenu != 0)
+ 8002b8e:	2100      	movs	r1, #0
 			vmenu = -1;
- 8002b04:	700b      	strb	r3, [r1, #0]
+ 8002b90:	7013      	strb	r3, [r2, #0]
 			flagEnterButtonLong = false; // Действие обработано - сбрасываем флаг
- 8002b06:	2300      	movs	r3, #0
- 8002b08:	7013      	strb	r3, [r2, #0]
- 8002b0a:	e7cf      	b.n	8002aac <main+0x108>
-		if (vmenu != 0 || hmenu != 0)	tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
- 8002b0c:	9b02      	ldr	r3, [sp, #8]
- 8002b0e:	7818      	ldrb	r0, [r3, #0]
- 8002b10:	0003      	movs	r3, r0
- 8002b12:	430b      	orrs	r3, r1
- 8002b14:	d1cc      	bne.n	8002ab0 <main+0x10c>
-			if(SysTimer_ms%4==0)		writeCHARSEG(tmpValue[0], 0);
- 8002b16:	6823      	ldr	r3, [r4, #0]
- 8002b18:	421d      	tst	r5, r3
- 8002b1a:	d1d6      	bne.n	8002aca <main+0x126>
- 8002b1c:	9b01      	ldr	r3, [sp, #4]
- 8002b1e:	2100      	movs	r1, #0
- 8002b20:	7818      	ldrb	r0, [r3, #0]
- 8002b22:	f7ff fb15 	bl	8002150 <writeCHARSEG>
-			if(SysTimer_ms%4==1)		writeCHARSEG(tmpValue[1], 1);
- 8002b26:	6823      	ldr	r3, [r4, #0]
- 8002b28:	402b      	ands	r3, r5
- 8002b2a:	2b01      	cmp	r3, #1
- 8002b2c:	d1d1      	bne.n	8002ad2 <main+0x12e>
- 8002b2e:	9b01      	ldr	r3, [sp, #4]
- 8002b30:	2101      	movs	r1, #1
- 8002b32:	7858      	ldrb	r0, [r3, #1]
- 8002b34:	f7ff fb0c 	bl	8002150 <writeCHARSEG>
-			if(SysTimer_ms%4==2)		writeCHARSEG(tmpValue[2], 2);
- 8002b38:	6823      	ldr	r3, [r4, #0]
- 8002b3a:	402b      	ands	r3, r5
- 8002b3c:	2b02      	cmp	r3, #2
- 8002b3e:	d1cc      	bne.n	8002ada <main+0x136>
- 8002b40:	9b01      	ldr	r3, [sp, #4]
- 8002b42:	2102      	movs	r1, #2
- 8002b44:	7898      	ldrb	r0, [r3, #2]
- 8002b46:	f7ff fb03 	bl	8002150 <writeCHARSEG>
- 8002b4a:	e7c6      	b.n	8002ada <main+0x136>
-			else if(flagIncrementButtonLong){
- 8002b4c:	9908      	ldr	r1, [sp, #32]
- 8002b4e:	780a      	ldrb	r2, [r1, #0]
- 8002b50:	2a00      	cmp	r2, #0
- 8002b52:	d0a1      	beq.n	8002a98 <main+0xf4>
-				hmenu = -1;
- 8002b54:	22ff      	movs	r2, #255	@ 0xff
- 8002b56:	9800      	ldr	r0, [sp, #0]
-			flagIncrementButtonLong = false; // Действие обработано - сбрасываем флаг
- 8002b58:	700b      	strb	r3, [r1, #0]
-				hmenu = -1;
- 8002b5a:	7002      	strb	r2, [r0, #0]
-			flagIncrementButtonLong = false; // Действие обработано - сбрасываем флаг
- 8002b5c:	e79c      	b.n	8002a98 <main+0xf4>
-			else if(flagDecrementButtonLong){
- 8002b5e:	9907      	ldr	r1, [sp, #28]
- 8002b60:	780a      	ldrb	r2, [r1, #0]
- 8002b62:	2a00      	cmp	r2, #0
- 8002b64:	d08f      	beq.n	8002a86 <main+0xe2>
-				hmenu = 1;
- 8002b66:	2001      	movs	r0, #1
- 8002b68:	9a00      	ldr	r2, [sp, #0]
-			flagDecrementButtonLong = false; // Действие обработано - сбрасываем флаг
- 8002b6a:	700b      	strb	r3, [r1, #0]
-				hmenu = 1;
- 8002b6c:	7010      	strb	r0, [r2, #0]
-			flagDecrementButtonLong = false; // Действие обработано - сбрасываем флаг
- 8002b6e:	e78a      	b.n	8002a86 <main+0xe2>
- 8002b70:	50000800 	.word	0x50000800
- 8002b74:	20000000 	.word	0x20000000
- 8002b78:	20000178 	.word	0x20000178
- 8002b7c:	20000168 	.word	0x20000168
- 8002b80:	40010400 	.word	0x40010400
- 8002b84:	2000018c 	.word	0x2000018c
- 8002b88:	20000188 	.word	0x20000188
- 8002b8c:	20000184 	.word	0x20000184
- 8002b90:	20000179 	.word	0x20000179
- 8002b94:	2000015c 	.word	0x2000015c
- 8002b98:	20000176 	.word	0x20000176
- 8002b9c:	2000017a 	.word	0x2000017a
- 8002ba0:	20000177 	.word	0x20000177
- 8002ba4:	2000015d 	.word	0x2000015d
- 8002ba8:	20000175 	.word	0x20000175
+ 8002b92:	2300      	movs	r3, #0
+ 8002b94:	9a03      	ldr	r2, [sp, #12]
+		if (vmenu != 0 || hmenu != 0)
+ 8002b96:	2001      	movs	r0, #1
+			flagEnterButtonLong = false; // Действие обработано - сбрасываем флаг
+ 8002b98:	7013      	strb	r3, [r2, #0]
+		if (vmenu != 0 || hmenu != 0)
+ 8002b9a:	4643      	mov	r3, r8
+ 8002b9c:	5659      	ldrsb	r1, [r3, r1]
+ 8002b9e:	4240      	negs	r0, r0
+			tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
+ 8002ba0:	f7ff fe94 	bl	80028cc <setActualMenu>
+		if (((SysTimer_ms - DecrementButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0))
+ 8002ba4:	230c      	movs	r3, #12
+ 8002ba6:	9a09      	ldr	r2, [sp, #36]	@ 0x24
+ 8002ba8:	33ff      	adds	r3, #255	@ 0xff
+			tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
+ 8002baa:	9002      	str	r0, [sp, #8]
+		if (((SysTimer_ms - DecrementButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0))
+ 8002bac:	5cd6      	ldrb	r6, [r2, r3]
+		if (SysTimer_ms % 4 == 0)
+ 8002bae:	6823      	ldr	r3, [r4, #0]
+ 8002bb0:	421d      	tst	r5, r3
+ 8002bb2:	d01f      	beq.n	8002bf4 <main+0x18c>
+		if (SysTimer_ms % 4 == 1)
+ 8002bb4:	6823      	ldr	r3, [r4, #0]
+ 8002bb6:	402b      	ands	r3, r5
+ 8002bb8:	2b01      	cmp	r3, #1
+ 8002bba:	d024      	beq.n	8002c06 <main+0x19e>
+		if (SysTimer_ms % 4 == 2)
+ 8002bbc:	6823      	ldr	r3, [r4, #0]
+ 8002bbe:	402b      	ands	r3, r5
+ 8002bc0:	2b02      	cmp	r3, #2
+ 8002bc2:	d029      	beq.n	8002c18 <main+0x1b0>
+		if (SysTimer_ms % 4 == 3)
+ 8002bc4:	6823      	ldr	r3, [r4, #0]
+ 8002bc6:	402b      	ands	r3, r5
+ 8002bc8:	2b03      	cmp	r3, #3
+ 8002bca:	d18c      	bne.n	8002ae6 <main+0x7e>
+			writeCHARSEG(tmpValue[3], 3);
+ 8002bcc:	9b02      	ldr	r3, [sp, #8]
+ 8002bce:	2103      	movs	r1, #3
+ 8002bd0:	78d8      	ldrb	r0, [r3, #3]
+ 8002bd2:	f7ff fabd 	bl	8002150 <writeCHARSEG>
+ 8002bd6:	e786      	b.n	8002ae6 <main+0x7e>
+		if (flagEnterButtonLong)
+ 8002bd8:	2b00      	cmp	r3, #0
+ 8002bda:	d1d6      	bne.n	8002b8a <main+0x122>
+		if (vmenu != 0 || hmenu != 0)
+ 8002bdc:	2000      	movs	r0, #0
+ 8002bde:	9b01      	ldr	r3, [sp, #4]
+ 8002be0:	2100      	movs	r1, #0
+ 8002be2:	5618      	ldrsb	r0, [r3, r0]
+ 8002be4:	4643      	mov	r3, r8
+ 8002be6:	5659      	ldrsb	r1, [r3, r1]
+ 8002be8:	0003      	movs	r3, r0
+ 8002bea:	430b      	orrs	r3, r1
+ 8002bec:	d1d8      	bne.n	8002ba0 <main+0x138>
+		if (SysTimer_ms % 4 == 0)
+ 8002bee:	6823      	ldr	r3, [r4, #0]
+ 8002bf0:	421d      	tst	r5, r3
+ 8002bf2:	d1df      	bne.n	8002bb4 <main+0x14c>
+			writeCHARSEG(tmpValue[0], 0);
+ 8002bf4:	9b02      	ldr	r3, [sp, #8]
+ 8002bf6:	2100      	movs	r1, #0
+ 8002bf8:	7818      	ldrb	r0, [r3, #0]
+ 8002bfa:	f7ff faa9 	bl	8002150 <writeCHARSEG>
+		if (SysTimer_ms % 4 == 1)
+ 8002bfe:	6823      	ldr	r3, [r4, #0]
+ 8002c00:	402b      	ands	r3, r5
+ 8002c02:	2b01      	cmp	r3, #1
+ 8002c04:	d1da      	bne.n	8002bbc <main+0x154>
+			writeCHARSEG(tmpValue[1], 1);
+ 8002c06:	9b02      	ldr	r3, [sp, #8]
+ 8002c08:	2101      	movs	r1, #1
+ 8002c0a:	7858      	ldrb	r0, [r3, #1]
+ 8002c0c:	f7ff faa0 	bl	8002150 <writeCHARSEG>
+		if (SysTimer_ms % 4 == 2)
+ 8002c10:	6823      	ldr	r3, [r4, #0]
+ 8002c12:	402b      	ands	r3, r5
+ 8002c14:	2b02      	cmp	r3, #2
+ 8002c16:	d1d5      	bne.n	8002bc4 <main+0x15c>
+			writeCHARSEG(tmpValue[2], 2);
+ 8002c18:	9b02      	ldr	r3, [sp, #8]
+ 8002c1a:	2102      	movs	r1, #2
+ 8002c1c:	7898      	ldrb	r0, [r3, #2]
+ 8002c1e:	f7ff fa97 	bl	8002150 <writeCHARSEG>
+ 8002c22:	e7cf      	b.n	8002bc4 <main+0x15c>
+		if (vmenu != 0 || hmenu != 0)
+ 8002c24:	4643      	mov	r3, r8
+ 8002c26:	2100      	movs	r1, #0
+ 8002c28:	2001      	movs	r0, #1
+ 8002c2a:	5659      	ldrsb	r1, [r3, r1]
+ 8002c2c:	e7b8      	b.n	8002ba0 <main+0x138>
+ 8002c2e:	46c0      	nop			@ (mov r8, r8)
+ 8002c30:	50000800 	.word	0x50000800
+ 8002c34:	20000000 	.word	0x20000000
+ 8002c38:	20000168 	.word	0x20000168
+ 8002c3c:	20000154 	.word	0x20000154
+ 8002c40:	20000164 	.word	0x20000164
+ 8002c44:	40010400 	.word	0x40010400
+ 8002c48:	2000016c 	.word	0x2000016c
+ 8002c4c:	2000015f 	.word	0x2000015f
+ 8002c50:	20000148 	.word	0x20000148
+ 8002c54:	2000015c 	.word	0x2000015c
+ 8002c58:	20000160 	.word	0x20000160
+ 8002c5c:	2000015d 	.word	0x2000015d
+ 8002c60:	2000015b 	.word	0x2000015b
+ 8002c64:	2000015e 	.word	0x2000015e
+ 8002c68:	20000149 	.word	0x20000149
 
-08002bac <SysTick_Handler>:
+08002c6c <SysTick_Handler>:
 /* Handlers--------------------------------------------------------*/
 void SysTick_Handler(void)
 {
 	SysTimer_ms++;
- 8002bac:	4a06      	ldr	r2, [pc, #24]	@ (8002bc8 <SysTick_Handler+0x1c>)
- 8002bae:	6813      	ldr	r3, [r2, #0]
- 8002bb0:	3301      	adds	r3, #1
- 8002bb2:	6013      	str	r3, [r2, #0]
+ 8002c6c:	4a06      	ldr	r2, [pc, #24]	@ (8002c88 <SysTick_Handler+0x1c>)
+ 8002c6e:	6813      	ldr	r3, [r2, #0]
+ 8002c70:	3301      	adds	r3, #1
+ 8002c72:	6013      	str	r3, [r2, #0]
 	if (Delay_counter_ms)
- 8002bb4:	4b05      	ldr	r3, [pc, #20]	@ (8002bcc <SysTick_Handler+0x20>)
- 8002bb6:	881a      	ldrh	r2, [r3, #0]
- 8002bb8:	2a00      	cmp	r2, #0
- 8002bba:	d003      	beq.n	8002bc4 <SysTick_Handler+0x18>
+ 8002c74:	4b05      	ldr	r3, [pc, #20]	@ (8002c8c <SysTick_Handler+0x20>)
+ 8002c76:	881a      	ldrh	r2, [r3, #0]
+ 8002c78:	2a00      	cmp	r2, #0
+ 8002c7a:	d003      	beq.n	8002c84 <SysTick_Handler+0x18>
 	{
 		Delay_counter_ms--;
- 8002bbc:	881a      	ldrh	r2, [r3, #0]
- 8002bbe:	3a01      	subs	r2, #1
- 8002bc0:	b292      	uxth	r2, r2
- 8002bc2:	801a      	strh	r2, [r3, #0]
+ 8002c7c:	881a      	ldrh	r2, [r3, #0]
+ 8002c7e:	3a01      	subs	r2, #1
+ 8002c80:	b292      	uxth	r2, r2
+ 8002c82:	801a      	strh	r2, [r3, #0]
 	}
 }
- 8002bc4:	4770      	bx	lr
- 8002bc6:	46c0      	nop			@ (mov r8, r8)
- 8002bc8:	20000168 	.word	0x20000168
- 8002bcc:	20000164 	.word	0x20000164
+ 8002c84:	4770      	bx	lr
+ 8002c86:	46c0      	nop			@ (mov r8, r8)
+ 8002c88:	20000154 	.word	0x20000154
+ 8002c8c:	20000150 	.word	0x20000150
 
-08002bd0 <EXTI0_1_IRQHandler>:
+08002c90 <EXTI0_1_IRQHandler>:
 
 void EXTI0_1_IRQHandler(void)
 {
- 8002bd0:	b5f0      	push	{r4, r5, r6, r7, lr}
-    // Перевірка для DecrementButton (EXTI3)
-    if (EXTI->PR & EXTI_PR_PR0)
- 8002bd2:	2201      	movs	r2, #1
+	// Перевірка для DecrementButton (EXTI3)
+	if (EXTI->PR & EXTI_PR_PR0)
+ 8002c90:	2201      	movs	r2, #1
+ 8002c92:	4b3c      	ldr	r3, [pc, #240]	@ (8002d84 <EXTI0_1_IRQHandler+0xf4>)
 {
- 8002bd4:	46c6      	mov	lr, r8
-    if (EXTI->PR & EXTI_PR_PR0)
- 8002bd6:	4b5a      	ldr	r3, [pc, #360]	@ (8002d40 <EXTI0_1_IRQHandler+0x170>)
-{
- 8002bd8:	b500      	push	{lr}
-    if (EXTI->PR & EXTI_PR_PR0)
- 8002bda:	6959      	ldr	r1, [r3, #20]
- 8002bdc:	420a      	tst	r2, r1
- 8002bde:	d018      	beq.n	8002c12 <EXTI0_1_IRQHandler+0x42>
-    {
-        EXTI->IMR &= ~EXTI_IMR_IM0;
- 8002be0:	6819      	ldr	r1, [r3, #0]
+ 8002c94:	b510      	push	{r4, lr}
+	if (EXTI->PR & EXTI_PR_PR0)
+ 8002c96:	6959      	ldr	r1, [r3, #20]
+ 8002c98:	420a      	tst	r2, r1
+ 8002c9a:	d017      	beq.n	8002ccc <EXTI0_1_IRQHandler+0x3c>
+	{
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM0);
+ 8002c9c:	6819      	ldr	r1, [r3, #0]
 		DecrementButtonDebounce = SysTimer_ms;
- 8002be2:	4858      	ldr	r0, [pc, #352]	@ (8002d44 <EXTI0_1_IRQHandler+0x174>)
-        EXTI->IMR &= ~EXTI_IMR_IM0;
- 8002be4:	4391      	bics	r1, r2
- 8002be6:	6019      	str	r1, [r3, #0]
+ 8002c9e:	483a      	ldr	r0, [pc, #232]	@ (8002d88 <EXTI0_1_IRQHandler+0xf8>)
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM0);
+ 8002ca0:	4391      	bics	r1, r2
+ 8002ca2:	6019      	str	r1, [r3, #0]
 		DecrementButtonDebounce = SysTimer_ms;
- 8002be8:	4957      	ldr	r1, [pc, #348]	@ (8002d48 <EXTI0_1_IRQHandler+0x178>)
-            if (!flagDecrementButtonDown)
- 8002bea:	4d58      	ldr	r5, [pc, #352]	@ (8002d4c <EXTI0_1_IRQHandler+0x17c>)
-		DecrementButtonDebounce = SysTimer_ms;
- 8002bec:	680c      	ldr	r4, [r1, #0]
- 8002bee:	6004      	str	r4, [r0, #0]
-            if (!flagDecrementButtonDown)
- 8002bf0:	7828      	ldrb	r0, [r5, #0]
- 8002bf2:	2800      	cmp	r0, #0
- 8002bf4:	d15c      	bne.n	8002cb0 <EXTI0_1_IRQHandler+0xe0>
-            {
-                timeDecrementButtonDown = SysTimer_ms;
- 8002bf6:	6808      	ldr	r0, [r1, #0]
- 8002bf8:	4955      	ldr	r1, [pc, #340]	@ (8002d50 <EXTI0_1_IRQHandler+0x180>)
-                flagDecrementButtonDown = true;
- 8002bfa:	702a      	strb	r2, [r5, #0]
-                timeDecrementButtonDown = SysTimer_ms;
- 8002bfc:	7008      	strb	r0, [r1, #0]
+ 8002ca4:	4939      	ldr	r1, [pc, #228]	@ (8002d8c <EXTI0_1_IRQHandler+0xfc>)
+ 8002ca6:	680c      	ldr	r4, [r1, #0]
+ 8002ca8:	6004      	str	r4, [r0, #0]
 
-                EXTI->RTSR &= ~EXTI_RTSR_RT3;
- 8002bfe:	2108      	movs	r1, #8
- 8002c00:	689a      	ldr	r2, [r3, #8]
- 8002c02:	438a      	bics	r2, r1
- 8002c04:	609a      	str	r2, [r3, #8]
-                EXTI->FTSR |= EXTI_FTSR_FT3;
- 8002c06:	68da      	ldr	r2, [r3, #12]
- 8002c08:	430a      	orrs	r2, r1
- 8002c0a:	60da      	str	r2, [r3, #12]
-                }
+		if (!flagDecrementButtonDown)
+ 8002caa:	4839      	ldr	r0, [pc, #228]	@ (8002d90 <EXTI0_1_IRQHandler+0x100>)
+ 8002cac:	7804      	ldrb	r4, [r0, #0]
+ 8002cae:	2c00      	cmp	r4, #0
+ 8002cb0:	d144      	bne.n	8002d3c <EXTI0_1_IRQHandler+0xac>
+		{
+			timeDecrementButtonDown = SysTimer_ms;
+ 8002cb2:	680c      	ldr	r4, [r1, #0]
+ 8002cb4:	4937      	ldr	r1, [pc, #220]	@ (8002d94 <EXTI0_1_IRQHandler+0x104>)
+			flagDecrementButtonDown = true;
+ 8002cb6:	7002      	strb	r2, [r0, #0]
+			timeDecrementButtonDown = SysTimer_ms;
+ 8002cb8:	600c      	str	r4, [r1, #0]
 
-                flagDecrementButtonDown = false;
-            }
+			CLEAR_BIT(EXTI->FTSR, EXTI_FTSR_FT0);
+ 8002cba:	68d9      	ldr	r1, [r3, #12]
+ 8002cbc:	4391      	bics	r1, r2
+ 8002cbe:	60d9      	str	r1, [r3, #12]
+			SET_BIT(EXTI->RTSR, EXTI_RTSR_RT0);
+ 8002cc0:	6899      	ldr	r1, [r3, #8]
+ 8002cc2:	430a      	orrs	r2, r1
+ 8002cc4:	609a      	str	r2, [r3, #8]
+				flagDecrementButtonLong = false;
+				flagDecrementButton = true;
+			}
+		}
 
-        EXTI->PR = EXTI_PR_PR0;
- 8002c0c:	2201      	movs	r2, #1
- 8002c0e:	4b4c      	ldr	r3, [pc, #304]	@ (8002d40 <EXTI0_1_IRQHandler+0x170>)
- 8002c10:	615a      	str	r2, [r3, #20]
-    }
+		EXTI->PR = EXTI_PR_PR0;
+ 8002cc6:	2201      	movs	r2, #1
+ 8002cc8:	4b2e      	ldr	r3, [pc, #184]	@ (8002d84 <EXTI0_1_IRQHandler+0xf4>)
+ 8002cca:	615a      	str	r2, [r3, #20]
+	}
 
-    // Перевірка для EnterButton (EXTI1)
-    if (EXTI->PR & EXTI_PR_PR1)
- 8002c12:	2202      	movs	r2, #2
- 8002c14:	4b4a      	ldr	r3, [pc, #296]	@ (8002d40 <EXTI0_1_IRQHandler+0x170>)
- 8002c16:	6959      	ldr	r1, [r3, #20]
- 8002c18:	420a      	tst	r2, r1
- 8002c1a:	d018      	beq.n	8002c4e <EXTI0_1_IRQHandler+0x7e>
-    {
-        EXTI->IMR &= ~EXTI_IMR_IM1;
- 8002c1c:	6819      	ldr	r1, [r3, #0]
+	// Перевірка для EnterButton (EXTI1)
+	if (EXTI->PR & EXTI_PR_PR1)
+ 8002ccc:	2202      	movs	r2, #2
+ 8002cce:	4b2d      	ldr	r3, [pc, #180]	@ (8002d84 <EXTI0_1_IRQHandler+0xf4>)
+ 8002cd0:	6959      	ldr	r1, [r3, #20]
+ 8002cd2:	420a      	tst	r2, r1
+ 8002cd4:	d018      	beq.n	8002d08 <EXTI0_1_IRQHandler+0x78>
+	{
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM1);
+ 8002cd6:	6819      	ldr	r1, [r3, #0]
 		EnterButtonDebounce = SysTimer_ms;
- 8002c1e:	484d      	ldr	r0, [pc, #308]	@ (8002d54 <EXTI0_1_IRQHandler+0x184>)
-        EXTI->IMR &= ~EXTI_IMR_IM1;
- 8002c20:	4391      	bics	r1, r2
- 8002c22:	6019      	str	r1, [r3, #0]
+ 8002cd8:	482f      	ldr	r0, [pc, #188]	@ (8002d98 <EXTI0_1_IRQHandler+0x108>)
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM1);
+ 8002cda:	4391      	bics	r1, r2
+ 8002cdc:	6019      	str	r1, [r3, #0]
 		EnterButtonDebounce = SysTimer_ms;
- 8002c24:	4948      	ldr	r1, [pc, #288]	@ (8002d48 <EXTI0_1_IRQHandler+0x178>)
-            if (!flagEnterButtonDown)
- 8002c26:	4d4c      	ldr	r5, [pc, #304]	@ (8002d58 <EXTI0_1_IRQHandler+0x188>)
-		EnterButtonDebounce = SysTimer_ms;
- 8002c28:	680c      	ldr	r4, [r1, #0]
- 8002c2a:	6004      	str	r4, [r0, #0]
-            if (!flagEnterButtonDown)
- 8002c2c:	7828      	ldrb	r0, [r5, #0]
- 8002c2e:	2800      	cmp	r0, #0
- 8002c30:	d110      	bne.n	8002c54 <EXTI0_1_IRQHandler+0x84>
-            {
-                timeEnterButtonDown = SysTimer_ms;
- 8002c32:	6808      	ldr	r0, [r1, #0]
- 8002c34:	4949      	ldr	r1, [pc, #292]	@ (8002d5c <EXTI0_1_IRQHandler+0x18c>)
- 8002c36:	7008      	strb	r0, [r1, #0]
-                flagEnterButtonDown = true;
- 8002c38:	2101      	movs	r1, #1
- 8002c3a:	7029      	strb	r1, [r5, #0]
+ 8002cde:	492b      	ldr	r1, [pc, #172]	@ (8002d8c <EXTI0_1_IRQHandler+0xfc>)
+ 8002ce0:	680c      	ldr	r4, [r1, #0]
+ 8002ce2:	6004      	str	r4, [r0, #0]
 
-                EXTI->RTSR &= ~EXTI_RTSR_RT1;
- 8002c3c:	6899      	ldr	r1, [r3, #8]
- 8002c3e:	4391      	bics	r1, r2
- 8002c40:	6099      	str	r1, [r3, #8]
-                EXTI->FTSR |= EXTI_FTSR_FT1;
- 8002c42:	68d9      	ldr	r1, [r3, #12]
- 8002c44:	430a      	orrs	r2, r1
- 8002c46:	60da      	str	r2, [r3, #12]
-                }
+		if (!flagEnterButtonDown)
+ 8002ce4:	482d      	ldr	r0, [pc, #180]	@ (8002d9c <EXTI0_1_IRQHandler+0x10c>)
+ 8002ce6:	7804      	ldrb	r4, [r0, #0]
+ 8002ce8:	2c00      	cmp	r4, #0
+ 8002cea:	d10e      	bne.n	8002d0a <EXTI0_1_IRQHandler+0x7a>
+		{
+			timeEnterButtonDown = SysTimer_ms;
+ 8002cec:	680c      	ldr	r4, [r1, #0]
+ 8002cee:	492c      	ldr	r1, [pc, #176]	@ (8002da0 <EXTI0_1_IRQHandler+0x110>)
+ 8002cf0:	600c      	str	r4, [r1, #0]
+			flagEnterButtonDown = true;
+ 8002cf2:	2101      	movs	r1, #1
+ 8002cf4:	7001      	strb	r1, [r0, #0]
 
-                flagEnterButtonDown = false;
-            }
+			CLEAR_BIT(EXTI->FTSR, EXTI_FTSR_FT1);
+ 8002cf6:	68d9      	ldr	r1, [r3, #12]
+ 8002cf8:	4391      	bics	r1, r2
+ 8002cfa:	60d9      	str	r1, [r3, #12]
+			SET_BIT(EXTI->RTSR, EXTI_RTSR_RT1);
+ 8002cfc:	6899      	ldr	r1, [r3, #8]
+ 8002cfe:	430a      	orrs	r2, r1
+ 8002d00:	609a      	str	r2, [r3, #8]
+				flagEnterButtonLong = false;
+				flagEnterButton = true;
+			}
+		}
 
-        EXTI->PR = EXTI_PR_PR1;
- 8002c48:	2202      	movs	r2, #2
- 8002c4a:	4b3d      	ldr	r3, [pc, #244]	@ (8002d40 <EXTI0_1_IRQHandler+0x170>)
- 8002c4c:	615a      	str	r2, [r3, #20]
-    }
+		EXTI->PR = EXTI_PR_PR1;
+ 8002d02:	2202      	movs	r2, #2
+ 8002d04:	4b1f      	ldr	r3, [pc, #124]	@ (8002d84 <EXTI0_1_IRQHandler+0xf4>)
+ 8002d06:	615a      	str	r2, [r3, #20]
+	}
 }
- 8002c4e:	bc80      	pop	{r7}
- 8002c50:	46b8      	mov	r8, r7
- 8002c52:	bdf0      	pop	{r4, r5, r6, r7, pc}
-                uint8_t pressEnterButtonDuration = SysTimer_ms - timeEnterButtonDown;
- 8002c54:	4c41      	ldr	r4, [pc, #260]	@ (8002d5c <EXTI0_1_IRQHandler+0x18c>)
- 8002c56:	6808      	ldr	r0, [r1, #0]
- 8002c58:	7824      	ldrb	r4, [r4, #0]
- 8002c5a:	1b00      	subs	r0, r0, r4
-                EXTI->FTSR &= ~EXTI_FTSR_FT1;
- 8002c5c:	68dc      	ldr	r4, [r3, #12]
-                uint8_t pressEnterButtonDuration = SysTimer_ms - timeEnterButtonDown;
- 8002c5e:	b2c0      	uxtb	r0, r0
-                EXTI->FTSR &= ~EXTI_FTSR_FT1;
- 8002c60:	4394      	bics	r4, r2
- 8002c62:	60dc      	str	r4, [r3, #12]
-                EXTI->RTSR |= EXTI_RTSR_RT1;
- 8002c64:	689c      	ldr	r4, [r3, #8]
- 8002c66:	4322      	orrs	r2, r4
-                if (pressEnterButtonDuration > menu[26].value && pressEnterButtonDuration < menu[27].value)
- 8002c68:	240c      	movs	r4, #12
-                EXTI->RTSR |= EXTI_RTSR_RT1;
- 8002c6a:	609a      	str	r2, [r3, #8]
-                if (pressEnterButtonDuration > menu[26].value && pressEnterButtonDuration < menu[27].value)
- 8002c6c:	2216      	movs	r2, #22
- 8002c6e:	4b3c      	ldr	r3, [pc, #240]	@ (8002d60 <EXTI0_1_IRQHandler+0x190>)
- 8002c70:	34ff      	adds	r4, #255	@ 0xff
- 8002c72:	5d1c      	ldrb	r4, [r3, r4]
- 8002c74:	32ff      	adds	r2, #255	@ 0xff
- 8002c76:	5c9a      	ldrb	r2, [r3, r2]
- 8002c78:	4284      	cmp	r4, r0
- 8002c7a:	d246      	bcs.n	8002d0a <EXTI0_1_IRQHandler+0x13a>
- 8002c7c:	4290      	cmp	r0, r2
- 8002c7e:	d24e      	bcs.n	8002d1e <EXTI0_1_IRQHandler+0x14e>
-                     flagEnterButton = true;
- 8002c80:	2201      	movs	r2, #1
- 8002c82:	4c38      	ldr	r4, [pc, #224]	@ (8002d64 <EXTI0_1_IRQHandler+0x194>)
- 8002c84:	4690      	mov	r8, r2
- 8002c86:	7022      	strb	r2, [r4, #0]
-                     if (flagPendingEnterDoubleClick && (SysTimer_ms - timeLastEnterButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
- 8002c88:	4a37      	ldr	r2, [pc, #220]	@ (8002d68 <EXTI0_1_IRQHandler+0x198>)
- 8002c8a:	7810      	ldrb	r0, [r2, #0]
- 8002c8c:	2800      	cmp	r0, #0
- 8002c8e:	d04a      	beq.n	8002d26 <EXTI0_1_IRQHandler+0x156>
- 8002c90:	4836      	ldr	r0, [pc, #216]	@ (8002d6c <EXTI0_1_IRQHandler+0x19c>)
- 8002c92:	680f      	ldr	r7, [r1, #0]
- 8002c94:	7806      	ldrb	r6, [r0, #0]
- 8002c96:	1bbf      	subs	r7, r7, r6
- 8002c98:	2620      	movs	r6, #32
- 8002c9a:	36ff      	adds	r6, #255	@ 0xff
- 8002c9c:	5d9b      	ldrb	r3, [r3, r6]
- 8002c9e:	429f      	cmp	r7, r3
- 8002ca0:	d842      	bhi.n	8002d28 <EXTI0_1_IRQHandler+0x158>
-                                             flagEnterButtonDouble = true;
- 8002ca2:	4641      	mov	r1, r8
- 8002ca4:	4b32      	ldr	r3, [pc, #200]	@ (8002d70 <EXTI0_1_IRQHandler+0x1a0>)
- 8002ca6:	7019      	strb	r1, [r3, #0]
-                                             flagEnterButton = false;
- 8002ca8:	2300      	movs	r3, #0
- 8002caa:	7023      	strb	r3, [r4, #0]
-                                             flagPendingEnterDoubleClick = false;
- 8002cac:	7013      	strb	r3, [r2, #0]
- 8002cae:	e02e      	b.n	8002d0e <EXTI0_1_IRQHandler+0x13e>
-                uint8_t pressDecrementButtonDuration = SysTimer_ms - timeDecrementButtonDown;
- 8002cb0:	4c27      	ldr	r4, [pc, #156]	@ (8002d50 <EXTI0_1_IRQHandler+0x180>)
- 8002cb2:	6808      	ldr	r0, [r1, #0]
- 8002cb4:	7824      	ldrb	r4, [r4, #0]
- 8002cb6:	1b00      	subs	r0, r0, r4
-                EXTI->FTSR &= ~EXTI_FTSR_FT0;
- 8002cb8:	68dc      	ldr	r4, [r3, #12]
-                uint8_t pressDecrementButtonDuration = SysTimer_ms - timeDecrementButtonDown;
- 8002cba:	b2c0      	uxtb	r0, r0
-                EXTI->FTSR &= ~EXTI_FTSR_FT0;
- 8002cbc:	4394      	bics	r4, r2
- 8002cbe:	60dc      	str	r4, [r3, #12]
-                EXTI->RTSR |= EXTI_RTSR_RT0;
- 8002cc0:	689c      	ldr	r4, [r3, #8]
- 8002cc2:	4314      	orrs	r4, r2
- 8002cc4:	609c      	str	r4, [r3, #8]
-                if (pressDecrementButtonDuration < menu[27].value && pressDecrementButtonDuration > menu[26].value)
- 8002cc6:	2416      	movs	r4, #22
- 8002cc8:	4b25      	ldr	r3, [pc, #148]	@ (8002d60 <EXTI0_1_IRQHandler+0x190>)
- 8002cca:	34ff      	adds	r4, #255	@ 0xff
- 8002ccc:	5d1c      	ldrb	r4, [r3, r4]
- 8002cce:	4284      	cmp	r4, r0
- 8002cd0:	d920      	bls.n	8002d14 <EXTI0_1_IRQHandler+0x144>
- 8002cd2:	240c      	movs	r4, #12
- 8002cd4:	34ff      	adds	r4, #255	@ 0xff
- 8002cd6:	5d1c      	ldrb	r4, [r3, r4]
- 8002cd8:	4284      	cmp	r4, r0
- 8002cda:	d21d      	bcs.n	8002d18 <EXTI0_1_IRQHandler+0x148>
-                    flagDecrementButton = true;
- 8002cdc:	4825      	ldr	r0, [pc, #148]	@ (8002d74 <EXTI0_1_IRQHandler+0x1a4>)
- 8002cde:	7002      	strb	r2, [r0, #0]
- 8002ce0:	4680      	mov	r8, r0
-                    if (flagPendingDecrementDoubleClick && (SysTimer_ms - timeLastDecrementButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
- 8002ce2:	4825      	ldr	r0, [pc, #148]	@ (8002d78 <EXTI0_1_IRQHandler+0x1a8>)
- 8002ce4:	7804      	ldrb	r4, [r0, #0]
- 8002ce6:	2c00      	cmp	r4, #0
- 8002ce8:	d023      	beq.n	8002d32 <EXTI0_1_IRQHandler+0x162>
- 8002cea:	4c24      	ldr	r4, [pc, #144]	@ (8002d7c <EXTI0_1_IRQHandler+0x1ac>)
- 8002cec:	680f      	ldr	r7, [r1, #0]
- 8002cee:	7826      	ldrb	r6, [r4, #0]
- 8002cf0:	1bbf      	subs	r7, r7, r6
- 8002cf2:	2620      	movs	r6, #32
- 8002cf4:	36ff      	adds	r6, #255	@ 0xff
- 8002cf6:	5d9b      	ldrb	r3, [r3, r6]
- 8002cf8:	429f      	cmp	r7, r3
- 8002cfa:	d81b      	bhi.n	8002d34 <EXTI0_1_IRQHandler+0x164>
-                                            flagDecrementButtonDouble = true;
- 8002cfc:	4b20      	ldr	r3, [pc, #128]	@ (8002d80 <EXTI0_1_IRQHandler+0x1b0>)
- 8002cfe:	701a      	strb	r2, [r3, #0]
-                                            flagDecrementButton = false;
- 8002d00:	2300      	movs	r3, #0
- 8002d02:	4642      	mov	r2, r8
-                                            flagPendingDecrementDoubleClick = false;
- 8002d04:	7003      	strb	r3, [r0, #0]
-                                            flagDecrementButton = false;
- 8002d06:	7013      	strb	r3, [r2, #0]
-                                            flagPendingDecrementDoubleClick = false;
- 8002d08:	e006      	b.n	8002d18 <EXTI0_1_IRQHandler+0x148>
-                else if (pressEnterButtonDuration >= menu[27].value)
- 8002d0a:	4290      	cmp	r0, r2
- 8002d0c:	d207      	bcs.n	8002d1e <EXTI0_1_IRQHandler+0x14e>
-                flagEnterButtonDown = false;
- 8002d0e:	2300      	movs	r3, #0
- 8002d10:	702b      	strb	r3, [r5, #0]
- 8002d12:	e799      	b.n	8002c48 <EXTI0_1_IRQHandler+0x78>
-                	flagDecrementButtonLong = true;
- 8002d14:	4b1b      	ldr	r3, [pc, #108]	@ (8002d84 <EXTI0_1_IRQHandler+0x1b4>)
- 8002d16:	701a      	strb	r2, [r3, #0]
-                flagDecrementButtonDown = false;
- 8002d18:	2300      	movs	r3, #0
- 8002d1a:	702b      	strb	r3, [r5, #0]
- 8002d1c:	e776      	b.n	8002c0c <EXTI0_1_IRQHandler+0x3c>
-                	flagEnterButtonLong = true;
- 8002d1e:	2201      	movs	r2, #1
- 8002d20:	4b19      	ldr	r3, [pc, #100]	@ (8002d88 <EXTI0_1_IRQHandler+0x1b8>)
- 8002d22:	701a      	strb	r2, [r3, #0]
- 8002d24:	e7f3      	b.n	8002d0e <EXTI0_1_IRQHandler+0x13e>
- 8002d26:	4811      	ldr	r0, [pc, #68]	@ (8002d6c <EXTI0_1_IRQHandler+0x19c>)
-                                             flagPendingEnterDoubleClick = true;
- 8002d28:	2301      	movs	r3, #1
- 8002d2a:	7013      	strb	r3, [r2, #0]
-                                             timeLastEnterButtonPress = SysTimer_ms;
- 8002d2c:	680b      	ldr	r3, [r1, #0]
- 8002d2e:	7003      	strb	r3, [r0, #0]
- 8002d30:	e7ed      	b.n	8002d0e <EXTI0_1_IRQHandler+0x13e>
- 8002d32:	4c12      	ldr	r4, [pc, #72]	@ (8002d7c <EXTI0_1_IRQHandler+0x1ac>)
-                flagPendingDecrementDoubleClick = true;
- 8002d34:	2301      	movs	r3, #1
- 8002d36:	7003      	strb	r3, [r0, #0]
-                timeLastDecrementButtonPress = SysTimer_ms;
- 8002d38:	680b      	ldr	r3, [r1, #0]
- 8002d3a:	7023      	strb	r3, [r4, #0]
- 8002d3c:	e7ec      	b.n	8002d18 <EXTI0_1_IRQHandler+0x148>
- 8002d3e:	46c0      	nop			@ (mov r8, r8)
- 8002d40:	40010400 	.word	0x40010400
- 8002d44:	2000018c 	.word	0x2000018c
- 8002d48:	20000168 	.word	0x20000168
- 8002d4c:	2000017c 	.word	0x2000017c
- 8002d50:	20000182 	.word	0x20000182
- 8002d54:	20000188 	.word	0x20000188
- 8002d58:	2000017b 	.word	0x2000017b
- 8002d5c:	20000181 	.word	0x20000181
- 8002d60:	20000000 	.word	0x20000000
- 8002d64:	20000178 	.word	0x20000178
- 8002d68:	2000016f 	.word	0x2000016f
- 8002d6c:	2000017e 	.word	0x2000017e
- 8002d70:	20000172 	.word	0x20000172
- 8002d74:	20000179 	.word	0x20000179
- 8002d78:	20000170 	.word	0x20000170
- 8002d7c:	2000017f 	.word	0x2000017f
- 8002d80:	20000173 	.word	0x20000173
- 8002d84:	20000176 	.word	0x20000176
- 8002d88:	20000175 	.word	0x20000175
+ 8002d08:	bd10      	pop	{r4, pc}
+			flagEnterButtonDown = false;
+ 8002d0a:	2400      	movs	r4, #0
+ 8002d0c:	7004      	strb	r4, [r0, #0]
+			CLEAR_BIT(EXTI->RTSR, EXTI_RTSR_RT1);
+ 8002d0e:	6898      	ldr	r0, [r3, #8]
+ 8002d10:	4390      	bics	r0, r2
+ 8002d12:	6098      	str	r0, [r3, #8]
+			SET_BIT(EXTI->FTSR, EXTI_FTSR_FT1);
+ 8002d14:	68d8      	ldr	r0, [r3, #12]
+ 8002d16:	4302      	orrs	r2, r0
+ 8002d18:	60da      	str	r2, [r3, #12]
+			if (SysTimer_ms - timeEnterButtonDown > 4 * menu[27].value)
+ 8002d1a:	680a      	ldr	r2, [r1, #0]
+ 8002d1c:	2116      	movs	r1, #22
+ 8002d1e:	4b20      	ldr	r3, [pc, #128]	@ (8002da0 <EXTI0_1_IRQHandler+0x110>)
+ 8002d20:	31ff      	adds	r1, #255	@ 0xff
+ 8002d22:	681b      	ldr	r3, [r3, #0]
+ 8002d24:	1ad2      	subs	r2, r2, r3
+ 8002d26:	4b1f      	ldr	r3, [pc, #124]	@ (8002da4 <EXTI0_1_IRQHandler+0x114>)
+ 8002d28:	5c5b      	ldrb	r3, [r3, r1]
+ 8002d2a:	009b      	lsls	r3, r3, #2
+ 8002d2c:	429a      	cmp	r2, r3
+ 8002d2e:	d922      	bls.n	8002d76 <EXTI0_1_IRQHandler+0xe6>
+				flagEnterButtonLong = true;
+ 8002d30:	2201      	movs	r2, #1
+				flagEnterButton = false;
+ 8002d32:	4b1d      	ldr	r3, [pc, #116]	@ (8002da8 <EXTI0_1_IRQHandler+0x118>)
+ 8002d34:	701c      	strb	r4, [r3, #0]
+				flagEnterButtonLong = true;
+ 8002d36:	4b1d      	ldr	r3, [pc, #116]	@ (8002dac <EXTI0_1_IRQHandler+0x11c>)
+ 8002d38:	701a      	strb	r2, [r3, #0]
+ 8002d3a:	e7e2      	b.n	8002d02 <EXTI0_1_IRQHandler+0x72>
+			flagDecrementButtonDown = false;
+ 8002d3c:	2400      	movs	r4, #0
+ 8002d3e:	7004      	strb	r4, [r0, #0]
+			CLEAR_BIT(EXTI->RTSR, EXTI_RTSR_RT0);
+ 8002d40:	6898      	ldr	r0, [r3, #8]
+ 8002d42:	4390      	bics	r0, r2
+ 8002d44:	6098      	str	r0, [r3, #8]
+			SET_BIT(EXTI->FTSR, EXTI_FTSR_FT0);
+ 8002d46:	68d8      	ldr	r0, [r3, #12]
+ 8002d48:	4310      	orrs	r0, r2
+ 8002d4a:	60d8      	str	r0, [r3, #12]
+			if (SysTimer_ms - timeDecrementButtonDown > 4 * menu[27].value)
+ 8002d4c:	2016      	movs	r0, #22
+ 8002d4e:	4b11      	ldr	r3, [pc, #68]	@ (8002d94 <EXTI0_1_IRQHandler+0x104>)
+ 8002d50:	6809      	ldr	r1, [r1, #0]
+ 8002d52:	681b      	ldr	r3, [r3, #0]
+ 8002d54:	30ff      	adds	r0, #255	@ 0xff
+ 8002d56:	1ac9      	subs	r1, r1, r3
+ 8002d58:	4b12      	ldr	r3, [pc, #72]	@ (8002da4 <EXTI0_1_IRQHandler+0x114>)
+ 8002d5a:	5c1b      	ldrb	r3, [r3, r0]
+ 8002d5c:	009b      	lsls	r3, r3, #2
+ 8002d5e:	4299      	cmp	r1, r3
+ 8002d60:	d904      	bls.n	8002d6c <EXTI0_1_IRQHandler+0xdc>
+				flagDecrementButton = false;
+ 8002d62:	4b13      	ldr	r3, [pc, #76]	@ (8002db0 <EXTI0_1_IRQHandler+0x120>)
+ 8002d64:	701c      	strb	r4, [r3, #0]
+				flagDecrementButtonLong = true;
+ 8002d66:	4b13      	ldr	r3, [pc, #76]	@ (8002db4 <EXTI0_1_IRQHandler+0x124>)
+ 8002d68:	701a      	strb	r2, [r3, #0]
+ 8002d6a:	e7ac      	b.n	8002cc6 <EXTI0_1_IRQHandler+0x36>
+				flagDecrementButtonLong = false;
+ 8002d6c:	4b11      	ldr	r3, [pc, #68]	@ (8002db4 <EXTI0_1_IRQHandler+0x124>)
+ 8002d6e:	701c      	strb	r4, [r3, #0]
+				flagDecrementButton = true;
+ 8002d70:	4b0f      	ldr	r3, [pc, #60]	@ (8002db0 <EXTI0_1_IRQHandler+0x120>)
+ 8002d72:	701a      	strb	r2, [r3, #0]
+ 8002d74:	e7a7      	b.n	8002cc6 <EXTI0_1_IRQHandler+0x36>
+				flagEnterButton = true;
+ 8002d76:	2201      	movs	r2, #1
+				flagEnterButtonLong = false;
+ 8002d78:	4b0c      	ldr	r3, [pc, #48]	@ (8002dac <EXTI0_1_IRQHandler+0x11c>)
+ 8002d7a:	701c      	strb	r4, [r3, #0]
+				flagEnterButton = true;
+ 8002d7c:	4b0a      	ldr	r3, [pc, #40]	@ (8002da8 <EXTI0_1_IRQHandler+0x118>)
+ 8002d7e:	701a      	strb	r2, [r3, #0]
+ 8002d80:	e7bf      	b.n	8002d02 <EXTI0_1_IRQHandler+0x72>
+ 8002d82:	46c0      	nop			@ (mov r8, r8)
+ 8002d84:	40010400 	.word	0x40010400
+ 8002d88:	20000168 	.word	0x20000168
+ 8002d8c:	20000154 	.word	0x20000154
+ 8002d90:	20000162 	.word	0x20000162
+ 8002d94:	20000174 	.word	0x20000174
+ 8002d98:	20000164 	.word	0x20000164
+ 8002d9c:	20000161 	.word	0x20000161
+ 8002da0:	20000170 	.word	0x20000170
+ 8002da4:	20000000 	.word	0x20000000
+ 8002da8:	2000015e 	.word	0x2000015e
+ 8002dac:	2000015b 	.word	0x2000015b
+ 8002db0:	2000015f 	.word	0x2000015f
+ 8002db4:	2000015c 	.word	0x2000015c
 
-08002d8c <EXTI2_3_IRQHandler>:
+08002db8 <EXTI2_3_IRQHandler>:
 
 void EXTI2_3_IRQHandler(void)
 {
- 8002d8c:	b5f0      	push	{r4, r5, r6, r7, lr}
-    // Перевірка, чи було переривання від лінії EXTI2
-    if (EXTI->PR & EXTI_PR_PR2)
- 8002d8e:	2204      	movs	r2, #4
+	// Перевірка, чи було переривання від лінії EXTI2
+	if (EXTI->PR & EXTI_PR_PR2)
+ 8002db8:	2204      	movs	r2, #4
+ 8002dba:	4b1f      	ldr	r3, [pc, #124]	@ (8002e38 <EXTI2_3_IRQHandler+0x80>)
 {
- 8002d90:	46c6      	mov	lr, r8
-    if (EXTI->PR & EXTI_PR_PR2)
- 8002d92:	4b2d      	ldr	r3, [pc, #180]	@ (8002e48 <EXTI2_3_IRQHandler+0xbc>)
-{
- 8002d94:	b500      	push	{lr}
-    if (EXTI->PR & EXTI_PR_PR2)
- 8002d96:	6959      	ldr	r1, [r3, #20]
- 8002d98:	420a      	tst	r2, r1
- 8002d9a:	d015      	beq.n	8002dc8 <EXTI2_3_IRQHandler+0x3c>
-    {
-        // Забороняємо переривання для даної лінії, поки не завершимо обробку
-        EXTI->IMR &= ~EXTI_IMR_IM2;
- 8002d9c:	6819      	ldr	r1, [r3, #0]
-            if ( !flagIncrementButtonDown )
- 8002d9e:	4c2b      	ldr	r4, [pc, #172]	@ (8002e4c <EXTI2_3_IRQHandler+0xc0>)
-        EXTI->IMR &= ~EXTI_IMR_IM2;
- 8002da0:	4391      	bics	r1, r2
- 8002da2:	6019      	str	r1, [r3, #0]
-            if ( !flagIncrementButtonDown )
- 8002da4:	7821      	ldrb	r1, [r4, #0]
- 8002da6:	2900      	cmp	r1, #0
- 8002da8:	d111      	bne.n	8002dce <EXTI2_3_IRQHandler+0x42>
-            {
-                // Початок натискання
-                timeIncrementButtonDown = SysTimer_ms;
- 8002daa:	4929      	ldr	r1, [pc, #164]	@ (8002e50 <EXTI2_3_IRQHandler+0xc4>)
- 8002dac:	6808      	ldr	r0, [r1, #0]
- 8002dae:	4929      	ldr	r1, [pc, #164]	@ (8002e54 <EXTI2_3_IRQHandler+0xc8>)
- 8002db0:	7008      	strb	r0, [r1, #0]
-                flagIncrementButtonDown = true;
- 8002db2:	2101      	movs	r1, #1
- 8002db4:	7021      	strb	r1, [r4, #0]
+ 8002dbc:	b510      	push	{r4, lr}
+	if (EXTI->PR & EXTI_PR_PR2)
+ 8002dbe:	6959      	ldr	r1, [r3, #20]
+ 8002dc0:	420a      	tst	r2, r1
+ 8002dc2:	d018      	beq.n	8002df6 <EXTI2_3_IRQHandler+0x3e>
+	{
+		// Забороняємо переривання для даної лінії, поки не завершимо обробку
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM2);
+ 8002dc4:	6819      	ldr	r1, [r3, #0]
+		IncrementButtonDebounce = SysTimer_ms;
+ 8002dc6:	481d      	ldr	r0, [pc, #116]	@ (8002e3c <EXTI2_3_IRQHandler+0x84>)
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM2);
+ 8002dc8:	4391      	bics	r1, r2
+ 8002dca:	6019      	str	r1, [r3, #0]
+		IncrementButtonDebounce = SysTimer_ms;
+ 8002dcc:	491c      	ldr	r1, [pc, #112]	@ (8002e40 <EXTI2_3_IRQHandler+0x88>)
+ 8002dce:	680c      	ldr	r4, [r1, #0]
+ 8002dd0:	6004      	str	r4, [r0, #0]
 
-                // Переводимо переривання на спадаючий фронт для відстеження відпускання
-                EXTI->RTSR &= ~EXTI_RTSR_RT2; // Вимикаємо переривання по зростаючому фронту
- 8002db6:	6899      	ldr	r1, [r3, #8]
- 8002db8:	4391      	bics	r1, r2
- 8002dba:	6099      	str	r1, [r3, #8]
-                EXTI->FTSR |= EXTI_FTSR_FT2;  // Включаємо переривання по спадаючому фронту
- 8002dbc:	68d9      	ldr	r1, [r3, #12]
- 8002dbe:	430a      	orrs	r2, r1
- 8002dc0:	60da      	str	r2, [r3, #12]
+		if (!flagIncrementButtonDown)
+ 8002dd2:	481c      	ldr	r0, [pc, #112]	@ (8002e44 <EXTI2_3_IRQHandler+0x8c>)
+ 8002dd4:	7804      	ldrb	r4, [r0, #0]
+ 8002dd6:	2c00      	cmp	r4, #0
+ 8002dd8:	d10e      	bne.n	8002df8 <EXTI2_3_IRQHandler+0x40>
+		{
+			// Початок натискання
+			timeIncrementButtonDown = SysTimer_ms;
+ 8002dda:	680c      	ldr	r4, [r1, #0]
+ 8002ddc:	491a      	ldr	r1, [pc, #104]	@ (8002e48 <EXTI2_3_IRQHandler+0x90>)
+ 8002dde:	600c      	str	r4, [r1, #0]
+			flagIncrementButtonDown = true;
+ 8002de0:	2101      	movs	r1, #1
+ 8002de2:	7001      	strb	r1, [r0, #0]
 
-                // Скидаємо прапорець натискання
-                flagIncrementButtonDown = false;
-            }
-        // Скидаємо прапорець EXTI2
-        EXTI->PR = EXTI_PR_PR2;
- 8002dc2:	2204      	movs	r2, #4
- 8002dc4:	4b20      	ldr	r3, [pc, #128]	@ (8002e48 <EXTI2_3_IRQHandler+0xbc>)
- 8002dc6:	615a      	str	r2, [r3, #20]
-    }
+			// Переводимо переривання на спадаючий фронт для відстеження відпускання
+			CLEAR_BIT(EXTI->FTSR, EXTI_FTSR_FT2); // Включаємо переривання по спадаючому фронту
+ 8002de4:	68d9      	ldr	r1, [r3, #12]
+ 8002de6:	4391      	bics	r1, r2
+ 8002de8:	60d9      	str	r1, [r3, #12]
+			SET_BIT(EXTI->RTSR, EXTI_RTSR_RT2);	  // Вимикаємо переривання по зростаючому фронту
+ 8002dea:	6899      	ldr	r1, [r3, #8]
+ 8002dec:	430a      	orrs	r2, r1
+ 8002dee:	609a      	str	r2, [r3, #8]
+				flagIncrementButton = true;
+				flagIncrementButtonLong = false;
+			}
+		}
+		// Скидаємо прапорець EXTI2
+		EXTI->PR = EXTI_PR_PR2;
+ 8002df0:	2204      	movs	r2, #4
+ 8002df2:	4b11      	ldr	r3, [pc, #68]	@ (8002e38 <EXTI2_3_IRQHandler+0x80>)
+ 8002df4:	615a      	str	r2, [r3, #20]
+	}
 }
- 8002dc8:	bc80      	pop	{r7}
- 8002dca:	46b8      	mov	r8, r7
- 8002dcc:	bdf0      	pop	{r4, r5, r6, r7, pc}
-                uint8_t pressIncrementButtonDuration = SysTimer_ms - timeIncrementButtonDown;
- 8002dce:	4d20      	ldr	r5, [pc, #128]	@ (8002e50 <EXTI2_3_IRQHandler+0xc4>)
- 8002dd0:	4820      	ldr	r0, [pc, #128]	@ (8002e54 <EXTI2_3_IRQHandler+0xc8>)
- 8002dd2:	6829      	ldr	r1, [r5, #0]
- 8002dd4:	7800      	ldrb	r0, [r0, #0]
- 8002dd6:	1a09      	subs	r1, r1, r0
-				EXTI->FTSR &= ~EXTI_FTSR_FT2; // Вимикаємо переривання по спадаючому фронту
- 8002dd8:	68d8      	ldr	r0, [r3, #12]
-                uint8_t pressIncrementButtonDuration = SysTimer_ms - timeIncrementButtonDown;
- 8002dda:	b2c9      	uxtb	r1, r1
-				EXTI->FTSR &= ~EXTI_FTSR_FT2; // Вимикаємо переривання по спадаючому фронту
- 8002ddc:	4390      	bics	r0, r2
- 8002dde:	60d8      	str	r0, [r3, #12]
-                EXTI->RTSR |= EXTI_RTSR_RT2;  // Включаємо переривання по зростаючому фронту
- 8002de0:	6898      	ldr	r0, [r3, #8]
- 8002de2:	4302      	orrs	r2, r0
- 8002de4:	609a      	str	r2, [r3, #8]
-                if (pressIncrementButtonDuration < menu[27].value && pressIncrementButtonDuration > menu[26].value)// *27 		P_5.2	timeButtonLongPressed
- 8002de6:	2216      	movs	r2, #22
- 8002de8:	4b1b      	ldr	r3, [pc, #108]	@ (8002e58 <EXTI2_3_IRQHandler+0xcc>)
- 8002dea:	32ff      	adds	r2, #255	@ 0xff
- 8002dec:	5c9a      	ldrb	r2, [r3, r2]
- 8002dee:	428a      	cmp	r2, r1
- 8002df0:	d806      	bhi.n	8002e00 <EXTI2_3_IRQHandler+0x74>
-                else if (pressIncrementButtonDuration > menu[27].value)
- 8002df2:	d202      	bcs.n	8002dfa <EXTI2_3_IRQHandler+0x6e>
-                	flagIncrementButtonLong = true;
- 8002df4:	2201      	movs	r2, #1
- 8002df6:	4b19      	ldr	r3, [pc, #100]	@ (8002e5c <EXTI2_3_IRQHandler+0xd0>)
- 8002df8:	701a      	strb	r2, [r3, #0]
-                flagIncrementButtonDown = false;
- 8002dfa:	2300      	movs	r3, #0
- 8002dfc:	7023      	strb	r3, [r4, #0]
- 8002dfe:	e7e0      	b.n	8002dc2 <EXTI2_3_IRQHandler+0x36>
-                if (pressIncrementButtonDuration < menu[27].value && pressIncrementButtonDuration > menu[26].value)// *27 		P_5.2	timeButtonLongPressed
- 8002e00:	220c      	movs	r2, #12
- 8002e02:	32ff      	adds	r2, #255	@ 0xff
- 8002e04:	5c9a      	ldrb	r2, [r3, r2]
- 8002e06:	428a      	cmp	r2, r1
- 8002e08:	d2f7      	bcs.n	8002dfa <EXTI2_3_IRQHandler+0x6e>
-                     flagIncrementButton= true;
- 8002e0a:	2201      	movs	r2, #1
- 8002e0c:	4814      	ldr	r0, [pc, #80]	@ (8002e60 <EXTI2_3_IRQHandler+0xd4>)
- 8002e0e:	4690      	mov	r8, r2
- 8002e10:	7002      	strb	r2, [r0, #0]
-                     if (flagPendingIncrementDoubleClick && (SysTimer_ms - timeLastIncrementButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
- 8002e12:	4a14      	ldr	r2, [pc, #80]	@ (8002e64 <EXTI2_3_IRQHandler+0xd8>)
- 8002e14:	7811      	ldrb	r1, [r2, #0]
- 8002e16:	2900      	cmp	r1, #0
- 8002e18:	d00f      	beq.n	8002e3a <EXTI2_3_IRQHandler+0xae>
- 8002e1a:	4913      	ldr	r1, [pc, #76]	@ (8002e68 <EXTI2_3_IRQHandler+0xdc>)
- 8002e1c:	682f      	ldr	r7, [r5, #0]
- 8002e1e:	780e      	ldrb	r6, [r1, #0]
- 8002e20:	1bbf      	subs	r7, r7, r6
- 8002e22:	2620      	movs	r6, #32
- 8002e24:	36ff      	adds	r6, #255	@ 0xff
- 8002e26:	5d9b      	ldrb	r3, [r3, r6]
- 8002e28:	429f      	cmp	r7, r3
- 8002e2a:	d807      	bhi.n	8002e3c <EXTI2_3_IRQHandler+0xb0>
-                         flagIncrementButtonDouble = true;
- 8002e2c:	4641      	mov	r1, r8
- 8002e2e:	4b0f      	ldr	r3, [pc, #60]	@ (8002e6c <EXTI2_3_IRQHandler+0xe0>)
- 8002e30:	7019      	strb	r1, [r3, #0]
-                         flagIncrementButton = false;
- 8002e32:	2300      	movs	r3, #0
- 8002e34:	7003      	strb	r3, [r0, #0]
-                         flagPendingIncrementDoubleClick = false;
- 8002e36:	7013      	strb	r3, [r2, #0]
- 8002e38:	e7df      	b.n	8002dfa <EXTI2_3_IRQHandler+0x6e>
- 8002e3a:	490b      	ldr	r1, [pc, #44]	@ (8002e68 <EXTI2_3_IRQHandler+0xdc>)
-                         flagPendingIncrementDoubleClick = true;
- 8002e3c:	2301      	movs	r3, #1
- 8002e3e:	7013      	strb	r3, [r2, #0]
-                         timeLastIncrementButtonPress = SysTimer_ms;
- 8002e40:	682b      	ldr	r3, [r5, #0]
- 8002e42:	700b      	strb	r3, [r1, #0]
- 8002e44:	e7d9      	b.n	8002dfa <EXTI2_3_IRQHandler+0x6e>
- 8002e46:	46c0      	nop			@ (mov r8, r8)
- 8002e48:	40010400 	.word	0x40010400
- 8002e4c:	2000017d 	.word	0x2000017d
- 8002e50:	20000168 	.word	0x20000168
- 8002e54:	20000183 	.word	0x20000183
- 8002e58:	20000000 	.word	0x20000000
- 8002e5c:	20000177 	.word	0x20000177
- 8002e60:	2000017a 	.word	0x2000017a
- 8002e64:	20000171 	.word	0x20000171
- 8002e68:	20000180 	.word	0x20000180
- 8002e6c:	20000174 	.word	0x20000174
+ 8002df6:	bd10      	pop	{r4, pc}
+			flagIncrementButtonDown = false;
+ 8002df8:	2400      	movs	r4, #0
+ 8002dfa:	7004      	strb	r4, [r0, #0]
+			CLEAR_BIT(EXTI->RTSR, EXTI_RTSR_RT2); // Включаємо переривання по зростаючому фронту
+ 8002dfc:	6898      	ldr	r0, [r3, #8]
+ 8002dfe:	4390      	bics	r0, r2
+ 8002e00:	6098      	str	r0, [r3, #8]
+			SET_BIT(EXTI->FTSR, EXTI_FTSR_FT2);	  // Вимикаємо переривання по спадаючому фронту
+ 8002e02:	68d8      	ldr	r0, [r3, #12]
+ 8002e04:	4302      	orrs	r2, r0
+ 8002e06:	60da      	str	r2, [r3, #12]
+			if (SysTimer_ms - timeIncrementButtonDown > 4 * menu[27].value) // *27 		P_5.2	timeButtonLongPressed
+ 8002e08:	680a      	ldr	r2, [r1, #0]
+ 8002e0a:	2116      	movs	r1, #22
+ 8002e0c:	4b0e      	ldr	r3, [pc, #56]	@ (8002e48 <EXTI2_3_IRQHandler+0x90>)
+ 8002e0e:	31ff      	adds	r1, #255	@ 0xff
+ 8002e10:	681b      	ldr	r3, [r3, #0]
+ 8002e12:	1ad2      	subs	r2, r2, r3
+ 8002e14:	4b0d      	ldr	r3, [pc, #52]	@ (8002e4c <EXTI2_3_IRQHandler+0x94>)
+ 8002e16:	5c5b      	ldrb	r3, [r3, r1]
+ 8002e18:	009b      	lsls	r3, r3, #2
+ 8002e1a:	429a      	cmp	r2, r3
+ 8002e1c:	d905      	bls.n	8002e2a <EXTI2_3_IRQHandler+0x72>
+				flagIncrementButtonLong = true;
+ 8002e1e:	2201      	movs	r2, #1
+ 8002e20:	4b0b      	ldr	r3, [pc, #44]	@ (8002e50 <EXTI2_3_IRQHandler+0x98>)
+ 8002e22:	701a      	strb	r2, [r3, #0]
+				flagIncrementButton = false;
+ 8002e24:	4b0b      	ldr	r3, [pc, #44]	@ (8002e54 <EXTI2_3_IRQHandler+0x9c>)
+ 8002e26:	701c      	strb	r4, [r3, #0]
+ 8002e28:	e7e2      	b.n	8002df0 <EXTI2_3_IRQHandler+0x38>
+				flagIncrementButton = true;
+ 8002e2a:	2201      	movs	r2, #1
+ 8002e2c:	4b09      	ldr	r3, [pc, #36]	@ (8002e54 <EXTI2_3_IRQHandler+0x9c>)
+ 8002e2e:	701a      	strb	r2, [r3, #0]
+				flagIncrementButtonLong = false;
+ 8002e30:	4b07      	ldr	r3, [pc, #28]	@ (8002e50 <EXTI2_3_IRQHandler+0x98>)
+ 8002e32:	701c      	strb	r4, [r3, #0]
+ 8002e34:	e7dc      	b.n	8002df0 <EXTI2_3_IRQHandler+0x38>
+ 8002e36:	46c0      	nop			@ (mov r8, r8)
+ 8002e38:	40010400 	.word	0x40010400
+ 8002e3c:	2000016c 	.word	0x2000016c
+ 8002e40:	20000154 	.word	0x20000154
+ 8002e44:	20000163 	.word	0x20000163
+ 8002e48:	20000178 	.word	0x20000178
+ 8002e4c:	20000000 	.word	0x20000000
+ 8002e50:	2000015d 	.word	0x2000015d
+ 8002e54:	20000160 	.word	0x20000160
 
-08002e70 <EXTI4_15_IRQHandler>:
+08002e58 <EXTI4_15_IRQHandler>:
 
 void EXTI4_15_IRQHandler(void)
 {
-    // Перевіряємо, чи було переривання від лінії EXTI9
-    if (EXTI->PR & EXTI_PR_PR9)
- 8002e70:	2280      	movs	r2, #128	@ 0x80
- 8002e72:	4b11      	ldr	r3, [pc, #68]	@ (8002eb8 <EXTI4_15_IRQHandler+0x48>)
- 8002e74:	0092      	lsls	r2, r2, #2
- 8002e76:	6959      	ldr	r1, [r3, #20]
- 8002e78:	4211      	tst	r1, r2
- 8002e7a:	d014      	beq.n	8002ea6 <EXTI4_15_IRQHandler+0x36>
-    {
-        // Забороняємо переривання для лінії EXTI9
-        EXTI->IMR &= ~EXTI_IMR_IM9;
- 8002e7c:	6819      	ldr	r1, [r3, #0]
- 8002e7e:	480f      	ldr	r0, [pc, #60]	@ (8002ebc <EXTI4_15_IRQHandler+0x4c>)
- 8002e80:	4001      	ands	r1, r0
- 8002e82:	6019      	str	r1, [r3, #0]
+	// Перевіряємо, чи було переривання від лінії EXTI9
+	if (EXTI->PR & EXTI_PR_PR9)
+ 8002e58:	2280      	movs	r2, #128	@ 0x80
+ 8002e5a:	4b11      	ldr	r3, [pc, #68]	@ (8002ea0 <EXTI4_15_IRQHandler+0x48>)
+ 8002e5c:	0092      	lsls	r2, r2, #2
+ 8002e5e:	6959      	ldr	r1, [r3, #20]
+ 8002e60:	4211      	tst	r1, r2
+ 8002e62:	d014      	beq.n	8002e8e <EXTI4_15_IRQHandler+0x36>
+	{
+		// Забороняємо переривання для лінії EXTI9
+		EXTI->IMR &= ~EXTI_IMR_IM9;
+ 8002e64:	6819      	ldr	r1, [r3, #0]
+ 8002e66:	480f      	ldr	r0, [pc, #60]	@ (8002ea4 <EXTI4_15_IRQHandler+0x4c>)
+ 8002e68:	4001      	ands	r1, r0
+ 8002e6a:	6019      	str	r1, [r3, #0]
 
-        // Перевірка стану піну 9 (припускаємо, що сигнал 0 – активний)
-        if (BUTTON_PRESSED(9,GPIOB) == 0)  // Якщо сигнал 0
- 8002e84:	490e      	ldr	r1, [pc, #56]	@ (8002ec0 <EXTI4_15_IRQHandler+0x50>)
- 8002e86:	6909      	ldr	r1, [r1, #16]
- 8002e88:	4211      	tst	r1, r2
- 8002e8a:	d00d      	beq.n	8002ea8 <EXTI4_15_IRQHandler+0x38>
-        {
-            // Повертаємо контролер у нормальний режим роботи
-            LowPowerMode(EXIT);
+		// Перевірка стану піну 9 (припускаємо, що сигнал 0 – активний)
+		if (BUTTON_PRESSED(9, GPIOB) == 0) // Якщо сигнал 0
+ 8002e6c:	490e      	ldr	r1, [pc, #56]	@ (8002ea8 <EXTI4_15_IRQHandler+0x50>)
+ 8002e6e:	6909      	ldr	r1, [r1, #16]
+ 8002e70:	4211      	tst	r1, r2
+ 8002e72:	d00d      	beq.n	8002e90 <EXTI4_15_IRQHandler+0x38>
+		{
+			// Повертаємо контролер у нормальний режим роботи
+			LowPowerMode(EXIT);
 
-            // Переводимо переривання на спадний фронт (чекаємо на сигнал 0)
-            EXTI->FTSR |= EXTI_FTSR_FT9;   // Увімкнення переривання на спадний фронт
- 8002e8c:	68d9      	ldr	r1, [r3, #12]
- 8002e8e:	430a      	orrs	r2, r1
- 8002e90:	60da      	str	r2, [r3, #12]
-            EXTI->RTSR &= ~EXTI_RTSR_RT9;  // Вимкнення переривання на зростаючий фронт
- 8002e92:	689a      	ldr	r2, [r3, #8]
- 8002e94:	4002      	ands	r2, r0
- 8002e96:	609a      	str	r2, [r3, #8]
-        }
+			// Переводимо переривання на спадний фронт (чекаємо на сигнал 0)
+			EXTI->FTSR |= EXTI_FTSR_FT9;  // Увімкнення переривання на спадний фронт
+ 8002e74:	68d9      	ldr	r1, [r3, #12]
+ 8002e76:	430a      	orrs	r2, r1
+ 8002e78:	60da      	str	r2, [r3, #12]
+			EXTI->RTSR &= ~EXTI_RTSR_RT9; // Вимкнення переривання на зростаючий фронт
+ 8002e7a:	689a      	ldr	r2, [r3, #8]
+ 8002e7c:	4002      	ands	r2, r0
+ 8002e7e:	609a      	str	r2, [r3, #8]
+		}
 
-        // Скидаємо прапорець переривання на лінії EXTI9
-        EXTI->PR = EXTI_PR_PR9;
- 8002e98:	2380      	movs	r3, #128	@ 0x80
- 8002e9a:	4a07      	ldr	r2, [pc, #28]	@ (8002eb8 <EXTI4_15_IRQHandler+0x48>)
- 8002e9c:	009b      	lsls	r3, r3, #2
- 8002e9e:	6153      	str	r3, [r2, #20]
+		// Скидаємо прапорець переривання на лінії EXTI9
+		EXTI->PR = EXTI_PR_PR9;
+ 8002e80:	2380      	movs	r3, #128	@ 0x80
+ 8002e82:	4a07      	ldr	r2, [pc, #28]	@ (8002ea0 <EXTI4_15_IRQHandler+0x48>)
+ 8002e84:	009b      	lsls	r3, r3, #2
+ 8002e86:	6153      	str	r3, [r2, #20]
 
-        // Увімкнення переривань після обробки
-        EXTI->IMR |= EXTI_IMR_IM9;
- 8002ea0:	6811      	ldr	r1, [r2, #0]
- 8002ea2:	430b      	orrs	r3, r1
- 8002ea4:	6013      	str	r3, [r2, #0]
-    }
+		// Увімкнення переривань після обробки
+		EXTI->IMR |= EXTI_IMR_IM9;
+ 8002e88:	6811      	ldr	r1, [r2, #0]
+ 8002e8a:	430b      	orrs	r3, r1
+ 8002e8c:	6013      	str	r3, [r2, #0]
+	}
 }
- 8002ea6:	4770      	bx	lr
-            EXTI->RTSR |= EXTI_RTSR_RT9;   // Увімкнення переривання на зростаючий фронт
- 8002ea8:	6899      	ldr	r1, [r3, #8]
- 8002eaa:	430a      	orrs	r2, r1
- 8002eac:	609a      	str	r2, [r3, #8]
-            EXTI->FTSR &= ~EXTI_FTSR_FT9;  // Вимкнення переривання на спадний фронт
- 8002eae:	68da      	ldr	r2, [r3, #12]
- 8002eb0:	4002      	ands	r2, r0
- 8002eb2:	60da      	str	r2, [r3, #12]
+ 8002e8e:	4770      	bx	lr
+			EXTI->RTSR |= EXTI_RTSR_RT9;  // Увімкнення переривання на зростаючий фронт
+ 8002e90:	6899      	ldr	r1, [r3, #8]
+ 8002e92:	430a      	orrs	r2, r1
+ 8002e94:	609a      	str	r2, [r3, #8]
+			EXTI->FTSR &= ~EXTI_FTSR_FT9; // Вимкнення переривання на спадний фронт
+ 8002e96:	68da      	ldr	r2, [r3, #12]
+ 8002e98:	4002      	ands	r2, r0
+ 8002e9a:	60da      	str	r2, [r3, #12]
 }
- 8002eb4:	e7f0      	b.n	8002e98 <EXTI4_15_IRQHandler+0x28>
- 8002eb6:	46c0      	nop			@ (mov r8, r8)
- 8002eb8:	40010400 	.word	0x40010400
- 8002ebc:	fffffdff 	.word	0xfffffdff
- 8002ec0:	50000400 	.word	0x50000400
+ 8002e9c:	e7f0      	b.n	8002e80 <EXTI4_15_IRQHandler+0x28>
+ 8002e9e:	46c0      	nop			@ (mov r8, r8)
+ 8002ea0:	40010400 	.word	0x40010400
+ 8002ea4:	fffffdff 	.word	0xfffffdff
+ 8002ea8:	50000400 	.word	0x50000400
 
-08002ec4 <TIM2_IRQHandler>:
+08002eac <TIM2_IRQHandler>:
 
 void TIM2_IRQHandler(void)
 {
 	if (READ_BIT(TIM2->SR, TIM_SR_UIF))
- 8002ec4:	2380      	movs	r3, #128	@ 0x80
- 8002ec6:	2201      	movs	r2, #1
- 8002ec8:	05db      	lsls	r3, r3, #23
- 8002eca:	6919      	ldr	r1, [r3, #16]
- 8002ecc:	420a      	tst	r2, r1
- 8002ece:	d002      	beq.n	8002ed6 <TIM2_IRQHandler+0x12>
+ 8002eac:	2380      	movs	r3, #128	@ 0x80
+ 8002eae:	2201      	movs	r2, #1
+ 8002eb0:	05db      	lsls	r3, r3, #23
+ 8002eb2:	6919      	ldr	r1, [r3, #16]
+ 8002eb4:	420a      	tst	r2, r1
+ 8002eb6:	d002      	beq.n	8002ebe <TIM2_IRQHandler+0x12>
 	{
 		//		CounterTIM2++;
 		CLEAR_BIT(TIM2->SR, TIM_SR_UIF); // Сбросим флаг прерывания
- 8002ed0:	6919      	ldr	r1, [r3, #16]
- 8002ed2:	4391      	bics	r1, r2
- 8002ed4:	6119      	str	r1, [r3, #16]
+ 8002eb8:	6919      	ldr	r1, [r3, #16]
+ 8002eba:	4391      	bics	r1, r2
+ 8002ebc:	6119      	str	r1, [r3, #16]
 	}
 }
- 8002ed6:	4770      	bx	lr
+ 8002ebe:	4770      	bx	lr
 
-08002ed8 <TIM21_IRQHandler>:
+08002ec0 <TIM21_IRQHandler>:
 
 void TIM21_IRQHandler(void)
 {
 	if (READ_BIT(TIM21->SR, TIM_SR_UIF))
- 8002ed8:	2201      	movs	r2, #1
- 8002eda:	4b04      	ldr	r3, [pc, #16]	@ (8002eec <TIM21_IRQHandler+0x14>)
- 8002edc:	6919      	ldr	r1, [r3, #16]
- 8002ede:	420a      	tst	r2, r1
- 8002ee0:	d002      	beq.n	8002ee8 <TIM21_IRQHandler+0x10>
+ 8002ec0:	2201      	movs	r2, #1
+ 8002ec2:	4b04      	ldr	r3, [pc, #16]	@ (8002ed4 <TIM21_IRQHandler+0x14>)
+ 8002ec4:	6919      	ldr	r1, [r3, #16]
+ 8002ec6:	420a      	tst	r2, r1
+ 8002ec8:	d002      	beq.n	8002ed0 <TIM21_IRQHandler+0x10>
 	{
 		//		CounterTIM2++;
 		CLEAR_BIT(TIM21->SR, TIM_SR_UIF); // Сбросим флаг прерывания
- 8002ee2:	6919      	ldr	r1, [r3, #16]
- 8002ee4:	4391      	bics	r1, r2
- 8002ee6:	6119      	str	r1, [r3, #16]
+ 8002eca:	6919      	ldr	r1, [r3, #16]
+ 8002ecc:	4391      	bics	r1, r2
+ 8002ece:	6119      	str	r1, [r3, #16]
 	}
 }
- 8002ee8:	4770      	bx	lr
- 8002eea:	46c0      	nop			@ (mov r8, r8)
- 8002eec:	40010800 	.word	0x40010800
+ 8002ed0:	4770      	bx	lr
+ 8002ed2:	46c0      	nop			@ (mov r8, r8)
+ 8002ed4:	40010800 	.word	0x40010800
 
-08002ef0 <SystemInit>:
+08002ed8 <SystemInit>:
 {
   /* Configure the Vector Table location add offset address ------------------*/
 #if defined (USER_VECT_TAB_ADDRESS)
   SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #endif /* USER_VECT_TAB_ADDRESS */
 }
- 8002ef0:	4770      	bx	lr
- 8002ef2:	46c0      	nop			@ (mov r8, r8)
+ 8002ed8:	4770      	bx	lr
+ 8002eda:	46c0      	nop			@ (mov r8, r8)
 
-08002ef4 <Reset_Handler>:
+08002edc <Reset_Handler>:
 
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
 Reset_Handler:  
    ldr   r0, =_estack
- 8002ef4:	4813      	ldr	r0, [pc, #76]	@ (8002f44 <LoopForever+0x2>)
+ 8002edc:	4813      	ldr	r0, [pc, #76]	@ (8002f2c <LoopForever+0x2>)
    mov   sp, r0          /* set stack pointer */
- 8002ef6:	4685      	mov	sp, r0
+ 8002ede:	4685      	mov	sp, r0
    
 /* Call the clock system initialization function.*/
   bl  SystemInit
- 8002ef8:	f7ff fffa 	bl	8002ef0 <SystemInit>
+ 8002ee0:	f7ff fffa 	bl	8002ed8 <SystemInit>
 
 /*Check if boot space corresponds to system memory*/
 
     LDR R0,=0x00000004
- 8002efc:	4812      	ldr	r0, [pc, #72]	@ (8002f48 <LoopForever+0x6>)
+ 8002ee4:	4812      	ldr	r0, [pc, #72]	@ (8002f30 <LoopForever+0x6>)
     LDR R1, [R0]
- 8002efe:	6801      	ldr	r1, [r0, #0]
+ 8002ee6:	6801      	ldr	r1, [r0, #0]
     LSRS R1, R1, #24
- 8002f00:	0e09      	lsrs	r1, r1, #24
+ 8002ee8:	0e09      	lsrs	r1, r1, #24
     LDR R2,=0x1F
- 8002f02:	4a12      	ldr	r2, [pc, #72]	@ (8002f4c <LoopForever+0xa>)
+ 8002eea:	4a12      	ldr	r2, [pc, #72]	@ (8002f34 <LoopForever+0xa>)
     CMP R1, R2
- 8002f04:	4291      	cmp	r1, r2
+ 8002eec:	4291      	cmp	r1, r2
     BNE ApplicationStart
- 8002f06:	d105      	bne.n	8002f14 <ApplicationStart>
+ 8002eee:	d105      	bne.n	8002efc <ApplicationStart>
 
  /*SYSCFG clock enable*/
     LDR R0,=0x40021034
- 8002f08:	4811      	ldr	r0, [pc, #68]	@ (8002f50 <LoopForever+0xe>)
+ 8002ef0:	4811      	ldr	r0, [pc, #68]	@ (8002f38 <LoopForever+0xe>)
     LDR R1,=0x00000001
- 8002f0a:	4912      	ldr	r1, [pc, #72]	@ (8002f54 <LoopForever+0x12>)
+ 8002ef2:	4912      	ldr	r1, [pc, #72]	@ (8002f3c <LoopForever+0x12>)
     STR R1, [R0]
- 8002f0c:	6001      	str	r1, [r0, #0]
+ 8002ef4:	6001      	str	r1, [r0, #0]
 
 /*Set CFGR1 register with flash memory remap at address 0*/
     LDR R0,=0x40010000
- 8002f0e:	4812      	ldr	r0, [pc, #72]	@ (8002f58 <LoopForever+0x16>)
+ 8002ef6:	4812      	ldr	r0, [pc, #72]	@ (8002f40 <LoopForever+0x16>)
     LDR R1,=0x00000000
- 8002f10:	4912      	ldr	r1, [pc, #72]	@ (8002f5c <LoopForever+0x1a>)
+ 8002ef8:	4912      	ldr	r1, [pc, #72]	@ (8002f44 <LoopForever+0x1a>)
     STR R1, [R0]
- 8002f12:	6001      	str	r1, [r0, #0]
+ 8002efa:	6001      	str	r1, [r0, #0]
 
-08002f14 <ApplicationStart>:
+08002efc <ApplicationStart>:
 
 ApplicationStart:
 /* Copy the data segment initializers from flash to SRAM */
   ldr r0, =_sdata
- 8002f14:	4812      	ldr	r0, [pc, #72]	@ (8002f60 <LoopForever+0x1e>)
+ 8002efc:	4812      	ldr	r0, [pc, #72]	@ (8002f48 <LoopForever+0x1e>)
   ldr r1, =_edata
- 8002f16:	4913      	ldr	r1, [pc, #76]	@ (8002f64 <LoopForever+0x22>)
+ 8002efe:	4913      	ldr	r1, [pc, #76]	@ (8002f4c <LoopForever+0x22>)
   ldr r2, =_sidata
- 8002f18:	4a13      	ldr	r2, [pc, #76]	@ (8002f68 <LoopForever+0x26>)
+ 8002f00:	4a13      	ldr	r2, [pc, #76]	@ (8002f50 <LoopForever+0x26>)
   movs r3, #0
- 8002f1a:	2300      	movs	r3, #0
+ 8002f02:	2300      	movs	r3, #0
   b LoopCopyDataInit
- 8002f1c:	e002      	b.n	8002f24 <LoopCopyDataInit>
+ 8002f04:	e002      	b.n	8002f0c <LoopCopyDataInit>
 
-08002f1e <CopyDataInit>:
+08002f06 <CopyDataInit>:
 
 CopyDataInit:
   ldr r4, [r2, r3]
- 8002f1e:	58d4      	ldr	r4, [r2, r3]
+ 8002f06:	58d4      	ldr	r4, [r2, r3]
   str r4, [r0, r3]
- 8002f20:	50c4      	str	r4, [r0, r3]
+ 8002f08:	50c4      	str	r4, [r0, r3]
   adds r3, r3, #4
- 8002f22:	3304      	adds	r3, #4
+ 8002f0a:	3304      	adds	r3, #4
 
-08002f24 <LoopCopyDataInit>:
+08002f0c <LoopCopyDataInit>:
 
 LoopCopyDataInit:
   adds r4, r0, r3
- 8002f24:	18c4      	adds	r4, r0, r3
+ 8002f0c:	18c4      	adds	r4, r0, r3
   cmp r4, r1
- 8002f26:	428c      	cmp	r4, r1
+ 8002f0e:	428c      	cmp	r4, r1
   bcc CopyDataInit
- 8002f28:	d3f9      	bcc.n	8002f1e <CopyDataInit>
+ 8002f10:	d3f9      	bcc.n	8002f06 <CopyDataInit>
   
 /* Zero fill the bss segment. */
   ldr r2, =_sbss
- 8002f2a:	4a10      	ldr	r2, [pc, #64]	@ (8002f6c <LoopForever+0x2a>)
+ 8002f12:	4a10      	ldr	r2, [pc, #64]	@ (8002f54 <LoopForever+0x2a>)
   ldr r4, =_ebss
- 8002f2c:	4c10      	ldr	r4, [pc, #64]	@ (8002f70 <LoopForever+0x2e>)
+ 8002f14:	4c10      	ldr	r4, [pc, #64]	@ (8002f58 <LoopForever+0x2e>)
   movs r3, #0
- 8002f2e:	2300      	movs	r3, #0
+ 8002f16:	2300      	movs	r3, #0
   b LoopFillZerobss
- 8002f30:	e001      	b.n	8002f36 <LoopFillZerobss>
+ 8002f18:	e001      	b.n	8002f1e <LoopFillZerobss>
 
-08002f32 <FillZerobss>:
+08002f1a <FillZerobss>:
 
 FillZerobss:
   str  r3, [r2]
- 8002f32:	6013      	str	r3, [r2, #0]
+ 8002f1a:	6013      	str	r3, [r2, #0]
   adds r2, r2, #4
- 8002f34:	3204      	adds	r2, #4
+ 8002f1c:	3204      	adds	r2, #4
 
-08002f36 <LoopFillZerobss>:
+08002f1e <LoopFillZerobss>:
 
 LoopFillZerobss:
   cmp r2, r4
- 8002f36:	42a2      	cmp	r2, r4
+ 8002f1e:	42a2      	cmp	r2, r4
   bcc FillZerobss
- 8002f38:	d3fb      	bcc.n	8002f32 <FillZerobss>
+ 8002f20:	d3fb      	bcc.n	8002f1a <FillZerobss>
 
 /* Call static constructors */
     bl __libc_init_array
- 8002f3a:	f000 f81d 	bl	8002f78 <__libc_init_array>
+ 8002f22:	f000 f81d 	bl	8002f60 <__libc_init_array>
 /* Call the application's entry point.*/
   bl  main
- 8002f3e:	f7ff fd31 	bl	80029a4 <main>
+ 8002f26:	f7ff fd9f 	bl	8002a68 <main>
 
-08002f42 <LoopForever>:
+08002f2a <LoopForever>:
 
 LoopForever:
     b LoopForever
- 8002f42:	e7fe      	b.n	8002f42 <LoopForever>
+ 8002f2a:	e7fe      	b.n	8002f2a <LoopForever>
    ldr   r0, =_estack
- 8002f44:	20000800 	.word	0x20000800
+ 8002f2c:	20000800 	.word	0x20000800
     LDR R0,=0x00000004
- 8002f48:	00000004 	.word	0x00000004
+ 8002f30:	00000004 	.word	0x00000004
     LDR R2,=0x1F
- 8002f4c:	0000001f 	.word	0x0000001f
+ 8002f34:	0000001f 	.word	0x0000001f
     LDR R0,=0x40021034
- 8002f50:	40021034 	.word	0x40021034
+ 8002f38:	40021034 	.word	0x40021034
     LDR R1,=0x00000001
- 8002f54:	00000001 	.word	0x00000001
+ 8002f3c:	00000001 	.word	0x00000001
     LDR R0,=0x40010000
- 8002f58:	40010000 	.word	0x40010000
+ 8002f40:	40010000 	.word	0x40010000
     LDR R1,=0x00000000
- 8002f5c:	00000000 	.word	0x00000000
+ 8002f44:	00000000 	.word	0x00000000
   ldr r0, =_sdata
- 8002f60:	20000000 	.word	0x20000000
+ 8002f48:	20000000 	.word	0x20000000
   ldr r1, =_edata
- 8002f64:	20000138 	.word	0x20000138
+ 8002f4c:	20000124 	.word	0x20000124
   ldr r2, =_sidata
- 8002f68:	080030a8 	.word	0x080030a8
+ 8002f50:	08003090 	.word	0x08003090
   ldr r2, =_sbss
- 8002f6c:	20000138 	.word	0x20000138
+ 8002f54:	20000124 	.word	0x20000124
   ldr r4, =_ebss
- 8002f70:	20000190 	.word	0x20000190
+ 8002f58:	2000017c 	.word	0x2000017c
 
-08002f74 <ADC1_IRQHandler>:
+08002f5c <ADC1_IRQHandler>:
  * @retval : None
 */
     .section  .text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
   b  Infinite_Loop
- 8002f74:	e7fe      	b.n	8002f74 <ADC1_IRQHandler>
+ 8002f5c:	e7fe      	b.n	8002f5c <ADC1_IRQHandler>
 	...
 
-08002f78 <__libc_init_array>:
- 8002f78:	b570      	push	{r4, r5, r6, lr}
- 8002f7a:	2600      	movs	r6, #0
- 8002f7c:	4c0c      	ldr	r4, [pc, #48]	@ (8002fb0 <__libc_init_array+0x38>)
- 8002f7e:	4d0d      	ldr	r5, [pc, #52]	@ (8002fb4 <__libc_init_array+0x3c>)
- 8002f80:	1b64      	subs	r4, r4, r5
- 8002f82:	10a4      	asrs	r4, r4, #2
- 8002f84:	42a6      	cmp	r6, r4
- 8002f86:	d109      	bne.n	8002f9c <__libc_init_array+0x24>
- 8002f88:	2600      	movs	r6, #0
- 8002f8a:	f000 f819 	bl	8002fc0 <_init>
- 8002f8e:	4c0a      	ldr	r4, [pc, #40]	@ (8002fb8 <__libc_init_array+0x40>)
- 8002f90:	4d0a      	ldr	r5, [pc, #40]	@ (8002fbc <__libc_init_array+0x44>)
- 8002f92:	1b64      	subs	r4, r4, r5
- 8002f94:	10a4      	asrs	r4, r4, #2
- 8002f96:	42a6      	cmp	r6, r4
- 8002f98:	d105      	bne.n	8002fa6 <__libc_init_array+0x2e>
- 8002f9a:	bd70      	pop	{r4, r5, r6, pc}
- 8002f9c:	00b3      	lsls	r3, r6, #2
- 8002f9e:	58eb      	ldr	r3, [r5, r3]
- 8002fa0:	4798      	blx	r3
- 8002fa2:	3601      	adds	r6, #1
- 8002fa4:	e7ee      	b.n	8002f84 <__libc_init_array+0xc>
- 8002fa6:	00b3      	lsls	r3, r6, #2
- 8002fa8:	58eb      	ldr	r3, [r5, r3]
- 8002faa:	4798      	blx	r3
- 8002fac:	3601      	adds	r6, #1
- 8002fae:	e7f2      	b.n	8002f96 <__libc_init_array+0x1e>
- 8002fb0:	080030a0 	.word	0x080030a0
- 8002fb4:	080030a0 	.word	0x080030a0
- 8002fb8:	080030a4 	.word	0x080030a4
- 8002fbc:	080030a0 	.word	0x080030a0
+08002f60 <__libc_init_array>:
+ 8002f60:	b570      	push	{r4, r5, r6, lr}
+ 8002f62:	2600      	movs	r6, #0
+ 8002f64:	4c0c      	ldr	r4, [pc, #48]	@ (8002f98 <__libc_init_array+0x38>)
+ 8002f66:	4d0d      	ldr	r5, [pc, #52]	@ (8002f9c <__libc_init_array+0x3c>)
+ 8002f68:	1b64      	subs	r4, r4, r5
+ 8002f6a:	10a4      	asrs	r4, r4, #2
+ 8002f6c:	42a6      	cmp	r6, r4
+ 8002f6e:	d109      	bne.n	8002f84 <__libc_init_array+0x24>
+ 8002f70:	2600      	movs	r6, #0
+ 8002f72:	f000 f819 	bl	8002fa8 <_init>
+ 8002f76:	4c0a      	ldr	r4, [pc, #40]	@ (8002fa0 <__libc_init_array+0x40>)
+ 8002f78:	4d0a      	ldr	r5, [pc, #40]	@ (8002fa4 <__libc_init_array+0x44>)
+ 8002f7a:	1b64      	subs	r4, r4, r5
+ 8002f7c:	10a4      	asrs	r4, r4, #2
+ 8002f7e:	42a6      	cmp	r6, r4
+ 8002f80:	d105      	bne.n	8002f8e <__libc_init_array+0x2e>
+ 8002f82:	bd70      	pop	{r4, r5, r6, pc}
+ 8002f84:	00b3      	lsls	r3, r6, #2
+ 8002f86:	58eb      	ldr	r3, [r5, r3]
+ 8002f88:	4798      	blx	r3
+ 8002f8a:	3601      	adds	r6, #1
+ 8002f8c:	e7ee      	b.n	8002f6c <__libc_init_array+0xc>
+ 8002f8e:	00b3      	lsls	r3, r6, #2
+ 8002f90:	58eb      	ldr	r3, [r5, r3]
+ 8002f92:	4798      	blx	r3
+ 8002f94:	3601      	adds	r6, #1
+ 8002f96:	e7f2      	b.n	8002f7e <__libc_init_array+0x1e>
+ 8002f98:	08003088 	.word	0x08003088
+ 8002f9c:	08003088 	.word	0x08003088
+ 8002fa0:	0800308c 	.word	0x0800308c
+ 8002fa4:	08003088 	.word	0x08003088
 
-08002fc0 <_init>:
- 8002fc0:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 8002fc2:	46c0      	nop			@ (mov r8, r8)
- 8002fc4:	bcf8      	pop	{r3, r4, r5, r6, r7}
- 8002fc6:	bc08      	pop	{r3}
- 8002fc8:	469e      	mov	lr, r3
- 8002fca:	4770      	bx	lr
+08002fa8 <_init>:
+ 8002fa8:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8002faa:	46c0      	nop			@ (mov r8, r8)
+ 8002fac:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8002fae:	bc08      	pop	{r3}
+ 8002fb0:	469e      	mov	lr, r3
+ 8002fb2:	4770      	bx	lr
 
-08002fcc <_fini>:
- 8002fcc:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 8002fce:	46c0      	nop			@ (mov r8, r8)
- 8002fd0:	bcf8      	pop	{r3, r4, r5, r6, r7}
- 8002fd2:	bc08      	pop	{r3}
- 8002fd4:	469e      	mov	lr, r3
- 8002fd6:	4770      	bx	lr
+08002fb4 <_fini>:
+ 8002fb4:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8002fb6:	46c0      	nop			@ (mov r8, r8)
+ 8002fb8:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8002fba:	bc08      	pop	{r3}
+ 8002fbc:	469e      	mov	lr, r3
+ 8002fbe:	4770      	bx	lr

@@ -1,7 +1,6 @@
 #include "main.h"
 #include <stdbool.h>
 
-
 // Макрос для налаштування GPIO
 #define CONFIGURE_GPIO(PORT, PIN, MODE, TYPE, SPEED)                                         \
 	MODIFY_REG(PORT->MODER, GPIO_MODER_MODE##PIN##_Msk, MODE << GPIO_MODER_MODE##PIN##_Pos); \
@@ -9,19 +8,19 @@
 	MODIFY_REG(PORT->OSPEEDR, GPIO_OSPEEDER_OSPEED##PIN##_Msk, SPEED << GPIO_OSPEEDER_OSPEED##PIN##_Pos);
 
 // Макрос для налаштування та ініціалізації EXTI (зовнішні переривання)
-#define CONFIGURE_EXTI(PIN, PORT_SOURCE, CR, LINE)                                                                          \
-	/* Налаштування лінії переривання на відповідний пін і порт */                                                                \
-	MODIFY_REG(SYSCFG->EXTICR[CR], SYSCFG_EXTICR##LINE##_EXTI##PIN##_Msk, PORT_SOURCE << SYSCFG_EXTICR##LINE##_EXTI##PIN##_Pos);  \
-	/* Встановлення маски переривання */                                                                                          \
-	SET_BIT(EXTI->IMR, EXTI_IMR_IM##PIN);                                                                                         \
-	/* Встановлення тригера на спадаючий фронт */                                                                                 \
+#define CONFIGURE_EXTI(PIN, PORT_SOURCE, CR, LINE)                                                                               \
+	/* Налаштування лінії переривання на відповідний пін і порт */              \
+	MODIFY_REG(SYSCFG->EXTICR[CR], SYSCFG_EXTICR##LINE##_EXTI##PIN##_Msk, PORT_SOURCE << SYSCFG_EXTICR##LINE##_EXTI##PIN##_Pos); \
+	/* Встановлення маски переривання */                                                             \
+	SET_BIT(EXTI->IMR, EXTI_IMR_IM##PIN);                                                                                        \
+	/* Встановлення тригера на спадаючий фронт */                                             \
 	SET_BIT(EXTI->FTSR, EXTI_FTSR_FT##PIN);
 
 #define BUTTON_PRESSED(PIN, PORT) (PORT->IDR & GPIO_IDR_ID##PIN)
 
+#define ENTER 1
+#define EXIT 0
 
-#define ENTER 	1
-#define EXIT 	0
 // Макроси для вмикання/вимикання різних світлодіодів (LEDs)
 #define LEDa_ON() GPIOA->BSRR = GPIO_BSRR_BS_7
 #define LEDa_OFF() GPIOA->BSRR = GPIO_BSRR_BR_7
@@ -62,21 +61,22 @@
 
 #define SYSCLK 32000000
 
-volatile uint16_t	decrementButtonCounter = 0;
-volatile uint16_t	enterButtonCounter = 0;
-volatile uint16_t	incrementButtonCounter = 0;
-
-uint32_t 	DecrementButtonDebounce = 0;
-uint32_t 	EnterButtonDebounce = 0;
-uint32_t 	IncrementButtonDebounce = 0;
 // Змінні для збереження часу натискання для кожної кнопки
-uint8_t timeIncrementButtonDown = 0;
-uint8_t timeDecrementButtonDown = 0;
-uint8_t timeEnterButtonDown = 0;
+uint32_t timeIncrementButtonDown = 0;
+uint32_t timeDecrementButtonDown = 0;
+uint32_t timeEnterButtonDown = 0;
 
-uint8_t timeLastIncrementButtonPress = 0;
-uint8_t timeLastDecrementButtonPress = 0;
-uint8_t timeLastEnterButtonPress = 0;
+uint32_t IncrementButtonDebounce = 0;
+uint32_t DecrementButtonDebounce = 0;
+uint32_t EnterButtonDebounce = 0;
+
+uint32_t timeLastIncrementButtonPress = 0;
+uint32_t timeLastDecrementButtonPress = 0;
+uint32_t timeLastEnterButtonPress = 0;
+
+#define bool uint8_t
+#define true 1
+#define false 0
 
 // Прапори для обробки станів кнопок
 bool flagIncrementButtonDown = false;
@@ -91,110 +91,97 @@ bool flagIncrementButtonLong = false;
 bool flagDecrementButtonLong = false;
 bool flagEnterButtonLong = false;
 
-bool flagIncrementButtonDouble = false;
-bool flagDecrementButtonDouble = false;
-bool flagEnterButtonDouble = false;
-
-bool flagPendingIncrementDoubleClick = false;
-bool flagPendingDecrementDoubleClick = false;
-bool flagPendingEnterDoubleClick = false;
-
-#define menuArraySize  31		  // Встановлюємо розмір масиву меню
-uint8_t actualIndex = 0;		  // Поточний індекс меню
+#define menuArraySize 29	  // Встановлюємо розмір масиву меню
+uint8_t actualIndex = 0;	  // Поточний індекс меню
 bool isParamEditMode = false; // Прапорець режиму редагування параметра
 uint8_t tmpVal = 0;			  // Тимчасова змінна для зберігання параметра
 
 volatile uint32_t SysTimer_ms = 0;		// Системний таймер (аналог HAL_GetTick)
 volatile uint16_t Delay_counter_ms = 0; // Лічильник для затримки
 
-
 char tmpV[4] = {};
 
-uint8_t vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
-uint8_t hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
+int8_t vmenu = 0; // Змінна, що зберігає дію по вертикалі 1 - вхід в меню, -1 - вихід з меню
+int8_t hmenu = 0; // Змінна, що зберігає дію по горизонталі 1 - вправо, -1 - вліво
 // Структура меню
 struct strMenu
 {
-	uint8_t id;		   // Унікальний ідентифікаційний індекс ID
-	uint8_t parentid;  // ID батька (вкладеність)
-	bool isParam;  // Чи є пункт змінним параметром
-	char _name[4]; // Назва пункту меню
-	uint8_t value;	   // Поточне значення параметра
-	uint8_t _min;	   // Мінімально можливе значеннял
-	uint8_t _max;	   // Максимально можливе значення
+	int8_t id;		 // Унікальний ідентифікаційний індекс ID
+	int8_t parentid; // ID батька (вкладеність)
+	bool isParam;	 // Чи є пункт змінним параметром
+	char _name[4];	 // Назва пункту меню
+	uint8_t value;	 // Поточне значення параметра
+	uint8_t _min;	 // Мінімально можливе значеннял
+	uint8_t _max;	 // Максимально можливе значення
 };
-/* PPPP
- *0 	P__0		Time_Now
- *1 		P_0.0	Hour_Now
- *2 		P_0.1	Minute_Now
- *3			P_0.2	Seconds_Now
- *4 		P_0.3	Day_Now
- *5 		P_0.4	Month_Now
- *6 		P_0.5	Year_Now
- *7 		P_0.6	WeekDay_Nows
- *8 		P_0.7	Set
- *9 	P__1		Time_Rise
- *10 		P_1.0	Hour_Rise
- *11 		P_1.1	Minute_Rise
- *12 	P__2		Rising_Parametrs
- *13 		P_2.0	Period_Rising
- *14 		P_2.1	ɣ_Coefient_Rising
- *15 	P__3		Alarm_Parametrs
- *16 		P_3.0	Alarm_Status
- *17		P_3.1	Alarm_Hours
- *18		P_3.2	Alarm_Minutes
- *19 		P_3.3	Alarm_Melody
- *20 		P_3.4	Alarm_Melody_test
- *21 	P__4		Menu_Parametrs
- *22		P_4.0	Numbers_Change_Style
- *23 		P_4.1	Menu_Night_Mode
- *24 	P__5		Menu_Parametrs
- *25 		P_5.0	debounceTime
- *26		P_5.1	timeButtonPressed
+/*0 PPPP
+ *1 	P__0		Time_Now
+ *2 		P_0.0	Hour_Now
+ *3 		P_0.1	Minute_Now
+ *4			P_0.2	Seconds_Now
+ *5 		P_0.3	Day_Now
+ *6 		P_0.4	Month_Now
+ *7 		P_0.5	Year_Now
+ *8 		P_0.6	WeekDay_Nows
+ *9 		P_0.7	Set
+ *10 	P__1		Time_Rise
+ *11 		P_1.0	Hour_Rise
+ *12 		P_1.1	Minute_Rise
+ *13 	P__2		Rising_Parametrs
+ *14 		P_2.0	Period_Rising
+ *15 		P_2.1	ɣ_Coefient_Rising
+ *16 	P__3		Alarm_Parametrs
+ *17 		P_3.0	Alarm_Status
+ *18		P_3.1	Alarm_Hours
+ *19		P_3.2	Alarm_Minutes
+ *20 		P_3.3	Alarm_Melody
+ *21 		P_3.4	Alarm_Melody_test
+ *22 	P__4		Menu_Parametrs
+ *23		P_4.0	Numbers_Change_Style
+ *24 		P_4.1	Menu_Night_Mode
+ *25 	P__5		Menu_Parametrs
+ *26 		P_5.0	debounceTime
  *27 		P_5.2	timeButtonLongPressed
- *28 		P_5.3	timeDoubleClick
- *30 	P__6		Clock(StartWork)
+ *28 	P__6		Clock(StartWork)
  */
 struct strMenu menu[] = {
 	// Встановлюємо пункти меню
-	{0, -1, false, "PPPP", 0, 0, 0},
+	{0, 0, false, "PPPP", 0, 0, 0},
 	//-----------------------------------------------------------------------
 	{1, 0, false, "P__0", 0, 0, 0},
-	{2, 1, true,  "P_00", 0, 0, 24},
-	{3, 1, true,  "P_01", 0, 0, 59},
-	{4, 1, true,  "P_02", 0, 0, 59},
-	{5, 1, true,  "P_03", 0, 0, 31},
-	{6, 1, true,  "P_04", 0, 0, 12},
-	{7, 1, true,  "P_05", 0, 0, 99},
-	{8, 1, true,  "P_06", 0, 1, 7},
+	{2, 1, true, "P_00", 0, 0, 24},
+	{3, 1, true, "P_01", 0, 0, 59},
+	{4, 1, true, "P_02", 0, 0, 59},
+	{5, 1, true, "P_03", 0, 0, 31},
+	{6, 1, true, "P_04", 0, 0, 12},
+	{7, 1, true, "P_05", 0, 0, 99},
+	{8, 1, true, "P_06", 0, 1, 7},
 	{9, 1, false, "P_07", 0, 0, 0},
 	//-----------------------------------------------------------------------
 	{10, 0, false, "P__1", 0, 0, 0},
-	{11, 10, true, "P_10", 0, 23, 0},
-	{12, 10, true, "P_11", 0, 59, 0},
+	{11, 10, true, "P_10", 5, 0, 23},
+	{12, 10, true, "P_11", 45, 0, 59},
 	//-----------------------------------------------------------------------
 	{13, 0, false, "P__2", 0, 0, 0},
-	{14, 13, true, "P_20", 0, 231, 30},
-	{15, 13, true, "P_21", 0, 231, 224},
+	{14, 13, true, "P_20", 30, 0, 231},
+	{15, 13, true, "P_21", 224, 0, 231},
 	//-----------------------------------------------------------------------
 	{16, 0, false, "P__3", 0, 0, 0},
 	{17, 16, true, "P_30", 0, 1, 1},
-	{18, 16, true, "P_31", 0, 0, 24},
-	{19, 16, true, "P_32", 0, 0, 59},
-	{20, 16, true, "P_33", 0, 7, 0},
+	{18, 16, true, "P_31", 5, 0, 24},
+	{19, 16, true, "P_32", 50, 0, 59},
+	{20, 16, true, "P_33", 0, 0, 7},
 	{21, 16, false, "P_34", 0, 0, 0},
 	//-----------------------------------------------------------------------
 	{22, 0, false, "P__4", 0, 0, 1},
-	{23, 22, true, "P_40", 0, 3, 0},
+	{23, 22, true, "P_40", 0, 0, 3},
 	{24, 22, true, "P_41", 0, 1, 1},
 	//-----------------------------------------------------------------------
 	{25, 0, false, "P__5", 0, 0, 0},
-	{26, 25, true, "P_50", 0, 100, 75},
-	{27, 25, true, "P_51", 0, 231, 125},
-	{28, 25, true, "P_52", 0, 231, 200},
-	{29, 25, true, "P_53", 0, 231, 125},
+	{26, 25, true, "P_50", 30, 0, 231},
+	{27, 25, true, "P_51", 100, 0, 231},
 	//-----------------------------------------------------------------------
-	{30, 0, false, "P__5", 0, 0, 0}
+	{28, 0, false, "P__6", 0, 0, 0}
 	//-----------------------------------------------------------------------
 };
 
@@ -282,7 +269,7 @@ const SoundTypeDef Music[48] = {
 
 /* Private function prototypes -----------------------------------------------*/
 void CMSIS_FullInit(void);
-uint8_t SysTickTimerInit(uint16_t ticks);
+uint8_t SysTickTimerInit(uint32_t ticks);
 void SystemClock_Config(void);
 void GPIO_Init(void);
 void RTC_Init(void);
@@ -311,9 +298,9 @@ uint8_t Clock();
 /*----------------------------------------------------------------------------*/
 char intToChar(uint8_t num);
 void writeCHARSEG(char CHAR, uint8_t seg);
-char *setActualMenu(uint8_t v, uint8_t h);
-uint8_t getMenuIndexByID(uint8_t id);
-uint8_t getNearMenuIndexByID(uint8_t parentid, uint8_t id, uint8_t side);
+char *setActualMenu(int8_t v, int8_t h);
+uint8_t getMenuIndexByID(int8_t id);
+uint8_t getNearMenuIndexByID(int8_t parentid, int8_t id, int8_t side);
 /*----------------------------------------------------------------------------*/
 void StartMusic(uint16_t melody);
 void sound(uint16_t freq, uint16_t time_ms);
@@ -321,9 +308,7 @@ void sound(uint16_t freq, uint16_t time_ms);
 /*----------------------------------------------------------------------------*/
 int main(void)
 {
-
 	char *tmpValue;
-
 	CMSIS_FullInit(); // 1ms
 	SystemClock_Config();
 
@@ -337,18 +322,22 @@ int main(void)
 	tmpValue = setActualMenu(0, 0);
 
 	while (1)
-	{
-		if(SysTimer_ms-DecrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0) 	EXTI->IMR |= EXTI_IMR_IM0; 	// *25 		P_5.0	debounceTime
-		if(SysTimer_ms-EnterButtonDebounce 		>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM1) == 0) 	EXTI->IMR |= EXTI_IMR_IM1;	// *25 		P_5.0	debounceTime
-		if(SysTimer_ms-IncrementButtonDebounce 	>= menu[25].value && READ_BIT(EXTI->IMR, EXTI_IMR_IM2) == 0) 	EXTI->IMR |= EXTI_IMR_IM2;	// *25 		P_5.0	debounceTime
+	{ // *26 		P_5.1	debounceTime
+		if (((SysTimer_ms - DecrementButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0))
+			SET_BIT(EXTI->IMR, EXTI_IMR_IM0);
+		if (((SysTimer_ms - EnterButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM1) == 0))
+			SET_BIT(EXTI->IMR, EXTI_IMR_IM1);
+		if (((SysTimer_ms - IncrementButtonDebounce) > menu[26].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM2) == 0))
+			SET_BIT(EXTI->IMR, EXTI_IMR_IM2);
 
 		if (flagDecrementButton)
 		{
 			hmenu = 1;
 			flagDecrementButton = false; // Действие обработано - сбрасываем флаг
 		}
-			else if(flagDecrementButtonLong){
-				hmenu = 1;
+		if (flagDecrementButtonLong)
+		{
+			//				hmenu = 2;
 			flagDecrementButtonLong = false; // Действие обработано - сбрасываем флаг
 		}
 
@@ -357,83 +346,90 @@ int main(void)
 			hmenu = -1;
 			flagIncrementButton = false; // Действие обработано - сбрасываем флаг
 		}
-			else if(flagIncrementButtonLong){
-				hmenu = -1;
+		if (flagIncrementButtonLong)
+		{
+			//				hmenu = -2;
 			flagIncrementButtonLong = false; // Действие обработано - сбрасываем флаг
 		}
-
 		if (flagEnterButton)
 		{							 // Кнопка нажата
 			vmenu = 1;				 // По нажатию кнопки - переходим на уровень вниз
 			flagEnterButton = false; // Действие обработано - сбрасываем флаг
 		}
-			else if (flagEnterButtonLong)
+		if (flagEnterButtonLong)
 		{
 			vmenu = -1;
 			flagEnterButtonLong = false; // Действие обработано - сбрасываем флаг
 		}
-		
-		if (vmenu != 0 || hmenu != 0)	tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
-			if(SysTimer_ms%4==0)		writeCHARSEG(tmpValue[0], 0);
-			if(SysTimer_ms%4==1)		writeCHARSEG(tmpValue[1], 1);
-			if(SysTimer_ms%4==2)		writeCHARSEG(tmpValue[2], 2);
-			if(SysTimer_ms%4==3)		writeCHARSEG(tmpValue[3], 3);
+
+		if (vmenu != 0 || hmenu != 0)
+			tmpValue = setActualMenu(vmenu, hmenu); // Если было действие - реагируем на него
+		if (SysTimer_ms % 4 == 0)
+			writeCHARSEG(tmpValue[0], 0);
+		if (SysTimer_ms % 4 == 1)
+			writeCHARSEG(tmpValue[1], 1);
+		if (SysTimer_ms % 4 == 2)
+			writeCHARSEG(tmpValue[2], 2);
+		if (SysTimer_ms % 4 == 3)
+			writeCHARSEG(tmpValue[3], 3);
 	}
 	return 0;
 }
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-uint8_t SysTickTimerInit(uint16_t ticks)
+uint8_t SysTickTimerInit(uint32_t ticks)
 {
 
-  if ((ticks - 1UL) > SysTick_LOAD_RELOAD_Msk)
-  {
-    return (1UL);                                                   /* Reload value impossible */
-  }
-  CLEAR_BIT(SysTick->CTRL,SysTick_CTRL_ENABLE_Msk);					/* Disenable SysTick Timer */
-  SysTick->LOAD  = (uint16_t)(ticks - 1UL);                         /* set reload register */
-  NVIC_SetPriority (SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick uint16_terrupt */
-  SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
-  SysTick->CTRL  = 	SysTick_CTRL_CLKSOURCE_Msk |
-		  	  	  	SysTick_CTRL_TICKINT_Msk   |
-					SysTick_CTRL_ENABLE_Msk;                         /* Enable SysTick IRQ and SysTick Timer */
-  return (0UL);                                                     /* Function successful */
+	if ((ticks - 1UL) > SysTick_LOAD_RELOAD_Msk)
+	{
+		return (1UL); /* Reload value impossible */
+	}
+	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);				 /* Disenable SysTick Timer */
+	SysTick->LOAD = (uint32_t)(ticks - 1UL);						 /* set reload register */
+	NVIC_SetPriority(SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick uint16_terrupt */
+	SysTick->VAL = 0UL;												 /* Load the SysTick Counter Value */
+	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
+					SysTick_CTRL_TICKINT_Msk |
+					SysTick_CTRL_ENABLE_Msk; /* Enable SysTick IRQ and SysTick Timer */
+	return (0UL);							 /* Function successful */
 }
 
 void CMSIS_FullInit(void)
 {
-    // *** Налаштування кешу, передвибірки і попереднього читання *** //
+	// *** Налаштування кешу, передвибірки і попереднього читання *** //
 
-    // Вимкнути буфер кешу, якщо це налаштовано
-		CLEAR_BIT(FLASH->ACR,FLASH_ACR_DISAB_BUF);
-    // Включити попереднє читання, якщо це налаштовано
-		SET_BIT(FLASH->ACR,FLASH_ACR_PRE_READ);
-    // Включити буфер передвибірки, якщо це налаштовано
-		SET_BIT(FLASH->ACR,FLASH_ACR_PRFTEN);
-		SET_BIT(FLASH->ACR,FLASH_ACR_LATENCY);
+	// Вимкнути буфер кешу, якщо це налаштовано
+	CLEAR_BIT(FLASH->ACR, FLASH_ACR_DISAB_BUF);
+	// Включити попереднє читання, якщо це налаштовано
+	SET_BIT(FLASH->ACR, FLASH_ACR_PRE_READ);
+	// Включити буфер передвибірки, якщо це налаштовано
+	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTEN);
+	SET_BIT(FLASH->ACR, FLASH_ACR_LATENCY);
 
-    // *** Налаштування SysTick для переривань кожну 1 мс *** //
+	// *** Налаштування SysTick для переривань кожну 1 мс *** //
 
-    uint16_t ticks = SYSCLK / 1000U;  // Розрахунок кількості тактів для 1 мс
+	uint32_t ticks = SYSCLK / 1000U; // Розрахунок кількості тактів для 1 мс
 
-    // Використовуємо SysTick_Config для налаштування таймера
-    if (ticks > SysTick_LOAD_RELOAD_Msk) // Якщо кількість тактів більше дозволеного
-    {
-        while (1); // Помилка, зациклюємося
-    }
+	// Використовуємо SysTick_Config для налаштування таймера
+	if (ticks > SysTick_LOAD_RELOAD_Msk) // Якщо кількість тактів більше дозволеного
+	{
+		while (1)
+			; // Помилка, зациклюємося
+	}
 
-    SysTickTimerInit(ticks);
+	SysTickTimerInit(ticks);
 
-    // Встановлення пріоритету для переривання SysTick
-    uint32_t tickPriority = 0;  // Пріоритет для SysTick (без макросів)
-    if (tickPriority < (1UL << __NVIC_PRIO_BITS))
-    {
-        NVIC_SetPriority(SysTick_IRQn, tickPriority);
-    }
-    else
-    {
-        while (1);  // Помилка пріоритету
-    }
+	// Встановлення пріоритету для переривання SysTick
+	uint32_t tickPriority = 0; // Пріоритет для SysTick (без макросів)
+	if (tickPriority < (1UL << __NVIC_PRIO_BITS))
+	{
+		NVIC_SetPriority(SysTick_IRQn, tickPriority);
+	}
+	else
+	{
+		while (1)
+			; // Помилка пріоритету
+	}
 }
 
 void SystemClock_Config(void)
@@ -679,49 +675,51 @@ void GPIO_Init(void)
 
 	// Налаштування кнопок із EXTI
 	CONFIGURE_GPIO(GPIOA, 0, 0b00, 0, 0b11); // decrement
-	CONFIGURE_EXTI(0, 0b000, 0, 1);		 // EXTI для decrement
+	CONFIGURE_EXTI(0, 0b000, 0, 1);			 // EXTI для decrement
 
 	CONFIGURE_GPIO(GPIOA, 1, 0b00, 0, 0b11); // enter
-	CONFIGURE_EXTI(1, 0b000, 0, 1);		 // EXTI для enter
+	CONFIGURE_EXTI(1, 0b000, 0, 1);			 // EXTI для enter
 
 	CONFIGURE_GPIO(GPIOA, 2, 0b00, 0, 0b11); // increment
-	CONFIGURE_EXTI(2, 0b000, 0, 1);		 // EXTI для increment
+	CONFIGURE_EXTI(2, 0b000, 0, 1);			 // EXTI для increment
 
 	CONFIGURE_GPIO(GPIOB, 9, 0b00, 0, 0b11); // pwr
-	CONFIGURE_EXTI(9, 0b000, 2, 3);		 // EXTI для pwr з обробкою по зростанню
+	CONFIGURE_EXTI(9, 0b000, 2, 3);			 // EXTI для pwr з обробкою по зростанню
 
-	/* Включення переривання */                                                                                                   \
-	NVIC_EnableIRQ(EXTI0_1_IRQn);                                                                                                  \
+	/* Включення переривання */
+	NVIC_EnableIRQ(EXTI0_1_IRQn);
 	NVIC_EnableIRQ(EXTI2_3_IRQn);
 	NVIC_EnableIRQ(EXTI4_15_IRQn);
 }
 
 void LowPowerMode(uint8_t status)
 {
-    if(status){// Встановлюємо режим STOP з RTC працюючим у нормальному режимі
-//	pinEN_OFF();
-//	RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
-//	RCC->APB1ENR &= ~RCC_APB2ENR_TIM21EN;
-//	RCC->IOPENR &= ~RCC_IOPENR_IOPAEN | ~RCC_IOPENR_IOPBEN | ~RCC_IOPENR_IOPCEN;
-//	RCC->IOPENR |= RCC_IOPENR_IOPBEN | RCC_IOPENR_IOPCEN;
-//	CONFIGURE_GPIO(GPIOC, 15, 0b01, 0, 0b11); // pinEN
-//	CONFIGURE_GPIO(GPIOB, 9, 0b00, 0, 0b11); // pwr
-//	CONFIGURE_EXTI(9, 0b000, 2, 3);		 // EXTI для pwr з обробкою по зростанню
-//
-////    PWR->CR |= PWR_CR_LPDS;  // Налаштовуємо режим глибокого сну
-////    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;  // Налаштовуємо контролер для глибокого сну
-////
-////    // Входимо у режим STOP, поки не відбудеться переривання від RTC чи EXTI
-////     __WFI();  // Чекаємо на переривання для виходу з режиму STOP
-
-    }else{
-//	pinEN_ON();
-//	GPIO_Init();
-//	TIM2_Init();
-//	TIM21_Init();
-////    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;  // Вимикаємо режим глибокого сну
-//    PWR->CR &= ~PWR_CR_LPDS;  // Відновлюємо нормальний режим живлення
-}
+	if (status)
+	{	// Встановлюємо режим STOP з RTC працюючим у нормальному режимі
+		//	pinEN_OFF();
+		//	RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
+		//	RCC->APB1ENR &= ~RCC_APB2ENR_TIM21EN;
+		//	RCC->IOPENR &= ~RCC_IOPENR_IOPAEN | ~RCC_IOPENR_IOPBEN | ~RCC_IOPENR_IOPCEN;
+		//	RCC->IOPENR |= RCC_IOPENR_IOPBEN | RCC_IOPENR_IOPCEN;
+		//	CONFIGURE_GPIO(GPIOC, 15, 0b01, 0, 0b11); // pinEN
+		//	CONFIGURE_GPIO(GPIOB, 9, 0b00, 0, 0b11); // pwr
+		//	CONFIGURE_EXTI(9, 0b000, 2, 3);		 // EXTI для pwr з обробкою по зростанню
+		//
+		////    PWR->CR |= PWR_CR_LPDS;  // Налаштовуємо режим глибокого сну
+		////    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;  // Налаштовуємо контролер для глибокого сну
+		////
+		////    // Входимо у режим STOP, поки не відбудеться переривання від RTC чи EXTI
+		////     __WFI();  // Чекаємо на переривання для виходу з режиму STOP
+	}
+	else
+	{
+		//	pinEN_ON();
+		//	GPIO_Init();
+		//	TIM2_Init();
+		//	TIM21_Init();
+		////    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;  // Вимикаємо режим глибокого сну
+		//    PWR->CR &= ~PWR_CR_LPDS;  // Відновлюємо нормальний режим живлення
+	}
 }
 
 void Delay_ms(uint16_t Miliseconds)
@@ -746,8 +744,8 @@ uint32_t custom_floor(double x)
 double custom_pow(double a, double x)
 {
 	// Разделяем x на целую и дробную части
-	uint16_t intPart = (uint16_t)x;		   // целая часть x
-	double fracPart = x - intPart; // дробная часть x
+	uint16_t intPart = (uint16_t)x; // целая часть x
+	double fracPart = x - intPart;	// дробная часть x
 
 	// Возведение a в целую степень
 	double result = 1.0;
@@ -979,9 +977,9 @@ void writeCHARSEG(char CHAR, uint8_t seg)
 void pwmFP7103()
 {
 	if (menu[16].value)
-	{											//*16 		P_3.0	Alarm_Status
-		uint16_t timeWakeUp = menu[10].value * 3600	//*10 		P_1.0	Hour_Rise
-						 + menu[11].value * 60; //*11 		P_1.1	Minute_Rise
+	{												 //*16 		P_3.0	Alarm_Status
+		uint16_t timeWakeUp = menu[10].value * 3600	 //*10 		P_1.0	Hour_Rise
+							  + menu[11].value * 60; //*11 		P_1.1	Minute_Rise
 		uint16_t timeNow = (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU)) * 3600 + (READ_BIT(RTC->TR, RTC_TR_MNT) * 10 + READ_BIT(RTC->TR, RTC_TR_MNU)) * 60 + (READ_BIT(RTC->TR, RTC_TR_ST) * 10 + READ_BIT(RTC->TR, RTC_TR_SU));
 		if (menu[13].value * 60 >= timeWakeUp - timeNow)
 		{ // *13 		P_2.0	Period_Rising
@@ -1005,20 +1003,26 @@ uint8_t Clock()
 	uint8_t i = 0;
 	uint8_t j = 0;
 	tmpClock[0] = READ_BIT(RTC->TR, RTC_TR_HT);
-	if (tmpClock[0] == 0)	i = 1;
+	if (tmpClock[0] == 0)
+		i = 1;
 	tmpClock[1] = READ_BIT(RTC->TR, RTC_TR_HU);
 	tmpClock[2] = READ_BIT(RTC->TR, RTC_TR_MNT);
-	if (tmpClock[2] == 0)	j = 1;
+	if (tmpClock[2] == 0)
+		j = 1;
 	tmpClock[3] = READ_BIT(RTC->TR, RTC_TR_MNU);
 
 	pwmFP7103();
-//	 *23 		P_4.1	Menu_Night_Mode
+	//	 *23 		P_4.1	Menu_Night_Mode
 	if (((READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) > 5) && (READ_BIT(RTC->TR, RTC_TR_HT) * 10 + READ_BIT(RTC->TR, RTC_TR_HU) < 22) && menu[23].value) || flagDecrementButton || flagEnterButton || flagIncrementButton || menu[23].value)
 	{
-		if(SysTimer_ms%4==0 && i == 0) 	writeCHARSEG(tmpClock[0], 0);
-		if(SysTimer_ms%4==1)			writeCHARSEG(tmpClock[1], 1);
-		if(SysTimer_ms%4==2 && j == 0)	writeCHARSEG(tmpClock[2], 2);
-		if(SysTimer_ms%4==3)			writeCHARSEG(tmpClock[3], 3);
+		if (SysTimer_ms % 4 == 0 && i == 0)
+			writeCHARSEG(tmpClock[0], 0);
+		if (SysTimer_ms % 4 == 1)
+			writeCHARSEG(tmpClock[1], 1);
+		if (SysTimer_ms % 4 == 2 && j == 0)
+			writeCHARSEG(tmpClock[2], 2);
+		if (SysTimer_ms % 4 == 3)
+			writeCHARSEG(tmpClock[3], 3);
 	}
 	return flagDecrementButtonLong || flagEnterButtonLong || flagIncrementButtonLong ? 0 : 1;
 }
@@ -1044,7 +1048,7 @@ void setTimeNow()
 				   (menu[7].value << RTC_DR_WDU_Pos));	   // Weekday (3 -> Monday)
 }
 
-char *setActualMenu(uint8_t v, uint8_t h)
+char *setActualMenu(int8_t v, int8_t h)
 {
 	if (v != 0)
 	{ // Рухаємося по вертикалі
@@ -1065,14 +1069,14 @@ char *setActualMenu(uint8_t v, uint8_t h)
 		else
 		{ // Якщо команда ВН�?З - входу/редагування
 			if (menu[actualIndex].isParam && !isParamEditMode)
-			{										 // Якщо не в режимі редагування, то ...
-				isParamEditMode = true;				 // Переходимо в режим редагування параметра
+			{									  // Якщо не в режимі редагування, то ...
+				isParamEditMode = true;			  // Переходимо в режим редагування параметра
 				tmpVal = menu[actualIndex].value; // Тимчасовій змінній присвоюємо актуальне значення параметра
 			}
 			else if (menu[actualIndex].isParam && isParamEditMode)
-			{										 // Якщо в режимі редагування
+			{									  // Якщо в режимі редагування
 				menu[actualIndex].value = tmpVal; // Зберігаємо задане значення
-				isParamEditMode = false;			 // І виходимо з режиму редагування
+				isParamEditMode = false;		  // І виходимо з режиму редагування
 			}
 			else
 			{
@@ -1113,7 +1117,7 @@ char *setActualMenu(uint8_t v, uint8_t h)
 	if (h != 0)
 	{ // Якщо горизонтальна навігація
 		if (isParamEditMode)
-		{					// У режимі редагування параметра
+		{				 // У режимі редагування параметра
 			tmpVal += h; // Змінюємо його значення і ...
 			// ... контролюємо, щоб воно залишилося в заданому діапазоні
 			if (tmpVal > menu[actualIndex]._max)
@@ -1142,23 +1146,26 @@ char *setActualMenu(uint8_t v, uint8_t h)
 	}
 }
 
-uint8_t getMenuIndexByID(uint8_t id)
+uint8_t getMenuIndexByID(int8_t id)
 { // Функція отримання індексу пункту меню за його ID
 	for (uint8_t i = 0; i < menuArraySize; i++)
 	{
-		if (menu[i].id == id){return i;}
+		if (menu[i].id == id)
+		{
+			return i;
+		}
 	}
 	return -1;
 }
 
-uint8_t getNearMenuIndexByID(uint8_t parentid, uint8_t id, uint8_t side)
-{					   // Функція отримання індексу пункту меню наступного або попереднього від актуального
-	uint8_t prevID = -1;   // Змінна для зберігання індексу попереднього елемента
-	uint8_t nextID = -1;   // Змінна для зберігання індексу наступного елемента
-	uint8_t actualID = -1; // Змінна для зберігання індексу актуального елемента
+uint8_t getNearMenuIndexByID(int8_t parentid, int8_t id, int8_t side)
+{						  // Функція отримання індексу пункту меню наступного або попереднього від актуального
+	int8_t prevID = -1;	  // Змінна для зберігання індексу попереднього елемента
+	int8_t nextID = -1;	  // Змінна для зберігання індексу наступного елемента
+	int8_t actualID = -1; // Змінна для зберігання індексу актуального елемента
 
-	uint8_t firstID = -1; // Змінна для зберігання індексу першого елемента
-	uint8_t lastID = -1;  // Змінна для зберігання індексу останнього елемента
+	int8_t firstID = -1; // Змінна для зберігання індексу першого елемента
+	int8_t lastID = -1;	 // Змінна для зберігання індексу останнього елемента
 
 	for (uint8_t i = 0; i < menuArraySize; i++)
 	{
@@ -1234,200 +1241,159 @@ void SysTick_Handler(void)
 
 void EXTI0_1_IRQHandler(void)
 {
-    // Перевірка для DecrementButton (EXTI3)
-    if (EXTI->PR & EXTI_PR_PR0)
-    {
-        EXTI->IMR &= ~EXTI_IMR_IM0;
+	// Перевірка для DecrementButton (EXTI3)
+	if (EXTI->PR & EXTI_PR_PR0)
+	{
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM0);
 		DecrementButtonDebounce = SysTimer_ms;
-            if (!flagDecrementButtonDown)
-            {
-                timeDecrementButtonDown = SysTimer_ms;
-                flagDecrementButtonDown = true;
 
-                EXTI->RTSR &= ~EXTI_RTSR_RT3;
-                EXTI->FTSR |= EXTI_FTSR_FT3;
-            }
-            else
-            {
-                uint8_t pressDecrementButtonDuration = SysTimer_ms - timeDecrementButtonDown;
+		if (!flagDecrementButtonDown)
+		{
+			timeDecrementButtonDown = SysTimer_ms;
+			flagDecrementButtonDown = true;
 
-                EXTI->FTSR &= ~EXTI_FTSR_FT0;
-                EXTI->RTSR |= EXTI_RTSR_RT0;
+			CLEAR_BIT(EXTI->FTSR, EXTI_FTSR_FT0);
+			SET_BIT(EXTI->RTSR, EXTI_RTSR_RT0);
+		}
+		else
+		{
+			flagDecrementButtonDown = false;
+			CLEAR_BIT(EXTI->RTSR, EXTI_RTSR_RT0);
+			SET_BIT(EXTI->FTSR, EXTI_FTSR_FT0);
 
-                // *26		P_5.1	timeButtonPressed
-                // *27 		P_5.2	timeButtonLongPressed
-                if (pressDecrementButtonDuration < menu[27].value && pressDecrementButtonDuration > menu[26].value)
-                {
-                    flagDecrementButton = true;
-                    if (flagPendingDecrementDoubleClick && (SysTimer_ms - timeLastDecrementButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
-                                        {
-                                            flagDecrementButtonDouble = true;
-                                            flagDecrementButton = false;
-                                            flagPendingDecrementDoubleClick = false;
-                                        }
-                                        else
-                                        {
-                flagPendingDecrementDoubleClick = true;
-                timeLastDecrementButtonPress = SysTimer_ms;
-                }
-                }
-                else if (pressDecrementButtonDuration >= menu[27].value)
-                {
-                	flagDecrementButtonLong = true;
-                }
+			// *26 		P_5.1	timeButtonLongPressed
+			if (SysTimer_ms - timeDecrementButtonDown > 4 * menu[27].value)
+			{
+				flagDecrementButton = false;
+				flagDecrementButtonLong = true;
+			}
+			else
+			{
+				flagDecrementButtonLong = false;
+				flagDecrementButton = true;
+			}
+		}
 
-                flagDecrementButtonDown = false;
-            }
+		EXTI->PR = EXTI_PR_PR0;
+	}
 
-        EXTI->PR = EXTI_PR_PR0;
-    }
-
-    // Перевірка для EnterButton (EXTI1)
-    if (EXTI->PR & EXTI_PR_PR1)
-    {
-        EXTI->IMR &= ~EXTI_IMR_IM1;
+	// Перевірка для EnterButton (EXTI1)
+	if (EXTI->PR & EXTI_PR_PR1)
+	{
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM1);
 		EnterButtonDebounce = SysTimer_ms;
-            if (!flagEnterButtonDown)
-            {
-                timeEnterButtonDown = SysTimer_ms;
-                flagEnterButtonDown = true;
 
-                EXTI->RTSR &= ~EXTI_RTSR_RT1;
-                EXTI->FTSR |= EXTI_FTSR_FT1;
-            }
-            else
-            {
-                uint8_t pressEnterButtonDuration = SysTimer_ms - timeEnterButtonDown;
+		if (!flagEnterButtonDown)
+		{
+			timeEnterButtonDown = SysTimer_ms;
+			flagEnterButtonDown = true;
 
-                EXTI->FTSR &= ~EXTI_FTSR_FT1;
-                EXTI->RTSR |= EXTI_RTSR_RT1;
+			CLEAR_BIT(EXTI->FTSR, EXTI_FTSR_FT1);
+			SET_BIT(EXTI->RTSR, EXTI_RTSR_RT1);
+		}
+		else
+		{
+			flagEnterButtonDown = false;
+			CLEAR_BIT(EXTI->RTSR, EXTI_RTSR_RT1);
+			SET_BIT(EXTI->FTSR, EXTI_FTSR_FT1);
 
-                // *26		P_5.1	timeButtonPressed
-                // *27 		P_5.2	timeButtonLongPressed
-                if (pressEnterButtonDuration > menu[26].value && pressEnterButtonDuration < menu[27].value)
-                {
-                     flagEnterButton = true;
+			// *26 		P_5.1	timeButtonLongPressed
+			if (SysTimer_ms - timeEnterButtonDown > 4 * menu[27].value)
+			{
+				flagEnterButton = false;
+				flagEnterButtonLong = true;
+			}
+			else
+			{
+				flagEnterButtonLong = false;
+				flagEnterButton = true;
+			}
+		}
 
-                     if (flagPendingEnterDoubleClick && (SysTimer_ms - timeLastEnterButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
-                                         {
-                                             flagEnterButtonDouble = true;
-                                             flagEnterButton = false;
-                                             flagPendingEnterDoubleClick = false;
-                                         }
-                                         else
-                                         {
-                                             flagPendingEnterDoubleClick = true;
-                                             timeLastEnterButtonPress = SysTimer_ms;
-                                         }
-                }
-                else if (pressEnterButtonDuration >= menu[27].value)
-                {
-                	flagEnterButtonLong = true;
-
-
-                }
-
-                flagEnterButtonDown = false;
-            }
-
-        EXTI->PR = EXTI_PR_PR1;
-    }
+		EXTI->PR = EXTI_PR_PR1;
+	}
 }
 
 void EXTI2_3_IRQHandler(void)
 {
-    // Перевірка, чи було переривання від лінії EXTI2
-    if (EXTI->PR & EXTI_PR_PR2)
-    {
-        // Забороняємо переривання для даної лінії, поки не завершимо обробку
-        EXTI->IMR &= ~EXTI_IMR_IM2;
-            if ( !flagIncrementButtonDown )
-            {
-                // Початок натискання
-                timeIncrementButtonDown = SysTimer_ms;
-                flagIncrementButtonDown = true;
+	// Перевірка, чи було переривання від лінії EXTI2
+	if (EXTI->PR & EXTI_PR_PR2)
+	{
+		// Забороняємо переривання для даної лінії, поки не завершимо обробку
+		CLEAR_BIT(EXTI->IMR, EXTI_IMR_IM2);
+		IncrementButtonDebounce = SysTimer_ms;
 
-                // Переводимо переривання на спадаючий фронт для відстеження відпускання
-                EXTI->RTSR &= ~EXTI_RTSR_RT2; // Вимикаємо переривання по зростаючому фронту
-                EXTI->FTSR |= EXTI_FTSR_FT2;  // Включаємо переривання по спадаючому фронту
-            }
-            else
-            {
-                // Кнопка відпущена
-                uint8_t pressIncrementButtonDuration = SysTimer_ms - timeIncrementButtonDown;
+		if (!flagIncrementButtonDown)
+		{
+			// Початок натискання
+			timeIncrementButtonDown = SysTimer_ms;
+			flagIncrementButtonDown = true;
 
-                // Переводимо переривання на зростаючий фронт для відстеження наступного натискання
-				EXTI->FTSR &= ~EXTI_FTSR_FT2; // Вимикаємо переривання по спадаючому фронту
-                EXTI->RTSR |= EXTI_RTSR_RT2;  // Включаємо переривання по зростаючому фронту
-            
-                // Обробка короткого та довгого натискання
-                if (pressIncrementButtonDuration < menu[27].value && pressIncrementButtonDuration > menu[26].value)// *27 		P_5.2	timeButtonLongPressed
-                {
-                    //  Коротке натискання
-                     flagIncrementButton= true;
-                     // Обробка подвійного натискання
-                     if (flagPendingIncrementDoubleClick && (SysTimer_ms - timeLastIncrementButtonPress <= menu[28].value))// *28 		P_5.3	timeDoubleClick
-                     {
-                         flagIncrementButtonDouble = true;
-                         flagIncrementButton = false;
-                         flagPendingIncrementDoubleClick = false;
-                     }
-                     else
-                     {
-                         flagPendingIncrementDoubleClick = true;
-                         timeLastIncrementButtonPress = SysTimer_ms;
-                     }
-                }
-                else if (pressIncrementButtonDuration > menu[27].value)
-                {
-                    //  Довге натискання
-                	flagIncrementButtonLong = true;
-
-
-                }
-
-                // Скидаємо прапорець натискання
-                flagIncrementButtonDown = false;
-            }
-        // Скидаємо прапорець EXTI2
-        EXTI->PR = EXTI_PR_PR2;
-    }
+			// Переводимо переривання на спадаючий фронт для відстеження відпускання
+			CLEAR_BIT(EXTI->FTSR, EXTI_FTSR_FT2); // Включаємо переривання по спадаючому фронту
+			SET_BIT(EXTI->RTSR, EXTI_RTSR_RT2);	  // Вимикаємо переривання по зростаючому фронту
+		}
+		else
+		{
+			// Кнопка відпущена
+			// Скидаємо прапорець натискання
+			flagIncrementButtonDown = false;
+			// Переводимо переривання на зростаючий фронт для відстеження наступного натискання
+			CLEAR_BIT(EXTI->RTSR, EXTI_RTSR_RT2); // Включаємо переривання по зростаючому фронту
+			SET_BIT(EXTI->FTSR, EXTI_FTSR_FT2);	  // Вимикаємо переривання по спадаючому фронту
+			// Обробка короткого та довгого натискання
+			if (SysTimer_ms - timeIncrementButtonDown > 4 * menu[27].value) // *27 		P_5.2	timeButtonLongPressed
+			{
+				//  Довге натискання
+				flagIncrementButtonLong = true;
+				flagIncrementButton = false;
+			}
+			else
+			{
+				//  Коротке натискання
+				flagIncrementButton = true;
+				flagIncrementButtonLong = false;
+			}
+		}
+		// Скидаємо прапорець EXTI2
+		EXTI->PR = EXTI_PR_PR2;
+	}
 }
 
 void EXTI4_15_IRQHandler(void)
 {
-    // Перевіряємо, чи було переривання від лінії EXTI9
-    if (EXTI->PR & EXTI_PR_PR9)
-    {
-        // Забороняємо переривання для лінії EXTI9
-        EXTI->IMR &= ~EXTI_IMR_IM9;
+	// Перевіряємо, чи було переривання від лінії EXTI9
+	if (EXTI->PR & EXTI_PR_PR9)
+	{
+		// Забороняємо переривання для лінії EXTI9
+		EXTI->IMR &= ~EXTI_IMR_IM9;
 
-        // Перевірка стану піну 9 (припускаємо, що сигнал 0 – активний)
-        if (BUTTON_PRESSED(9,GPIOB) == 0)  // Якщо сигнал 0
-        {
-            // Переводимо переривання на зростаючий фронт (чекаємо на сигнал 1)
-            EXTI->RTSR |= EXTI_RTSR_RT9;   // Увімкнення переривання на зростаючий фронт
-            EXTI->FTSR &= ~EXTI_FTSR_FT9;  // Вимкнення переривання на спадний фронт
+		// Перевірка стану піну 9 (припускаємо, що сигнал 0 – активний)
+		if (BUTTON_PRESSED(9, GPIOB) == 0) // Якщо сигнал 0
+		{
+			// Переводимо переривання на зростаючий фронт (чекаємо на сигнал 1)
+			EXTI->RTSR |= EXTI_RTSR_RT9;  // Увімкнення переривання на зростаючий фронт
+			EXTI->FTSR &= ~EXTI_FTSR_FT9; // Вимкнення переривання на спадний фронт
 
-            // Входимо в режим мінімального енергоспоживання
-            LowPowerMode(ENTER);
-        }
-        else  // Якщо сигнал 1 (відновлення сигналу)
-        {
-            // Повертаємо контролер у нормальний режим роботи
-            LowPowerMode(EXIT);
+			// Входимо в режим мінімального енергоспоживання
+			LowPowerMode(ENTER);
+		}
+		else // Якщо сигнал 1 (відновлення сигналу)
+		{
+			// Повертаємо контролер у нормальний режим роботи
+			LowPowerMode(EXIT);
 
-            // Переводимо переривання на спадний фронт (чекаємо на сигнал 0)
-            EXTI->FTSR |= EXTI_FTSR_FT9;   // Увімкнення переривання на спадний фронт
-            EXTI->RTSR &= ~EXTI_RTSR_RT9;  // Вимкнення переривання на зростаючий фронт
-        }
+			// Переводимо переривання на спадний фронт (чекаємо на сигнал 0)
+			EXTI->FTSR |= EXTI_FTSR_FT9;  // Увімкнення переривання на спадний фронт
+			EXTI->RTSR &= ~EXTI_RTSR_RT9; // Вимкнення переривання на зростаючий фронт
+		}
 
-        // Скидаємо прапорець переривання на лінії EXTI9
-        EXTI->PR = EXTI_PR_PR9;
+		// Скидаємо прапорець переривання на лінії EXTI9
+		EXTI->PR = EXTI_PR_PR9;
 
-        // Увімкнення переривань після обробки
-        EXTI->IMR |= EXTI_IMR_IM9;
-    }
+		// Увімкнення переривань після обробки
+		EXTI->IMR |= EXTI_IMR_IM9;
+	}
 }
 
 void TIM2_IRQHandler(void)

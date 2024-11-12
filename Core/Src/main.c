@@ -516,6 +516,10 @@ void RTC_Init(void)
 	// 1. Enable power and backup domain access
 	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN);
 	SET_BIT(PWR->CR, PWR_CR_DBP);
+	
+	CLEAR_BIT(RCC->CSR, RCC_CSR_LSEON);
+	SET_BIT(RCC->CSR, RCC_CSR_LSEBYP);
+
 
 	// 2. Enable LSE Oscillator
 	SET_BIT(RCC->CSR, RCC_CSR_LSEON);

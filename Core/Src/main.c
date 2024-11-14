@@ -218,7 +218,7 @@ void TIM21_IRQHandler(void);
 /*----------------------------------------------------------------------------*/
 void EnterLowPowerMode(uint8_t status);
 void Delay_ms(uint16_t Milliseconds);
-double pow224(int i);
+double pow224(double i);
 uint16_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max);
 /*----------------------------------------------------------------------------*/
 void pwmFP7103();
@@ -668,10 +668,16 @@ void Delay_ms(uint16_t Miliseconds)
 	}
 }
 
-// Функція для обчислення факторіала
-double pow224(int i) {
-	return 0.00000000020754957593*i*i*i + 0.00000084626309852429*i*i - 0.00005473036906744611*i + 0.00203250994804093921;
+// double pow224(int i) {
+// 	return 0.00000000020754957593*i*i*i + 0.00000084626309852429*i*i - 0.00005473036906744611*i + 0.00203250994804093921;
+// }
+
+double pow224(double b) {
+    union { double d; long long i; } u = { b };
+    u.i = (long long)(4606853616395542500L + 2.24 * (u.i - 4606853616395542500L));
+    return u.d;
 }
+
 
 char intToChar(uint8_t num)
 {
@@ -909,11 +915,11 @@ void pwmFP7103()
 			// *15 		P_2.1	ɣ_Coefient_Rising
 			pinEN_ON();
 			SET_BIT(TIM21->CR1, TIM_CR1_CEN); // Запуск таймера
-			TIM21->CCR1 = (uint16_t)((TIM21->ARR + 1)*pow224(map((uint16_t) (10000*((double)timeNow /timeWakeUp)),
-					(uint16_t)(((double)(timeWakeUp - menu[14].value * 60) /timeWakeUp) * (10000)),
-					(10000),
+			TIM21->CCR1 = (uint16_t)((TIM21->ARR + 1)*pow224(map(((double)timeNow /timeWakeUp),
+					(uint16_t)(((double)(timeWakeUp - menu[14].value * 60) /timeWakeUp)),
+					1,
 					0,
-					(1000))));
+					1)));
 		}
 		if (!(menu[14].value * 60 >= (timeWakeUp - timeNow)) && (flagDecrementButtonLong || flagIncrementButtonLong))
 		{

@@ -62,15 +62,6 @@
 #define true 1
 #define false 0
 
-extern uint32_t _estack;         // Кінець стека, визначений у скрипті лінкера
-extern uint32_t _sdata;          // Початок секції .data
-extern uint32_t _edata;          // Кінець секції .data
-extern uint32_t _etext;        // Початок початкових даних для .data в ПЗП
-extern uint32_t _sbss;           // Початок секції .bss
-extern uint32_t _ebss;           // Кінець секції .bss
-
-
-
 // Змінні для збереження часу натискання для кожної кнопки
 uint16_t timeIncrementButtonDown = 0;
 uint16_t timeDecrementButtonDown = 0;
@@ -98,6 +89,7 @@ bool flagDecrementButtonLong = false;
 bool flagEnterButtonLong = false;
 
 bool switchONDisplay = false;
+bool lowpowerModeStatus = false;
 
 #define menuArraySize 31	  // Встановлюємо розмір масиву меню
 uint8_t actualIndex = 0;	  // Поточний індекс меню
@@ -202,94 +194,6 @@ struct strMenu menu[] = {
 	//-----------------------------------------------------------------------
 };
 
-/* Sound/Buzzer variables ---------------------------------------------------------*/
-
-#define C	261	//Do
-#define C_	277 //Do#
-#define D	293 //Re
-#define D_	311 //Re#
-#define E	239 //Mi
-#define F	349 //Fa
-#define F_	370 //Fa#
-#define G 	392 //Sol
-#define G_	415 //Sol#
-#define A	440 //La
-#define A_	466 //La#
-#define H	494 //Si
-
-#define t1		2000
-#define t2		1000
-#define t4		500
-#define t8		250
-#define t16		125
-
-typedef struct
-{
-	uint16_t freq;
-	uint16_t time;
-}SoundTypeDef;
-
-
-volatile int sound_counter = 0;
-volatile int sound_time = 0;
-
-#define MUSICSIZE 48
-
-const SoundTypeDef Music[MUSICSIZE] ={
-	{C*2, t4},
-	{G, t4},
-	{A_, t8},
-	{F, t8},
-	{D_, t8},
-	{F, t8},
-	{G, t4},
-	{C, t2},
-	{C*2, t4},
-	{G, t4},
-	{A_, t8},
-	{F, t8},
-	{D_, t8},
-	{F, t8},
-	{G, t4},
-	{C*2, t4},
-	{0, t8},
-	{D_, t8},
-	{D_, t8},
-	{D_, t8},
-	{G, t8},
-	{A_, t4},
-	{D_*2, t8},
-	{C_*2, t8},
-	{C*2, t8},
-	{C*2, t8},
-	{C*2, t8},
-	{C*2, t8},
-	{A_, t8},
-	{F, t8},
-	{D_, t8},
-	{F, t8},
-	{G, t4},
-	{C*2, t2},
-	{C*2, t2},
-	{A_, t8},
-	{G_, t8},
-	{G, t8},
-	{G_, t8},
-	{A_, t2},
-	{A_, t4},
-	{C*2, t4},
-	{A_, t8},
-	{F, t8},
-	{D_, t8},
-	{F, t8},
-	{G, t4},
-	{C*2, t2}
-};
-
-int MusicStep = 0;
-char PlayMusic = 0;
-/* END S/BV */
-
 /* Private function prototypes -----------------------------------------------*/
 void CMSIS_FullInit(void);
 uint8_t SysTickTimerInit(uint32_t ticks);
@@ -310,6 +214,7 @@ void EXTI4_15_IRQHandler(void);
 void LPTIM1_IRQHandler(void);
 void TIM2_IRQHandler(void);
 void TIM21_IRQHandler(void);
+
 /*----------------------------------------------------------------------------*/
 void EnterLowPowerMode(uint8_t status);
 void Delay_ms(uint16_t Milliseconds);
@@ -331,8 +236,6 @@ char *setActualMenu(int8_t v, int8_t h);
 uint8_t getMenuIndexByID(int8_t id);
 uint8_t getNearMenuIndexByID(int8_t parentid, int8_t id, int8_t side);
 /*----------------------------------------------------------------------------*/
-void StartMusic(uint16_t melody);
-void sound(uint16_t freq, uint16_t time_ms);
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 int main(void)
@@ -530,18 +433,17 @@ void SystemClock_Config(void)
 	}
 }
 
-void RTC_Init(void) {
-    // 1. Enable power and backup domain access
-    SET_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN); // Enable PWR clock
-    SET_BIT(PWR->CR, PWR_CR_DBP);             // Enable access to backup domain
+void RTC_Init(void)
+{
+	// 1. Enable power and backup domain access
+	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN);
+	SET_BIT(PWR->CR, PWR_CR_DBP);
 
-    // 2. Configure LSE in bypass mode
-    CLEAR_BIT(RCC->CSR, RCC_CSR_LSEON);       // Ensure LSE is off
-    SET_BIT(RCC->CSR, RCC_CSR_LSEBYP);        // Enable LSE bypass (external clock)
-    SET_BIT(RCC->CSR, RCC_CSR_LSEON);         // Enable LSE oscillator
-
-    // 3. Wait until LSE is ready
-    while (!(READ_BIT(RCC->CSR, RCC_CSR_LSERDY))) {}
+	// 2. Enable LSE Oscillator
+	SET_BIT(RCC->CSR, RCC_CSR_LSEON);
+	while (!(READ_BIT(RCC->CSR, RCC_CSR_LSERDY)))
+	{
+	}
 
     // 4. Set LSE as RTC clock source and enable RTC
     MODIFY_REG(RCC->CSR, RCC_CSR_RTCSEL_Msk, (0b01 << RCC_CSR_RTCSEL_Pos)); // Select LSE as RTC clock
@@ -727,7 +629,9 @@ void GPIO_Init(void)
 void LowPowerMode(uint8_t status)
 {
 	if (status)
-	{ // Встановлюємо режим STOP з RTC працюючим у нормальному режимі
+	{
+		lowpowerModeStatus = true;
+		// Встановлюємо режим STOP з RTC працюючим у нормальному режимі
 	  //	pinEN_OFF();
 	  //	RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
 	  //	RCC->APB1ENR &= ~RCC_APB2ENR_TIM21EN;
@@ -745,6 +649,7 @@ void LowPowerMode(uint8_t status)
 	}
 	else
 	{
+		lowpowerModeStatus = false;
 		//	pinEN_ON();
 		//	GPIO_Init();
 		//	TIM2_Init();
@@ -1298,25 +1203,8 @@ uint8_t getNearMenuIndexByID(int8_t parentid, int8_t id, int8_t side)
 
 void StartMusic(uint16_t melody)
 {
-	MusicStep = 0;
-	PlayMusic = 1;
-	sound(Music[MusicStep].freq, Music[MusicStep].time);
-}
-
-void sound(uint16_t freq, uint16_t time_ms)
-{
-    if (freq > 0) {
-        TIM2->ARR = SYSCLK / (TIM2->PSC + 1) / freq; // Встановити період
-        TIM2->CCR1 = TIM2->ARR / 2; // Встановити PWM на 50% для сигналу
-    } else {
-        TIM2->ARR = 1000; // Значення по замовчуванню, коли частота = 0
-        TIM2->CCR1 = 0;   // Вимкнути PWM
-    }
-    TIM2->CNT = 0; // Скидання лічильника таймера
-
-    sound_time = ((SYSCLK / (TIM2->PSC + 1) / TIM2->ARR) * time_ms) / 1000;
-    sound_counter = 0;
-    TIM2->CR1 |= TIM_CR1_CEN; // Увімкнути таймер
+	TIM21->ARR = 99;
+	TIM21->CCR1 = 49;
 }
 
 void interaptTIMDebounce(void)
@@ -1505,33 +1393,7 @@ void EXTI4_15_IRQHandler(void)
 
 void TIM2_IRQHandler(void)
 {
-    if (TIM2->SR & TIM_SR_CC1IF) { // Перевірка прапорця порівняння
-        TIM2->SR &= ~TIM_SR_CC1IF; // Скидання прапорця
 
-        sound_counter++;
-        if (sound_counter > sound_time) {
-            if (PlayMusic == 0) {
-                TIM2->CR1 &= ~TIM_CR1_CEN; // Вимкнути TIM2
-            } else {
-                if (MusicStep < MUSICSIZE - 1) {
-                    if (TIM2->CCR1 == 0) {
-                        MusicStep++;
-                        sound(Music[MusicStep].freq, Music[MusicStep].time);
-                    } else {
-                        sound(0, 30);
-                    }
-                } else {
-                    PlayMusic = 0;
-                    TIM2->CR1 &= ~TIM_CR1_CEN; // Вимкнути TIM2
-                }
-            }
-        }
-
-        // Перевірка на over-capture
-        if (TIM2->SR & TIM_SR_CC1OF) {
-            TIM2->SR &= ~TIM_SR_CC1OF; // Скидання прапорця over-capture
-            // Додатковий код для обробки ситуації over-capture
-        }
 	if (READ_BIT(TIM2->SR, TIM_SR_UIF))
 	{
 		//		CounterTIM2++;
@@ -1539,7 +1401,6 @@ void TIM2_IRQHandler(void)
 	}
 
 
-}
 }
 
 void TIM21_IRQHandler(void)
@@ -1551,57 +1412,6 @@ void TIM21_IRQHandler(void)
 	}
 }
 
-//void Reset_Handler(void)
-//{
-//	  // Копируем .data из FLASH в SRAM
-//	  uint32_t data_size = (uint32_t)&_edata - (uint32_t)&_sdata;
-//
-//	  uint8_t *flash_data = (uint8_t*) &_etext;
-//	  uint8_t *sram_data = (uint8_t*) &_sdata;
-//
-//	  for (uint32_t i = 0; i < data_size; i++)
-//	  {
-//	    	sram_data[i] = flash_data[i];
-//	  }
-//
-//	  // Заполняем нулями .bss секцию в SRAM
-//	  uint32_t bss_size = (uint32_t)&_ebss - (uint32_t)&_sbss;
-//
-//	  uint32_t *bss = (uint32_t*) &_sbss;
-//
-//	  for (uint32_t i = 0; i < bss_size; i++)
-//	  {
-//	    	bss[i] = 0;
-//	  }
-//
-//	  // Переходим в main-функцию
-//	  main();
-//}
-
-//void Reset_Handler(void) {
-//    // Ініціалізація стеку (вже задано лінкером, тому тут не потрібно)
-//
-//    // 1. Копіювання даних із ПЗП в ОЗП для секції .data
-////    uint32_t* src = &_la_data;     // Адреса початку даних в ПЗП
-//    uint32_t* dest = &_sdata;      // Адреса початку секції .data в ОЗП
-////    while (dest < &_edata) {
-////        *dest++ = *src++;
-////    }
-//
-//    // 2. Ініціалізація секції .bss нулями
-//    dest = &_sbss;                 // Початок секції .bss
-//    while (dest < &_ebss) {
-//        *dest++ = 0;
-//    }
-//
-//    // 3. Виклик функції main
-//    main();
-//
-//    // Якщо main завершується, перезавантажити мікроконтролер
-//    while (1) {
-//        // Безкінечний цикл - на випадок, якщо main завершиться
-//    }
-//}
 
 void Error_Handler(void)
 {

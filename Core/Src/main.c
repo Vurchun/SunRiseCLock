@@ -1,4 +1,10 @@
 #include "main.h"
+
+#define bool uint8_t
+#define true 1
+#define false 0
+
+
 // Макрос для налаштування GPIO
 #define CONFIGURE_GPIO(PORT, PIN, MODE, TYPE, SPEED)                                         \
 	MODIFY_REG(PORT->MODER, GPIO_MODER_MODE##PIN##_Msk, MODE << GPIO_MODER_MODE##PIN##_Pos); \
@@ -7,15 +13,16 @@
 
 // Макрос для налаштування та ініціалізації EXTI (зовнішні переривання)
 #define CONFIGURE_EXTI(PIN, PORT_SOURCE, CR, LINE)                                                                               \
-	/* Налаштування лінії переривання на відповідний пін і порт */              \
+	/* Налаштування лінії переривання на відповідний пін і порт */              												 \
 	MODIFY_REG(SYSCFG->EXTICR[CR], SYSCFG_EXTICR##LINE##_EXTI##PIN##_Msk, PORT_SOURCE << SYSCFG_EXTICR##LINE##_EXTI##PIN##_Pos); \
-	/* Встановлення маски переривання */                                                             \
+	/* Встановлення маски переривання */                                                             							 \
 	SET_BIT(EXTI->IMR, EXTI_IMR_IM##PIN);                                                                                        \
-	/* Встановлення тригера на спадаючий фронт */                                             \
+	/* Встановлення тригера на спадаючий фронт */                                             									 \
 	SET_BIT(EXTI->FTSR, EXTI_FTSR_FT##PIN);
 
 #define BUTTON_PRESSED(PIN, PORT) (PORT->IDR & GPIO_IDR_ID##PIN)
 
+#define SYSCLK 32000000
 #define ENTER 1
 #define EXIT 0
 
@@ -56,11 +63,6 @@
 // Макроси для керування enable
 #define pinEN_ON() SET_BIT(GPIOC->BSRR, GPIO_BSRR_BS_15)
 #define pinEN_OFF() SET_BIT(GPIOC->BSRR, GPIO_BSRR_BR_15)
-
-#define SYSCLK 32000000
-#define bool uint8_t
-#define true 1
-#define false 0
 
 // Змінні для збереження часу натискання для кожної кнопки
 uint16_t timeIncrementButtonDown = 0;
@@ -148,7 +150,7 @@ struct strMenu
  *26 		P_4.2	Menu_Night_Mode_delay
  *27 	P__5		Menu_Parametrs
  *28 		P_5.0	debounceTime
- *29 		P_5.2	timeButtonLongPressed
+ *29 		P_5.1	timeButtonLongPressed
  *30 	P__6		Clock(StartWork)
  */
 struct strMenu menu[] = {
@@ -156,18 +158,18 @@ struct strMenu menu[] = {
 	{0, -1, false, "PPPP", 0, 0, 0},
 	//-----------------------------------------------------------------------
 	{1, 0, false,"P_0_", 0, 0, 0},
-	{2, 1, true, "P_00", 5, 0, 24},
-	{3, 1, true, "P_01", 30, 0, 59},
+	{2, 1, true, "P_00", 17, 0, 24},
+	{3, 1, true, "P_01", 36, 0, 59},
 	{4, 1, true, "P_02", 0, 0, 59},
 	{5, 1, true, "P_03", 1, 1, 31},
-	{6, 1, true, "P_04", 1, 1, 12},
+	{6, 1, true, "P_04", 4, 1, 12},
 	{7, 1, true, "P_05", 0, 0, 231},
 	{8, 1, true, "P_06", 1, 1, 7},
 	{9, 1, false,"P_07", 0, 0, 0},
 	//-----------------------------------------------------------------------
 	{10, 0, false, "P_1_", 0, 0, 0},
-	{11, 10, true, "P_10", 5, 0, 23},
-	{12, 10, true, "P_11", 45, 0, 59},
+	{11, 10, true, "P_10", 6, 0, 23},
+	{12, 10, true, "P_11", 0, 0, 59},
 	//-----------------------------------------------------------------------
 	{13, 0, false, "P_2_", 0, 0, 0},
 	{14, 13, true, "P_20", 15, 0, 231},
@@ -187,7 +189,7 @@ struct strMenu menu[] = {
 	{26, 23, true, "P_42", 5, 0, 231},
 	//-----------------------------------------------------------------------
 	{27, 0, false, "P_5_", 0, 0, 0},
-	{28, 27, true, "P_50", 30, 0, 231},
+	{28, 27, true, "P_50", 55, 0, 231},
 	{29, 27, true, "P_51", 100, 0, 231},
 	//-----------------------------------------------------------------------
 	{30, 0, false, "P_6_", 0, 0, 0}
@@ -218,7 +220,7 @@ void TIM21_IRQHandler(void);
 /*----------------------------------------------------------------------------*/
 void EnterLowPowerMode(uint8_t status);
 void Delay_ms(uint16_t Milliseconds);
-double pow224(double i);
+double pow2_24(double c);
 uint16_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max);
 /*----------------------------------------------------------------------------*/
 void pwmFP7103();
@@ -237,7 +239,6 @@ uint8_t getMenuIndexByID(int8_t id);
 uint8_t getNearMenuIndexByID(int8_t parentid, int8_t id, int8_t side);
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
 int main(void)
 {
 	CMSIS_FullInit(); // 1ms
@@ -248,19 +249,21 @@ int main(void)
 	TIM2_Init();
 	TIM21_Init();
 
-	writeCHARSEG(' ', ' ');
+	LEDl1l2_OFF();
+	LEDalarm_OFF();
 	pinEN_OFF();
+	writeCHARSEG(' ', ' ');
+
+
 	tmpValue = setActualMenu(0, 0);
 	while (1)
 	{
 		vmenu = 0; // Скидання вертикального флагу після обробки
 		hmenu = 0; // Скидання горизонтального флагу після обробки
 
-
 		LEDl1l2_OFF();
 		LEDalarm_OFF();
 		pinEN_OFF();
-
 
 		interaptTIMDebounce();
 
@@ -439,8 +442,11 @@ void RTC_Init(void)
 	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN);
 	SET_BIT(PWR->CR, PWR_CR_DBP);
 
-	// 2. Enable LSE Oscillator
-	SET_BIT(RCC->CSR, RCC_CSR_LSEON);
+	 // 2. Configure LSE in bypass mode
+	    CLEAR_BIT(RCC->CSR, RCC_CSR_LSEON);       // Ensure LSE is off
+	    SET_BIT(RCC->CSR, RCC_CSR_LSEBYP);        // Enable LSE bypass (external clock)
+	    SET_BIT(RCC->CSR, RCC_CSR_LSEON);         // Enable LSE oscillator
+
 	while (!(READ_BIT(RCC->CSR, RCC_CSR_LSERDY)))
 	{
 	}
@@ -488,7 +494,6 @@ void RTC_Init(void)
 
 void TIM2_Init(void)
 {
-
 	// Увімкнення тактування GPIOA (для PA15, як PWM вихід)
 	RCC->IOPENR |= RCC_IOPENR_IOPAEN;
 	// Настроить пин 15 на режим альтернативной функции
@@ -668,16 +673,31 @@ void Delay_ms(uint16_t Miliseconds)
 	}
 }
 
-// double pow224(int i) {
-// 	return 0.00000000020754957593*i*i*i + 0.00000084626309852429*i*i - 0.00005473036906744611*i + 0.00203250994804093921;
-// }
-
-double pow224(double b) {
-    union { double d; long long i; } u = { b };
-    u.i = (long long)(4606853616395542500L + 2.24 * (u.i - 4606853616395542500L));
-    return u.d;
+double pow2_24(double b) { //FastMagicPOW
+    union { double d; long long i; } u = { 1000000 * b };
+    u.i = (long long)(2.24 * u.i - 5712498484330472700L);
+    return 3.64182e-14 * u.d + 3.68723e-8 * b + 3.97089e-13;
 }
 
+//double pow2_24(double c) {
+//	    double c_6 = c * c;
+//	    c_6 *= c_6 * c_6;
+//
+//	    union { double d; long long i; } u = { 1000000 * c };
+//	    u.i = (long long)(3501208748460612300L + 0.24 * u.i);
+//
+//	    double x = 0.0363 * u.d + 2e-5;
+//	    for (int i = 0; i < 5; i++) {
+//	        double x_24 = x * x;
+//	        x_24 *= x_24;
+//	        x_24 *= x_24;
+//	        x_24 *= x_24 * x_24;
+//
+//	        x = x + 0.04 * (c_6 / x_24 - x);
+//	    }
+//
+//	    return c * c * x;
+//	}
 
 char intToChar(uint8_t num)
 {
@@ -915,7 +935,7 @@ void pwmFP7103()
 			// *15 		P_2.1	ɣ_Coefient_Rising
 			pinEN_ON();
 			SET_BIT(TIM21->CR1, TIM_CR1_CEN); // Запуск таймера
-			TIM21->CCR1 = (uint16_t)((TIM21->ARR + 1)*pow224(map(((double)timeNow /timeWakeUp),
+			TIM21->CCR1 = (uint16_t)((TIM21->ARR + 1)*pow2_24(map(((double)timeNow /timeWakeUp),
 					(uint16_t)(((double)(timeWakeUp - menu[14].value * 60) /timeWakeUp)),
 					1,
 					0,
@@ -937,18 +957,27 @@ void pwmFP7103()
 }
 
 void testMainLamp(void){
+	writeCHARSEG(' ', 0);
+	writeCHARSEG(' ', 1);
+	writeCHARSEG(' ', 2);
+	writeCHARSEG(' ', 3);
 	pinEN_ON();
 	SET_BIT(TIM21->CR1, TIM_CR1_CEN); // Запуск таймера
+
+
 	// *15 		P_2.2	ɣ_Coefient_Rising
 	while(SysTimer_ms % 10000 != 9999){
-		if (SysTimer_ms % 10000 < 1000)	TIM21->CCR1 = 0;
-		if (SysTimer_ms % 10000 < 3000)	TIM21->CCR1 = 3000;
-		if (SysTimer_ms % 10000 < 6000)	TIM21->CCR1 = 6000;
-		if (SysTimer_ms % 10000 < 9000)	TIM21->CCR1 = 9000;
+		(SysTimer_ms % 2000 < 1000)?LEDl1l2_ON():LEDl1l2_OFF();
+		if (SysTimer_ms % 10000 < 1000)		TIM21->CCR1 = 0;
+		if (SysTimer_ms % 10000 == 3000)	TIM21->CCR1 = 3000;
+		if (SysTimer_ms % 10000 == 6000)	TIM21->CCR1 = 6000;
+		if (SysTimer_ms % 10000 == 9000)	TIM21->CCR1 = 9000;
 	}
-	TIM21->CCR1 = 0;
+
+
 	pinEN_OFF();
 	CLEAR_BIT(TIM21->CR1, TIM_CR1_CEN); // Зупинення таймера
+	TIM21->CCR1 = 0;
 }
 
 uint8_t hoursDecimal(){
@@ -957,6 +986,7 @@ uint8_t hoursDecimal(){
     // Convert BCD to decimal
     return ((hoursBCD >> 4) & 0xF) * 10 + (hoursBCD & 0xF);
 }
+
 
 uint8_t minutesDecimal(){
     // Extract MNT (minute tens) and MNU (minute units) fields from the TR register in BCD format
@@ -975,7 +1005,6 @@ uint8_t secondsDecimal(){
 uint8_t Clock()
 {
 	uint8_t i = 0;
-	uint8_t j = 0;
 	interaptTIMDebounce();
 
 	tmpClock[0] = intToChar(hoursDecimal()/10);
@@ -983,8 +1012,6 @@ uint8_t Clock()
 		i = 1;
 	tmpClock[1] = intToChar(hoursDecimal()%10);
 	tmpClock[2] = intToChar(minutesDecimal()/10);
-	if (tmpClock[2] == '0')
-		j = 1;
 	tmpClock[3] = intToChar(minutesDecimal()%10);
 
 	if (flagDecrementButton || flagEnterButton || flagIncrementButton) switchONDisplay = true;
@@ -999,7 +1026,7 @@ uint8_t Clock()
 			writeCHARSEG(tmpClock[0], 0);
 		if (SysTimer_ms % 4 == 1)
 			writeCHARSEG(tmpClock[1], 1);
-		if (SysTimer_ms % 4 == 2 && j == 0)
+		if (SysTimer_ms % 4 == 2)
 			writeCHARSEG(tmpClock[2], 2);
 		if (SysTimer_ms % 4 == 3)
 			writeCHARSEG(tmpClock[3], 3);
@@ -1010,6 +1037,7 @@ uint8_t Clock()
 	}
 	return (flagEnterButtonLong) ? 0 : 1;
 }
+
 
 void setTimeNow()
 {
@@ -1222,6 +1250,8 @@ if (((SysTimer_ms - EnterButtonDebounce) > menu[28].value) && (READ_BIT(EXTI->IM
 	SET_BIT(EXTI->IMR, EXTI_IMR_IM1);
 if (((SysTimer_ms - IncrementButtonDebounce) > menu[28].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM2) == 0))
 	SET_BIT(EXTI->IMR, EXTI_IMR_IM2);
+if ((flagDecrementButtonDown == 0) && (flagEnterButtonDown == 0) && (flagIncrementButtonDown == 0) && SysTimer_ms % 10000 == 9999)
+	SysTimer_ms = 0;
 }
 
 /* Handlers--------------------------------------------------------*/
@@ -1355,12 +1385,6 @@ void EXTI2_3_IRQHandler(void)
 	}
 }
 
-/*
- *
- *Проверить сигнал пвр
- *
- */
-
 void EXTI4_15_IRQHandler(void)
 {
 	// Перевіряємо, чи було переривання від лінії EXTI9
@@ -1399,25 +1423,13 @@ void EXTI4_15_IRQHandler(void)
 
 void TIM2_IRQHandler(void)
 {
-
-	if (READ_BIT(TIM2->SR, TIM_SR_UIF))
-	{
-		//		CounterTIM2++;
-		CLEAR_BIT(TIM2->SR, TIM_SR_UIF); // Сбросим флаг прерывания
-	}
-
-
+	if (READ_BIT(TIM2->SR, TIM_SR_UIF)) CLEAR_BIT(TIM2->SR, TIM_SR_UIF); // Сбросим флаг прерывания
 }
 
 void TIM21_IRQHandler(void)
 {
-	if (READ_BIT(TIM21->SR, TIM_SR_UIF))
-	{
-		//		CounterTIM2++;
-		CLEAR_BIT(TIM21->SR, TIM_SR_UIF); // Сбросим флаг прерывания
-	}
+	if (READ_BIT(TIM21->SR, TIM_SR_UIF)) CLEAR_BIT(TIM21->SR, TIM_SR_UIF); // Сбросим флаг прерывания
 }
-
 
 void Error_Handler(void)
 {

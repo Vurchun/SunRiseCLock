@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (12.3.rel1)
+# Toolchain: GNU Tools for STM32 (13.3.rel1)
 ################################################################################
 
 -include ../makefile.init
@@ -65,8 +65,8 @@ all: main-build
 main-build: CMSIS_SunRiseClock.elf secondary-outputs
 
 # Tool invocations
-CMSIS_SunRiseClock.elf CMSIS_SunRiseClock.map: $(OBJS) $(USER_OBJS) E:\Arduino\Ajax\budylnyk-svitanok-by-kalichak-yurii\budylnyk-svitanok-by-kalichak-yurii\STM32L010K4TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "CMSIS_SunRiseClock.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"E:\Arduino\Ajax\budylnyk-svitanok-by-kalichak-yurii\budylnyk-svitanok-by-kalichak-yurii\STM32L010K4TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CMSIS_SunRiseClock.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+CMSIS_SunRiseClock.elf CMSIS_SunRiseClock.map: $(OBJS) $(USER_OBJS) C:\Users\kalichak.y\Documents\budylnyk-svitanok-by-kalichak-yurii\STM32L010K4TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "CMSIS_SunRiseClock.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\kalichak.y\Documents\budylnyk-svitanok-by-kalichak-yurii\STM32L010K4TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CMSIS_SunRiseClock.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

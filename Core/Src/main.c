@@ -3,7 +3,9 @@
 #define bool uint8_t // Визначення типу bool як uint8_t.
 #define true 1       // Визначення значення true як 1.
 #define false 0      // Визначення значення false як 0.
-
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
 // Макрос для налаштування GPIO
 #define CONFIGURE_GPIO(PORT, PIN, MODE, TYPE, SPEED)                                         \
     MODIFY_REG(PORT->MODER, GPIO_MODER_MODE##PIN##_Msk, MODE << GPIO_MODER_MODE##PIN##_Pos); \
@@ -18,6 +20,14 @@
     SET_BIT(EXTI->IMR, EXTI_IMR_IM##PIN);                                                                                        \
     /* Встановлення тригера на спадаючий фронт */                                             \
     SET_BIT(EXTI->FTSR, EXTI_FTSR_FT##PIN);
+
+#define ENABLE_BUTTON_INTERRUPT(DEBOUNCE_TIME, EXTI_IMR_BIT) \
+    do { \
+        if (((SysTimer_ms - (DEBOUNCE_TIME)) > menu[28].value) && (READ_BIT(EXTI->IMR, (EXTI_IMR_BIT)) == 0)) { \
+            SET_BIT(EXTI->IMR, (EXTI_IMR_BIT)); \
+        } \
+    } while (0)
+
 
 #define BUTTON_PRESSED(PIN, PORT) (PORT->IDR & GPIO_IDR_ID##PIN) // Макрос для перевірки натискання кнопки.
 
@@ -89,13 +99,7 @@ bool flagIncrementButtonLong = false; // Прапор довгого натис�
 bool flagDecrementButtonLong = false; // Прапор довгого натискання кнопки зменшення.
 bool flagEnterButtonLong = false;     // Прапор довгого натискання кнопки введення.
 
-bool switchONDisplay = false;    // Прапор вмикання дисплея.
-bool lowpowerModeStatus = false; // Прапор режиму низького енергоспоживання.
-
-#define menuArraySize 31 // Встановлюємо розмір масиву меню.
-uint8_t actualIndex = 0; // Поточний індекс меню.
-
-bool switchONDisplay = false;    // Прапор вмикання дисплея.
+bool switcHONDisplay = false;    // Прапор вмикання дисплея.
 bool lowpowerModeStatus = false; // Прапор режиму низького енергоспоживання.
 
 #define menuArraySize 31      // Встановлюємо розмір масиву меню.
@@ -110,9 +114,6 @@ uint32_t timeNow = 0;                   // Поточний час.
 
 char tmpV[4] = {};     // Тимчасовий масив для значень.
 char tmpClock[4] = {}; // Тимчасовий масив для годинника.
-int8_t vmenu = 0;      // Змінна, що зберігає дію по вертикалі (1 - вхід в меню, -1 - вихід з меню).
-int8_t hmenu = 0;      // Змінна, що зберігає дію по горизонталі (1 - вправо, -1 - вліво).
-char *tmpValue;        // Вказівник на тимчасове значення.
 
 struct strMenu // Структура меню.
 {
@@ -242,13 +243,17 @@ int main(void)
 
     GPIO_Init();  // Ініціалізація GPIO.
     RTC_Init();   // Ініціалізація реального часу (RTC).
-    TIM2_Init();  // Ініціалізація таймера TIM2.
+//    TIM2_Init();  // Ініціалізація таймера TIM2.
     TIM21_Init(); // Ініціалізація таймера TIM21.
 
     LEDl1l2_OFF();          // Вимкнення індикатора l1l2.
     LEDalarm_OFF();         // Вимкнення індикатора тривоги.
     pinEN_OFF();            // Вимкнення enable піну.
     writeCHARSEG(' ', ' '); // Очищення сегментів дисплея.
+
+    int8_t vmenu = 0;      // Змінна, що зберігає дію по вертикалі (1 - вхід в меню, -1 - вихід з меню).
+    int8_t hmenu = 0;      // Змінна, що зберігає дію по горизонталі (1 - вправо, -1 - вліво).
+    char *tmpValue = (char *)malloc(5);        // Вказівник на тимчасове значення.
 
     tmpValue = setActualMenu(0, 0); // Встановлення початкового меню.
     while (1)
@@ -293,9 +298,17 @@ int main(void)
             flagEnterButtonLong = false; // Скидання флагу.
         }
 
-        if (vmenu != 0 || hmenu != 0)
-        {
-            tmpValue = setActualMenu(vmenu, hmenu); // Оновлення меню, якщо було натискання.
+        if (vmenu != 0 || hmenu != 0) {
+            if (tmpValue != NULL) {
+                free(tmpValue);
+                tmpValue = NULL;
+            }
+
+            tmpValue = setActualMenu(vmenu, hmenu);
+            if (tmpValue == NULL) {
+                //printf("Memory allocation failed!\n");
+                return 1;
+            }
         }
 
         // Оновлення дисплея з інтервалом 4 мс.
@@ -307,7 +320,9 @@ int main(void)
             writeCHARSEG(tmpValue[2], 2); // Запис символу на сегмент 2.
         if (SysTimer_ms % 4 == 3)
             writeCHARSEG(tmpValue[3], 3); // Запис символу на сегмент 3.
-    }
+        free(tmpValue);
+        tmpValue = NULL;
+        }
     return 0; // Завершення функції main.
 }
 
@@ -460,7 +475,7 @@ void RTC_Init(void)
     RTC->WPR = 0xFE; // Ключ захисту запису 1
     RTC->WPR = 0x64; // Ключ захисту запису 2
 }
-
+/*
 void TIM2_Init(void)
 {
     // Увімкнення тактування GPIOA (для PA15, як PWM вихід)
@@ -506,7 +521,7 @@ void TIM2_Init(void)
 
     CLEAR_BIT(TIM2->CR1, TIM_CR1_CEN); // Вимкнення таймера TIM2
 }
-
+*/
 void TIM21_Init(void)
 {
     // Увімкнення тактування GPIOB (для PB5, як PWM вихід)
@@ -649,32 +664,38 @@ double pow2_24(double b)
     // Приблизне обчислення 2.24 за допомогою ряду трансформацій
 }
 
-// double pow2_24(double c) {
-//     double c_6 = c * c;
-//     c_6 *= c_6 * c_6;
-//     // Обчислення c^6
+/*double pow2_24(double c) {
+    double c_6 = c * c;
+    c_6 *= c_6 * c_6;
+    // Обчислення c^6
 
-//     union { double d; long long i; } u = { 1000000 * c };
-//     u.i = (long long)(3501208748460612300L + 0.24 * u.i);
-//     // Використання union для точнішого обчислення
+    union { double d; long long i; } u = { 1000000 * c };
+    u.i = (long long)(3501208748460612300L + 0.24 * u.i);
+    // Використання union для точнішого обчислення
 
-//     double x = 0.0363 * u.d + 2e-5;
-//     // Початкове значення x
+    double x = 0.0363 * u.d + 2e-5;
+    // Початкове значення x
 
-//     for (int i = 0; i < 5; i++) {
-//         double x_24 = x * x;
-//         x_24 *= x_24;
-//         x_24 *= x_24;
-//         x_24 *= x_24 * x_24;
-//         // Обчислення x^24
+    for (int i = 0; i < 5; i++) {
+        double x_24 = x * x;
+        x_24 *= x_24;
+        x_24 *= x_24;
+        x_24 *= x_24 * x_24;
+        // Обчислення x^24
 
-//         x = x + 0.04 * (c_6 / x_24 - x);
-//         // Оновлення значення x
-//     }
+        x = x + 0.04 * (c_6 / x_24 - x);
+        // Оновлення значення x
+    }
 
-//     return c * c * x;
-//     // Повертає кінцеве значення
-// }
+    return c * c * x;
+    // Повертає кінцеве значення
+}*/
+
+// Функція для мапування значень
+uint16_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max) {
+    // Виконуємо лінійне перетворення з одного діапазону в інший
+    return (uint16_t)(((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min);
+}
 
 char intToChar(uint8_t num)
 {
@@ -708,81 +729,83 @@ char intToChar(uint8_t num)
 
 void writeCHARSEG(char CHAR, uint8_t seg)
 {
+    LEDD1_OFF();
+    LEDD2_OFF();
+    LEDD3_OFF();
+    LEDD4_OFF();
+
     switch (seg)
     {
     case 0:
         LEDD1_ON();
-        LEDD2_OFF();
-        LEDD3_OFF();
-        LEDD4_OFF();
         break;
     case 1:
-        LEDD1_OFF();
         LEDD2_ON();
-        LEDD3_OFF();
-        LEDD4_OFF();
         break;
     case 2:
-        LEDD1_OFF();
-        LEDD2_OFF();
         LEDD3_ON();
-        LEDD4_OFF();
         break;
     case 3:
-        LEDD1_OFF();
-        LEDD2_OFF();
-        LEDD3_OFF();
         LEDD4_ON();
         break;
     default:
-        LEDD1_OFF();
-        LEDD2_OFF();
-        LEDD3_OFF();
-        LEDD4_OFF();
+//        LEDD1_OFF();
+//        LEDD2_OFF();
+//        LEDD3_OFF();
+//        LEDD4_OFF();
         break;
     }
     // Вмикає відповідний сегмент
+
+    LEDa_OFF();
+    LEDb_OFF();
+    LEDc_OFF();
+    LEDd_OFF();
+    LEDe_OFF();
+    LEDf_OFF();
+    LEDg_OFF();
+    LEDdp_OFF();
 
     switch (CHAR)
     {
     case 'P':
         LEDa_ON();
         LEDb_ON();
-        LEDc_OFF();
-        LEDd_OFF();
+//        LEDc_OFF();
+//        LEDd_OFF();
         LEDe_ON();
         LEDf_ON();
         LEDg_ON();
-        LEDdp_OFF();
+//        LEDdp_OFF();
         break;
     case '_':
-        LEDa_OFF();
-        LEDb_OFF();
-        LEDc_OFF();
+//        LEDa_OFF();
+//        LEDb_OFF();
+//        LEDc_OFF();
         LEDd_ON();
-        LEDe_OFF();
-        LEDf_OFF();
-        LEDg_OFF();
-        LEDdp_OFF();
+//        LEDe_OFF();
+//        LEDf_OFF();
+//        LEDg_OFF();
+//        LEDdp_OFF();
         break;
     case '.':
-        LEDa_OFF();
-        LEDb_OFF();
-        LEDc_OFF();
-        LEDd_OFF();
-        LEDe_OFF();
-        LEDf_OFF();
-        LEDg_OFF();
+//        LEDa_OFF();
+//        LEDb_OFF();
+//        LEDc_OFF();
+//        LEDd_OFF();
+//        LEDe_OFF();
+//        LEDf_OFF();
+//        LEDg_OFF();
         LEDdp_ON();
         break;
     case '?':
         LEDa_ON();
         LEDb_ON();
-        LEDc_OFF();
-        LEDd_OFF();
+//        LEDc_OFF();
+//        LEDd_OFF();
         LEDe_ON();
         LEDf_ON();
-        LEDg_OFF();
+//        LEDg_OFF();
         LEDdp_ON();
         break;
     case '0':
@@ -792,78 +815,78 @@ void writeCHARSEG(char CHAR, uint8_t seg)
         LEDd_ON();
         LEDe_ON();
         LEDf_ON();
-        LEDg_OFF();
-        LEDdp_OFF();
+//        LEDg_OFF();
+//        LEDdp_OFF();
         break;
     case '1':
-        LEDa_OFF();
+//        LEDa_OFF();
         LEDb_ON();
         LEDc_ON();
-        LEDd_OFF();
-        LEDe_OFF();
-        LEDf_OFF();
-        LEDg_OFF();
-        LEDdp_OFF();
+//        LEDd_OFF();
+//        LEDe_OFF();
+//        LEDf_OFF();
+//        LEDg_OFF();
+//        LEDdp_OFF();
         break;
     case '2':
         LEDa_ON();
         LEDb_ON();
-        LEDc_OFF();
+//        LEDc_OFF();
         LEDd_ON();
         LEDe_ON();
-        LEDf_OFF();
+//        LEDf_OFF();
         LEDg_ON();
-        LEDdp_OFF();
+//        LEDdp_OFF();
         break;
     case '3':
         LEDa_ON();
         LEDb_ON();
         LEDc_ON();
         LEDd_ON();
-        LEDe_OFF();
-        LEDf_OFF();
+//        LEDe_OFF();
+//        LEDf_OFF();
         LEDg_ON();
-        LEDdp_OFF();
+//        LEDdp_OFF();
         break;
     case '4':
-        LEDa_OFF();
+//        LEDa_OFF();
         LEDb_ON();
         LEDc_ON();
-        LEDd_OFF();
-        LEDe_OFF();
+//        LEDd_OFF();
+//        LEDe_OFF();
         LEDf_ON();
         LEDg_ON();
-        LEDdp_OFF();
+//        LEDdp_OFF();
         break;
     case '5':
         LEDa_ON();
-        LEDb_OFF();
+//        LEDb_OFF();
         LEDc_ON();
         LEDd_ON();
-        LEDe_OFF();
+//        LEDe_OFF();
         LEDf_ON();
         LEDg_ON();
-        LEDdp_OFF();
+//        LEDdp_OFF();
         break;
     case '6':
         LEDa_ON();
-        LEDb_OFF();
+//        LEDb_OFF();
         LEDc_ON();
         LEDd_ON();
         LEDe_ON();
         LEDf_ON();
         LEDg_ON();
-        LEDdp_OFF();
+//        LEDdp_OFF();
         break;
     case '7':
         LEDa_ON();
         LEDb_ON();
         LEDc_ON();
-        LEDd_OFF();
-        LEDe_OFF();
-        LEDf_OFF();
-        LEDg_OFF();
-        LEDdp_OFF();
+//        LEDd_OFF();
+//        LEDe_OFF();
+//        LEDf_OFF();
+//        LEDg_OFF();
+//        LEDdp_OFF();
         break;
     case '8':
         LEDa_ON();
@@ -873,36 +896,30 @@ void writeCHARSEG(char CHAR, uint8_t seg)
         LEDe_ON();
         LEDf_ON();
         LEDg_ON();
-        LEDdp_OFF();
+//        LEDdp_OFF();
         break;
     case '9':
         LEDa_ON();
         LEDb_ON();
         LEDc_ON();
         LEDd_ON();
-        LEDe_OFF();
+//        LEDe_OFF();
         LEDf_ON();
         LEDg_ON();
-        LEDdp_OFF();
+//        LEDdp_OFF();
         break;
     default:
-        LEDa_OFF();
-        LEDb_OFF();
-        LEDc_OFF();
-        LEDd_OFF();
-        LEDe_OFF();
-        LEDf_OFF();
-        LEDg_OFF();
-        LEDdp_OFF();
+//        LEDa_OFF();
+//        LEDb_OFF();
+//        LEDc_OFF();
+//        LEDd_OFF();
+//        LEDe_OFF();
+//        LEDf_OFF();
+//        LEDg_OFF();
+//        LEDdp_OFF();
         break;
     }
     // Вмикає світлодіоди для відповідного символу
-}
-
-uint16_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max)
-{
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-    // Масштабування значення x з одного діапазону на інший
 }
 
 void pwmFP7103()
@@ -940,25 +957,24 @@ void pwmFP7103()
 
 void testMainLamp(void)
 {
-    writeCHARSEG(' ', 0);
-    writeCHARSEG(' ', 1);
-    writeCHARSEG(' ', 2);
-    writeCHARSEG(' ', 3);
+    for(int i = 0; i<4; i++){
+    writeCHARSEG(' ', i);
+    }
     pinEN_ON();
     SET_BIT(TIM21->CR1, TIM_CR1_CEN); // Запуск таймера
 
     // *15 P_2.2 ɣ_Coefient_Rising
-    while (SysTimer_ms % 10000 != 9999)
+    while (SysTimer_ms % 6000 != 5999)
     {
-        (SysTimer_ms % 2000 < 1000) ? LEDl1l2_ON() : LEDl1l2_OFF();
-        if (SysTimer_ms % 10000 < 1000)
+        (SysTimer_ms % 1000 < 500) ? LEDl1l2_ON() : LEDl1l2_OFF();
+        if (SysTimer_ms % 5000 < 1000)
             TIM21->CCR1 = 0;
-        if (SysTimer_ms % 10000 == 3000)
-            TIM21->CCR1 = 3000;
-        if (SysTimer_ms % 10000 == 6000)
+        if (SysTimer_ms % 6000 == 1500)
+            TIM21->CCR1 = 1000;
+        if (SysTimer_ms % 6000 == 3000)
+            TIM21->CCR1 = 4000;
+        if (SysTimer_ms % 6000 == 4500)
             TIM21->CCR1 = 6000;
-        if (SysTimer_ms % 10000 == 9000)
-            TIM21->CCR1 = 9000;
     }
     // Тестування основної лампи з різними значеннями CCR1 таймера
 
@@ -1007,10 +1023,10 @@ uint8_t Clock()
     tmpClock[3] = intToChar(minutesDecimal() % 10);
 
     if (flagDecrementButton || flagEnterButton || flagIncrementButton)
-        switchONDisplay = true;
-    if (SysTimer_ms % menu[24].value == menu[26].value - 1)
-        switchONDisplay = false;
-    if ((hoursDecimal() > 5 && hoursDecimal() < 22) || switchONDisplay || menu[24].value == 0)
+        switcHONDisplay = true;
+    if (SysTimer_ms % menu[26].value == menu[26].value - 1)
+        switcHONDisplay = false;
+    if (((hoursDecimal() > 5) && (hoursDecimal() < 22)) || switcHONDisplay || menu[25].value == 0)
     {
         (menu[18].value == 1) ? LEDalarm_ON() : LEDalarm_OFF();
 
@@ -1124,14 +1140,14 @@ char *setActualMenu(int8_t v, int8_t h)
                     case 16: // *16 P_2.2 Test lamp
                         testMainLamp();
                         break;
-                    case 22:                             // *22 P_3.4 Alarm_Melody_test
-                        SET_BIT(TIM2->CR1, TIM_CR1_CEN); // Запуск таймера
-                        while (!(SysTimer_ms % 10000 == 9999))
-                        {
-                            StartMusic(menu[21].value); // *21 P_3.3 Alarm_Melody
-                        }
-                        CLEAR_BIT(TIM2->CR1, TIM_CR1_CEN); // Зупинка таймера
-                        break;
+//                    case 22:                             // *22 P_3.4 Alarm_Melody_test
+//                        SET_BIT(TIM2->CR1, TIM_CR1_CEN); // Запуск таймера
+//                        while (!(SysTimer_ms % 10000 == 9999))
+//                        {
+//                            StartMusic(menu[21].value); // *21 P_3.3 Alarm_Melody
+//                        }
+//                        CLEAR_BIT(TIM2->CR1, TIM_CR1_CEN); // Зупинка таймера
+//                        break;
                     case 30:
                         while (Clock())
                             ; // *29 P__6 Clock(StartWork)
@@ -1239,36 +1255,22 @@ uint8_t getNearMenuIndexByID(int8_t parentid, int8_t id, int8_t side)
         return nextID;
     return -1;
 }
-
+/*
 void StartMusic(uint16_t melody)
 {
     TIM21->ARR = 99;
     TIM21->CCR1 = 49;
     // Налаштування таймера для відтворення музики
 }
-
+*/
 void interaptTIMDebounce(void)
 {
     // Обробка дебаунсу для кнопок
 
     // *26 P_5.1 debounceTime
-    if (((SysTimer_ms - DecrementButtonDebounce) > menu[28].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM0) == 0))
-    {
-        SET_BIT(EXTI->IMR, EXTI_IMR_IM0);
-        // Перевіряємо, чи минув час дебаунсу для кнопки Decrement і чи переривання не увімкнено, якщо так - увімкнемо переривання
-    }
-
-    if (((SysTimer_ms - EnterButtonDebounce) > menu[28].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM1) == 0))
-    {
-        SET_BIT(EXTI->IMR, EXTI_IMR_IM1);
-        // Перевіряємо, чи минув час дебаунсу для кнопки Enter і чи переривання не увімкнено, якщо так - увімкнемо переривання
-    }
-
-    if (((SysTimer_ms - IncrementButtonDebounce) > menu[28].value) && (READ_BIT(EXTI->IMR, EXTI_IMR_IM2) == 0))
-    {
-        SET_BIT(EXTI->IMR, EXTI_IMR_IM2);
-        // Перевіряємо, чи минув час дебаунсу для кнопки Increment і чи переривання не увімкнено, якщо так - увімкнемо переривання
-    }
+	ENABLE_BUTTON_INTERRUPT(DecrementButtonDebounce, EXTI_IMR_IM0);
+	ENABLE_BUTTON_INTERRUPT(EnterButtonDebounce, EXTI_IMR_IM1);
+	ENABLE_BUTTON_INTERRUPT(IncrementButtonDebounce, EXTI_IMR_IM2);
 
     if ((flagDecrementButtonDown == 0) && (flagEnterButtonDown == 0) && (flagIncrementButtonDown == 0) && SysTimer_ms % 10000 == 9999)
     {
@@ -1484,7 +1486,7 @@ void EXTI4_15_IRQHandler(void)
         EXTI->IMR |= EXTI_IMR_IM9;
     }
 }
-
+/*
 void TIM2_IRQHandler(void)
 {
     // Обробник переривань для таймера 2
@@ -1492,7 +1494,7 @@ void TIM2_IRQHandler(void)
         CLEAR_BIT(TIM2->SR, TIM_SR_UIF);
     // Якщо встановлений прапорець переривання, скидаємо його
 }
-
+*/
 void TIM21_IRQHandler(void)
 {
     // Обробник переривань для таймера 21

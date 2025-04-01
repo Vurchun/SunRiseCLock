@@ -1,11 +1,10 @@
 #include "main.h" // Включення основного заголовного файлу проекту.
+#include <stdlib.h>
 
 #define bool uint8_t // Визначення типу bool як uint8_t.
 #define true 1       // Визначення значення true як 1.
 #define false 0      // Визначення значення false як 0.
-#ifndef NULL
-#define NULL ((void*)0)
-#endif
+
 // Макрос для налаштування GPIO
 #define CONFIGURE_GPIO(PORT, PIN, MODE, TYPE, SPEED)                                         \
     MODIFY_REG(PORT->MODER, GPIO_MODER_MODE##PIN##_Msk, MODE << GPIO_MODER_MODE##PIN##_Pos); \
@@ -971,14 +970,10 @@ void testMainLamp(void)
     while (SysTimer_ms % 6000 != 5999)
     {
         (SysTimer_ms % 1000 < 500) ? LEDl1l2_ON() : LEDl1l2_OFF();
-        if (SysTimer_ms % 5000 < 1000)
-            TIM21->CCR1 = 0;
         if (SysTimer_ms % 6000 == 1500)
             TIM21->CCR1 = 1000;
         if (SysTimer_ms % 6000 == 3000)
             TIM21->CCR1 = 4000;
-        if (SysTimer_ms % 6000 == 4500)
-            TIM21->CCR1 = 6000;
     }
     // Тестування основної лампи з різними значеннями CCR1 таймера
 

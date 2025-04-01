@@ -1010,6 +1010,41 @@ uint8_t secondsDecimal()
     // Перетворює BCD у десятковий формат
 }
 
+uint8_t yearDecimal()
+{
+    uint8_t yearBCD = (READ_BIT(RTC->DR, RTC_DR_YT | RTC_DR_YU) >> RTC_DR_YU_Pos) & 0xFF;
+    return ((yearBCD >> 4) & 0xF) * 10 + (yearBCD & 0xF);  // Перетворення з BCD у десятковий формат
+}
+
+uint8_t monthDecimal()
+{
+    uint8_t monthBCD = (READ_BIT(RTC->DR, RTC_DR_MT | RTC_DR_MU) >> RTC_DR_MU_Pos) & 0xFF;
+    return ((monthBCD >> 4) & 0xF) * 10 + (monthBCD & 0xF);  // Перетворення з BCD у десятковий формат
+}
+
+uint8_t dayDecimal()
+{
+    uint8_t dayBCD = (READ_BIT(RTC->DR, RTC_DR_DT | RTC_DR_DU) >> RTC_DR_DU_Pos) & 0xFF;
+    return ((dayBCD >> 4) & 0xF) * 10 + (dayBCD & 0xF);  // Перетворення з BCD у десятковий формат
+}
+
+uint8_t weekDayDecimal()
+{
+    return READ_BIT(RTC->DR, RTC_DR_WDU) & 0x07;
+}
+
+void timeMenuUpdate()
+{
+    menu[7].value = hoursDecimal();// Поточна година
+    menu[6].value = minutesDecimal();// Поточна хвилина
+    menu[5].value = secondsDecimal();// Поточна секунда
+
+    menu[7].value = yearDecimal();// Поточний рік
+    menu[6].value = monthDecimal();// Поточний місяць
+    menu[5].value = dayDecimal();// Поточний день
+    menu[8].value = weekDayDecimal();// Поточний день тижня
+}
+
 uint8_t Clock()
 {
     uint8_t i = 0;
@@ -1087,6 +1122,8 @@ void setTimeNow()
 
 char *setActualMenu(int8_t v, int8_t h)
 {
+    if(menu[5].value != secondsDecimal())
+        timeMenuUpdate();
     // Функція для встановлення актуального меню на основі вертикальних (v) і горизонтальних (h) переміщень
 
     if (v != 0)

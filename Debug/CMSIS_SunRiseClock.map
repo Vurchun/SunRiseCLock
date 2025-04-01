@@ -1133,15 +1133,15 @@ LOAD C:/ST/STM32CubeIDE_1.18.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.ext
 LOAD C:/ST/STM32CubeIDE_1.18.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/lib/thumb/v6-m/nofp\libm.a
 LOAD C:/ST/STM32CubeIDE_1.18.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v6-m/nofp\libgcc.a
 
-.debug_info     0x00000000     0x2193
- .debug_info    0x00000000     0x1e5d Core\Src\main.o
- .debug_info    0x00001e5d      0x306 Core\Src\system_stm32l0xx.o
- .debug_info    0x00002163       0x30 Core\Startup\startup_stm32l010k4tx.o
+.debug_info     0x00000000     0x2197
+ .debug_info    0x00000000     0x1e61 Core\Src\main.o
+ .debug_info    0x00001e61      0x306 Core\Src\system_stm32l0xx.o
+ .debug_info    0x00002167       0x30 Core\Startup\startup_stm32l010k4tx.o
 
-.debug_abbrev   0x00000000      0x687
- .debug_abbrev  0x00000000      0x52b Core\Src\main.o
- .debug_abbrev  0x0000052b      0x138 Core\Src\system_stm32l0xx.o
- .debug_abbrev  0x00000663       0x24 Core\Startup\startup_stm32l010k4tx.o
+.debug_abbrev   0x00000000      0x671
+ .debug_abbrev  0x00000000      0x515 Core\Src\main.o
+ .debug_abbrev  0x00000515      0x138 Core\Src\system_stm32l0xx.o
+ .debug_abbrev  0x0000064d       0x24 Core\Startup\startup_stm32l010k4tx.o
 
 .debug_loclists
                 0x00000000      0x95b

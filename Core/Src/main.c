@@ -226,6 +226,10 @@ void testMainLamp(void); // Функція тестування головної
 uint8_t secondsDecimal(); // Функція для отримання секунд у десятковому форматі.
 uint8_t minutesDecimal(); // Функція для отримання хвилин у десятковому форматі.
 uint8_t hoursDecimal();   // Функція для отримання годин у десятковому форматі.
+uint8_t yearDecimal(); // Функція для отримання року у десятковому форматі.
+uint8_t monthDecimal(); // Функція для отримання місяця у десятковому форматі.
+uint8_t dayDecimal();   // Функція для отримання дня у десятковому форматі.
+uint8_t weekDayDecimal();   // Функція для отримання дня тижня у десятковому форматі.
 void setTimeNow();        // Функція для встановлення поточного часу.
 uint8_t Clock();          // Функція для роботи з годинником.
 
@@ -1032,6 +1036,7 @@ uint8_t weekDayDecimal()
 {
     return READ_BIT(RTC->DR, RTC_DR_WDU) & 0x07;
 }
+
 
 void timeMenuUpdate()
 {

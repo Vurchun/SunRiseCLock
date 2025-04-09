@@ -1,5 +1,0 @@
-"./Core/Src/main.o"
-"./Core/Src/syscalls.o"
-"./Core/Src/sysmem.o"
-"./Core/Src/system_stm32l0xx.o"
-"./Core/Startup/startup_stm32l010k4tx.o"
